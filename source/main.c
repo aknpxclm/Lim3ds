@@ -6,14 +6,11 @@
 #include "asd.h"
 
 void ExitApp(){
+//C2D_Fini();
+//C3D_Fini();
+//romfsExit();
 gfxExit();
 }
-
-struct Menu{
-int Location1;
-int CurrentLocation1;
-bool Location1Loaded;
-};
 
 struct Characters{
 double Health;
@@ -27,20 +24,23 @@ int SetSkillbase;
 int SetSkillcoinPow;
 };
 
-struct IsClashing{
+typedef struct IsClashing_Check{
     int SkillClashing;
     int Priority;
     bool IsClashing;
     bool IsUnclashed; //Based on if the enemy is clashing
 
-};
+}ClashParams;
 
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
 consoleInit(GFX_BOTTOM, NULL);
+//romfsInit();
+//C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
+//C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
+//C2D_Prepare();
 hidInit();
 
-struct Menu Menuu = {0, 0, false};
 //placeholder stats till i can read files for values
 struct Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
                                {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
@@ -53,7 +53,7 @@ struct Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},
                               {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
                               {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
 
-struct IsClashing Order[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
+ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 //skill number/order for main boss second array is used to find the index for AtkOrder
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
 
@@ -75,6 +75,8 @@ int SelectlotNum[5] = {0};
 index 1 represents another value 
 index 2 represents a random index of SkillList to swap to*/
 int Swap[3] = {0, 0, 0};
+
+int MenuPostion = 0;
 
 int SinClashNum = 0;
 int EnClashNum = 0;
@@ -102,14 +104,31 @@ while(aptMainLoop()){
     touchPosition touch;
     hidTouchRead(&touch);
 
-    if(Menuu.Location1 != Menuu.CurrentLocation1){
-        consoleClear();
-        EqualiseChecks(Menuu.Location1, Menuu.CurrentLocation1);
-    }
-    if(Menuu.CurrentLocation1 != 0){
-        //Combat select area
-        if (kDown & KEY_L) TurnStart = !TurnStart;
-    if (!TurnStart){
+switch(MenuPostion){ // Playing menu
+        case 0: //Start screen
+        if(kDown & KEY_TOUCH) MenuPostion++;
+        break;
+
+        case 1: //Main menu
+        break;
+        
+        case 2: //Combat select area
+        
+        if(!SkillsRandomlySet){
+            for(int i = 0; i < 5; i++){
+                for(int j = 0; j < 2; j++){
+                    SkillOptions[i][j] = SkillList[Form_or_Select_Random_Skill()];
+                }
+            }
+            SkillsRandomlySet = !SkillsRandomlySet;
+        }
+        if(!SkillOrderSet){
+            for(int k = 0; k < 5; k++){
+                EnSkillOrder[k][0] = SkillList[Form_or_Select_Random_Skill()];
+            }
+            SkillOrderSet = !SkillOrderSet;
+        }
+        if (!TurnStart){
         //(Should Draw / Make menu)
         //This is currently a band-aid solution
         if( Sinner[0].OldHealth != Sinner[0].Health || Enemy[0].OldHealth != Enemy[0].Health){
@@ -125,44 +144,35 @@ while(aptMainLoop()){
         printf("\x1b[20;14HSinner Sanity: %d    Enemy Sanity: %d", Sinner[0].Sanity - 50, Enemy[0].Sanity - 50);
         StatsPrinted = true;
         }
-        if(!SkillsRandomlySet){
-            for(int i = 0; i < 5; i++){
-                for(int j = 0; j < 2; j++){
-                    SkillOptions[i][j] = SkillList[Form_or_Select_Random_Skill()];
-                }
-            }
+        if(SkillsRandomlySet == true && SkillOrderSet == true){
+             if (kDown & KEY_L) TurnStart = !TurnStart;
         }
-        if(!SkillOrderSet){
-            for(int k = 0; k < 5; k++){
-                EnSkillOrder[k][0] = SkillList[Form_or_Select_Random_Skill()];
-            }
-            SkillOrderSet = !SkillOrderSet;
-        }
-    }
-    else{
-    consoleClear();
-    while(TurnStart){ //combat turn loop
 
-        for(int Search = 0; Search < 5; Search++){
-            if(AttackOrder[Search][1] == EnSkillOrder[Search][1]){ //check if clashing
-                Order[Search].IsClashing = true;
-                Order[Search].SkillClashing = Search;
-                SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // flip to true
-                SkillPriorityLevel[AttackOrder[Search][1]] = AttackOrder[Search][1]; //record what skill slot was targeted
-            }
-            else if(SelectSlotAppeared[AttackOrder[Search][1]] == true){
-                Order[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][1]]);
-                if(Order[Search].IsClashing == true){
-                    Order[AttackOrder[Search][1]].IsClashing = false;
+        }
+        else{
+        consoleClear();
+        while(TurnStart){ //combat turn loop
+
+            for(int Search = 0; Search < 5; Search++){
+                if(AttackOrder[Search][1] == EnSkillOrder[Search][1]){ //check if clashing
+                    SkillPosInfo[Search].IsClashing = true;
+                    SkillPosInfo[Search].SkillClashing = Search;
+                    SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // flip to true
+                    SkillPriorityLevel[AttackOrder[Search][1]] = AttackOrder[Search][1]; //record what skill slot was targeted
                 }
-                SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // reset check bool
-            }
-            else if(EnSkillOrder[Search][1] != AttackOrder[0][1] || 
+               else if(SelectSlotAppeared[AttackOrder[Search][1]] == true){
+                   SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][1]]);
+                   if(Order[Search].IsClashing == true){
+                        Order[AttackOrder[Search][1]].IsClashing = false;
+                    }
+                  SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // reset check bool
+              }
+             else if(EnSkillOrder[Search][1] != AttackOrder[0][1] || 
                     EnSkillOrder[Search][1] != AttackOrder[1][1] || 
                     EnSkillOrder[Search][1] != AttackOrder[2][1] || //Awful counter: 2
                     EnSkillOrder[Search][1] != AttackOrder[3][1] || 
                     EnSkillOrder[Search][1] != AttackOrder[4][1]){
-                        Order[Search].IsUnclashed = true;} //check if enemy attacks wil go unopposed
+                        SkillPosInfo[Search].IsUnclashed = true;} //check if enemy attacks wil go unopposed
 
         }
         for(int SinCompleted = 0; SinCompleted < 5; SinCompleted++){
@@ -174,9 +184,11 @@ while(aptMainLoop()){
             Enemy[SinCompleted].Health = Enemy[SinCompleted - 1].Health;
             Enemy[SinCompleted].Sanity = Enemy[SinCompleted - 1].Sanity;
           }
+
           Enemy[SinCompleted].coins = Enemy[SinCompleted].Setcoins;
           Enemy[SinCompleted].Skillbase = Enemy[SinCompleted].SetSkillbase;
           Enemy[SinCompleted].SkillcoinPow = Enemy[SinCompleted].SetSkillcoinPow;
+
             //Holy arguements
             if(Order[SinCompleted].IsClashing == true && Order[SinCompleted].IsUnclashed == false){ //Enemy and sinner clash skills
             ClashingAtk(&Sinner[SinCompleted].Sanity, &Enemy[SinCompleted].Sanity, 
@@ -185,40 +197,34 @@ while(aptMainLoop()){
                         Sinner[SinCompleted].SkillcoinPow, Enemy[SinCompleted].SkillcoinPow, 
                         &Sinner[SinCompleted].Health, &Enemy[SinCompleted].Health);
             }
+
             else if(Order[SinCompleted].IsUnclashed == true && Order[SinCompleted].IsClashing == false){ //Enemy is going to attack unopposed
                 UnopposedAtk(Enemy[SinCompleted].coins, Enemy[SinCompleted].Skillbase, Enemy[SinCompleted].SkillcoinPow, &Sinner[SinCompleted].Health);
             }
+
             else{ //Sinner is going to attack unopposed
                 UnopposedAtk(Sinner[SinCompleted].coins, Sinner[SinCompleted].Skillbase, Sinner[SinCompleted].SkillcoinPow, &Enemy[SinCompleted].Health);
             }
         
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
         
-    if(Enemy[4].Health < 0){
-        consoleClear();
-        printf("\x1b[16;20HYOU WON");
+        if(Enemy[4].Health < 0){
+            consoleClear();
+           printf("\x1b[16;20HYOU WON");
+            TurnStart = !TurnStart;
+        }
+        else{
+        //End this turn and start the next one
         TurnStart = !TurnStart;
-    }
-    else{
-    //End this turn and start the next one
-    TurnStart = !TurnStart;
-    SkillsRandomlySet = !SkillsRandomlySet;
-    SkillOrderSet = !SkillOrderSet;
-    TurnCount++;
-    } // Win condition check
-    } // Turn loop
-    } // Turn Running loop
-    } // Playing menu
-    else{
-        //Start Menu
-        if(Menuu.Location1Loaded == false){
-            printf("\x1b[16;20HPress any button to start"); 
-            Menuu.Location1Loaded = !Menuu.Location1Loaded;
-        }
-        if(kDown & KEY_TOUCH){
-            Menuu.CurrentLocation1++;
-        }
-    }
+        SkillsRandomlySet = !SkillsRandomlySet;
+        SkillOrderSet = !SkillOrderSet;
+        TurnCount++;
+        } // Win condition check
+                } // Turn loop
+            } // Turn Running loop
+        break; //Leave case 2
+} 
+
     gfxFlushBuffers();
     gfxSwapBuffers();
     gspWaitForVBlank();
