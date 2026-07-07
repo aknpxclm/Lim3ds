@@ -162,8 +162,8 @@ switch(MenuPostion){ // Playing menu
                 }
                else if(SelectSlotAppeared[AttackOrder[Search][1]] == true){
                    SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][1]]);
-                   if(Order[Search].IsClashing == true){
-                        Order[AttackOrder[Search][1]].IsClashing = false;
+                   if(SkillPosInfo[Search].IsClashing == true){
+                        SkillPosInfo[AttackOrder[Search][1]].IsClashing = false;
                     }
                   SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // reset check bool
                 }
@@ -190,7 +190,7 @@ switch(MenuPostion){ // Playing menu
           Enemy[SinCompleted].SkillcoinPow = Enemy[SinCompleted].SetSkillcoinPow;
 
             //Holy arguements
-            if(Order[SinCompleted].IsClashing == true && Order[SinCompleted].IsUnclashed == false){ //Enemy and sinner clash skills
+            if(SkillPosInfo[SinCompleted].IsClashing == true && SkillPosInfo[SinCompleted].IsUnclashed == false){ //Enemy and sinner clash skills
             ClashingAtk(&Sinner[SinCompleted].Sanity, &Enemy[SinCompleted].Sanity, 
                         &Sinner[SinCompleted].coins, &Enemy[SinCompleted].coins, 
                         Sinner[SinCompleted].Skillbase, Enemy[SinCompleted].Skillbase, 
@@ -198,7 +198,7 @@ switch(MenuPostion){ // Playing menu
                         &Sinner[SinCompleted].Health, &Enemy[SinCompleted].Health);
             }
 
-            else if(Order[SinCompleted].IsUnclashed == true && Order[SinCompleted].IsClashing == false){ //Enemy is going to attack unopposed
+            else if(SkillPosInfo[SinCompleted].IsUnclashed == true && SkillPosInfo[SinCompleted].IsClashing == false){ //Enemy is going to attack unopposed
                 UnopposedAtk(Enemy[SinCompleted].coins, Enemy[SinCompleted].Skillbase, Enemy[SinCompleted].SkillcoinPow, &Sinner[SinCompleted].Health);
             }
 
