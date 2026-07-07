@@ -13,12 +13,7 @@
                 "/home/thinkjeremy/asfdasf/Lim3ds/libs/include/**",
                 "/opt/devkitpro/portlibs/3ds/include/**"
             ],
-            "intelliSenseMode": "linux-gcc-x64",
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ]
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4
