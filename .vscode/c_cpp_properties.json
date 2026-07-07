@@ -4,12 +4,19 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "C:\\devkitPro\\**",
-                "C:\\devkitPro\\libctru\\include\\**",
-                "C:\\devkitPro\\devkitARM\\include\\**",
-                "C:\\devkitPro\\devkitARM\\arm-none-eabi\\include\\**",
-                "C:\\devkitPro\\devkitARM\\lib\\gcc\\arm-none-eabi\\**",
-                "C:\\devkitPro\\portlibs\\3ds\\include\\**"
+                "/opt/devkitpro/**",
+                "/opt/devkitpro/libctru/**",
+                "/opt/devkitpro/devkitARM/include/**",
+                "/opt/devkitpro/devkitARM/arm-none-eabi/include/**",
+                "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/**",
+                "/opt/devkitpro/portlibs/3ds/include/**"
             ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
+        }
+    ],
     "version": 4
 }
