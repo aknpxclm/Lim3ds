@@ -5,6 +5,10 @@
 #include "Skill.h"
 #include "asd.h"
 
+#define StartScreen 0
+#define MainMenu 1
+#define CombatMenu 2
+
 void ExitApp(){
 //C2D_Fini();
 //C3D_Fini();
@@ -105,14 +109,14 @@ while(aptMainLoop()){
     hidTouchRead(&touch);
 
 switch(MenuPostion){ // Playing menu
-        case 0: //Start screen
+        case StartScreen: //Start screen
         if(kDown & KEY_TOUCH) MenuPostion++;
         break;
 
-        case 1: //Main menu
+        case MainMenu: //Main menu
         break;
         
-        case 2: //Combat select area
+        case CombatMenu: //Combat select area
         
         if(!SkillsRandomlySet){
             for(int i = 0; i < 5; i++){
