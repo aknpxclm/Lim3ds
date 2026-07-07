@@ -166,7 +166,7 @@ switch(MenuPostion){ // Playing menu
                         Order[AttackOrder[Search][1]].IsClashing = false;
                     }
                   SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // reset check bool
-              }
+                }
              else if(EnSkillOrder[Search][1] != AttackOrder[0][1] || 
                     EnSkillOrder[Search][1] != AttackOrder[1][1] || 
                     EnSkillOrder[Search][1] != AttackOrder[2][1] || //Awful counter: 2
@@ -220,6 +220,7 @@ switch(MenuPostion){ // Playing menu
         SkillOrderSet = !SkillOrderSet;
         TurnCount++;
         } // Win condition check
+        
                 } // Turn loop
             } // Turn Running loop
         break; //Leave case 2
