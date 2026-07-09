@@ -45,7 +45,7 @@ consoleInit(GFX_BOTTOM, NULL);
 //C2D_Prepare();
 hidInit();
 
-//placeholder stats till i can read files for values
+//placeholder stats till i can read files for values in a json or other c file
 struct Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
                                {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
                                {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
@@ -164,7 +164,7 @@ switch(MenuPostion){ // Playing menu
                     SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // flip to true
                     SkillPriorityLevel[AttackOrder[Search][1]] = AttackOrder[Search][1]; //record what skill slot was targeted
                 }
-               else if(SelectSlotAppeared[AttackOrder[Search][1]] == true){
+               else if(SelectSlotAppeared[AttackOrder[Search][1]] == true){ //check if skill is going unopposed while another skill clashes the same slot
                    SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][1]]);
                    if(SkillPosInfo[Search].IsClashing == true){
                         SkillPosInfo[AttackOrder[Search][1]].IsClashing = false;
