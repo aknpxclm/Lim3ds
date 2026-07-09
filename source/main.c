@@ -70,7 +70,7 @@ int SkillPriorityLevel[5] = {0};
 //skill numbers for each skill slot for any amount for sinners
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};
 
-// original order before skills will be randomised and alisted / picked from
+// original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3}; 
 
 int SelectlotNum[5] = {0};
