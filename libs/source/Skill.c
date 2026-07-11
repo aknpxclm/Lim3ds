@@ -33,11 +33,22 @@ else{
 return *Sanity;
 }
 }
-//Make old location the new location
-void EqualiseChecks(int Location1, int CurrentLocation1){
-    Location1 = CurrentLocation1;
-}
 
 int Form_or_Select_Random_Skill(){
     return rand() % (5 + 1 - 1) + 1;
+}
+
+void Rearrange_SkillPool(int SkillList[6]){
+/*index 0 represents one value in SkillList
+index 1 represents another value 
+index 2 represents a random index of SkillList to swap to*/
+int Swap[3] = {0, 0, 0};
+
+for(int j = 0; j < 6; j++){
+    Swap[0] = SkillList[j];
+    Swap[2] = Form_or_Select_Random_Skill();
+    Swap[1] = SkillList[Swap[2]];
+    SkillList[j] = Swap[1];
+    SkillList[Swap[2]] = Swap[0];
+}
 }

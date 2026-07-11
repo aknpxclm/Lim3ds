@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "Skill.h"
-#include "asd.h"
+#include "CombatFunctions.h"
 
 #define StartScreen 0
 #define MainMenu 1
@@ -28,7 +28,7 @@ int SetSkillbase;
 int SetSkillcoinPow;
 };
 
-typedef struct IsClashing_Check{
+typedef struct Clashing_Checks{
     int SkillClashing;
     int Priority;
     bool IsClashing;
@@ -43,7 +43,6 @@ consoleInit(GFX_BOTTOM, NULL);
 //C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 //C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 //C2D_Prepare();
-hidInit();
 
 //placeholder stats till i can read files for values in a json or other c file
 struct Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
@@ -71,14 +70,9 @@ int SkillPriorityLevel[5] = {0};
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};
 
 // original order before skills will be randomised and listed / picked from
-int SkillList[6] = {1, 1, 1, 2, 2, 3}; 
+int SkillList[6] = {1, 1, 1, 2, 2, 3}; //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 
 int SelectlotNum[5] = {0};
-
-/*index 0 represents one value in SkillList
-index 1 represents another value 
-index 2 represents a random index of SkillList to swap to*/
-int Swap[3] = {0, 0, 0};
 
 int MenuPostion = 0;
 
@@ -93,13 +87,7 @@ bool SkillsRandomlySet = false;
 bool SkillOrderSet = false;
 SeedStart();
 
-for(int j = 0; j < 6; j++){
-    Swap[0] = SkillList[j];
-    Swap[2] = Form_or_Select_Random_Skill();
-    Swap[1] = SkillList[Swap[2]];
-    SkillList[j] = Swap[1];
-    SkillList[Swap[2]] = Swap[0];
-}
+Rearrange_SkillPool(SkillList[6]);
 
 while(aptMainLoop()){
     hidScanInput();
