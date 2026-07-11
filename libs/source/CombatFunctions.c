@@ -20,7 +20,7 @@ void ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int S
         }
         else if(SinClashNum < EnClashNum){ // enemy win
             *SinCoin -= 1;
-        } 
+        }
         Clashes++;
     }
     printf("\x1b[21;20H%d Clashes!", Clashes);
