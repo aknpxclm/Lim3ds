@@ -1,3 +1,0 @@
-#include <SkillUIPositions.h>
-
-SkillTouchPos;

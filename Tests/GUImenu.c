@@ -6,7 +6,7 @@
 
 #define SCREEN_WIDTH 400
 #define SCREEN_HEIGHT 240
-#define MAX_SPRITES 13
+#define MAX_SPRITES 768
 
 //t3x files must fit in 1024x1024 space
 //Use linear interpolation when scaling images

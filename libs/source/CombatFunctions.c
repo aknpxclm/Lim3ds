@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "Skill.h"
 
 #define ENSANITYLOSS 5
@@ -28,15 +29,15 @@ void ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int S
     //check who "won" in total
     if(*SinCoin > *EnCoin){ 
         //sp gain for sinner and loss for enemy
-        *SinSanity = LimitSanity((*SinSanity + (10 + Clashes)));
+        *SinSanity = LimitSanity((SinSanity + (10 + Clashes)));
         *EnSanity -= ENSANITYLOSS;
-        *EnSanity = LimitSanity(*EnSanity);
+        *EnSanity = LimitSanity(EnSanity);
         *EnHealth -= Damagedealt(*SinCoin, SinBase, SinPow, Clashes);
     }
     else{
-        *EnSanity = LimitSanity((*EnSanity + (10 + Clashes)));
+        *EnSanity = LimitSanity((EnSanity + (10 + Clashes)));
         *SinSanity -= SINSANITYLOSS;
-        *SinSanity = LimitSanity(*SinSanity);
+        *SinSanity = LimitSanity(SinSanity);
         *SinHealth -= Damagedealt(*EnCoin, EnBase, EnPow, Clashes);
     }
 }
@@ -52,4 +53,14 @@ if(Pri1 > Pri2){
 else{
     return 0;
 }
+}
+
+void FinishTurn(bool TurnStart, bool SkillsRandomlySet, bool SkillOrderSet, int* TurnCount){
+    
+    //End this turn and start the next one
+    TurnStart = !TurnStart;
+    SkillsRandomlySet = !SkillsRandomlySet;
+    SkillOrderSet = !SkillOrderSet;
+    TurnCount += 1;
+    
 }

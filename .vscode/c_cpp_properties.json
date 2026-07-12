@@ -14,7 +14,8 @@
                 "/home/thinkjeremy/asfdasf/Lim3ds/libs/include/**",
                 "/opt/devkitpro/portlibs/3ds/include/**"
             ],
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "cStandard": "c17"
         }
     ],
     "version": 4

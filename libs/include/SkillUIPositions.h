@@ -13,6 +13,6 @@ int SkillOrderPos;
     #define SecondSkill {0, 0, 0, 0, 2}
     #define ThirdSkill {0, 0, 0, 0, 3}
     #define FourthSkill {0, 0, 0, 0, 4}
-    #define FirthSkill {0, 0, 0, 0, 5}
+    #define FifthSkill {0, 0, 0, 0, 5}
 
 #endif
