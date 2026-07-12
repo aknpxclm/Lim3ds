@@ -61,6 +61,6 @@ void FinishTurn(bool TurnStart, bool SkillsRandomlySet, bool SkillOrderSet, int*
     TurnStart = !TurnStart;
     SkillsRandomlySet = !SkillsRandomlySet;
     SkillOrderSet = !SkillOrderSet;
-    TurnCount += 1;
+    *TurnCount += 1;
     
 }
