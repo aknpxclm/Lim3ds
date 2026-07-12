@@ -54,13 +54,3 @@ else{
     return 0;
 }
 }
-
-void FinishTurn(bool TurnStart, bool SkillsRandomlySet, bool SkillOrderSet, int* TurnCount){
-    
-    //End this turn and start the next one
-    TurnStart = !TurnStart;
-    SkillsRandomlySet = !SkillsRandomlySet;
-    SkillOrderSet = !SkillOrderSet;
-    *TurnCount += 1;
-    
-}
