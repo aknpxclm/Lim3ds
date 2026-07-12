@@ -243,17 +243,16 @@ switch(MenuPostion){ // Playing menu
             
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
 
+        if(Enemy[4].Health < 0){
+                consoleClear();
+                printf("\x1b[16;20HYOU WON");
+                TurnStart = !TurnStart;
+        }
         //End this turn and start the next one
         TurnStart = !TurnStart;
         SkillsRandomlySet = !SkillsRandomlySet;
         SkillOrderSet = !SkillOrderSet;
-        TurnCount += 1;
-
-            if(Enemy[4].Health < 0){
-                consoleClear();
-                printf("\x1b[16;20HYOU WON");
-                TurnStart = !TurnStart;
-            }
+        TurnCount += 1; 
         } // Turn loop
     } // Turn Running loop
     break; //Leave case 2
