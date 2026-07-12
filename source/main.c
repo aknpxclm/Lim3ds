@@ -243,7 +243,7 @@ switch(MenuPostion){ // Playing menu
             
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
 
-        FinishTurn();// Win condition check
+        FinishTurn(TurnStart, SkillsRandomlySet, SkillOrderSet, &TurnCount);// Win condition check
 
             if(Enemy[4].Health < 0){
                 consoleClear();
