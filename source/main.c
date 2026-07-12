@@ -74,7 +74,7 @@ struct Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
-SkillTouchPos UIPostion[5] = {{0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}};
+SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
 
 //skill number/order for main boss second array is used to find the index for AtkOrder
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
