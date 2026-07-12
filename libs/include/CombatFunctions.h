@@ -5,4 +5,6 @@ void ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int S
 void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth);
 int ComparePriority(int Pri1,int Pri2);
 
+#define CurrentIndex 1
+
 #endif

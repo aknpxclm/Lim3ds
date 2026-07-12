@@ -4,6 +4,7 @@
 #include <string.h>
 #include "Skill.h"
 #include "CombatFunctions.h"
+#include "SkillUIPositions.h"
 
 #define StartScreen 0
 #define MainMenu 1
@@ -58,6 +59,9 @@ struct Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},
                               {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
+
+SkillTouchPos UIPostion[5] = {{0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}, {0, 0, 0, 0, 0}};
+
 //skill number/order for main boss second array is used to find the index for AtkOrder
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
 
@@ -88,7 +92,7 @@ bool SkillsRandomlySet = false;
 bool SkillOrderSet = false;
 SeedStart();
 
-Rearrange_SkillPool(SkillList[6]);
+Rearrange_SkillPool(SkillList);
 
 while(aptMainLoop()){
     hidScanInput();
@@ -147,27 +151,28 @@ switch(MenuPostion){ // Playing menu
         while(TurnStart){ //combat turn loop
 
             for(int Search = 0; Search < 5; Search++){
-                if(AttackOrder[Search][1] == EnSkillOrder[Search][1]){ //check if clashing
+                if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){ //check if clashing
                     SkillPosInfo[Search].IsClashing = true;
                     SkillPosInfo[Search].SkillClashing = Search;
-                    SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // flip to true
-                    SkillPriorityLevel[AttackOrder[Search][1]] = AttackOrder[Search][1]; //record what skill slot was targeted
+                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = !SelectSlotAppeared[AttackOrder[Search][CurrentIndex]]; // flip to true
+                    SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
                 }
-               else if(SelectSlotAppeared[AttackOrder[Search][1]] == true){ //check if skill is going unopposed while another skill clashes the same slot
-                   SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][1]]);
+                else if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){ //check if skill is going unopposed while another skill clashes the same slot
+                   SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
                    if(SkillPosInfo[Search].IsClashing == true){
-                        SkillPosInfo[AttackOrder[Search][1]].IsClashing = false;
+                        SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
                     }
-                  SelectSlotAppeared[AttackOrder[Search][1]] = !SelectSlotAppeared[AttackOrder[Search][1]]; // reset check bool
+                  SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = !SelectSlotAppeared[AttackOrder[Search][CurrentIndex]]; // reset check bool
                 }
-             else if(EnSkillOrder[Search][1] != AttackOrder[0][1] || 
-                    EnSkillOrder[Search][1] != AttackOrder[1][1] || 
-                    EnSkillOrder[Search][1] != AttackOrder[2][1] || //Awful counter: 2
-                    EnSkillOrder[Search][1] != AttackOrder[3][1] || 
-                    EnSkillOrder[Search][1] != AttackOrder[4][1]){
-                        SkillPosInfo[Search].IsUnclashed = true;} //check if enemy attacks wil go unopposed
+                else if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
+                    {SkillPosInfo[Search].IsUnclashed = true;} //check if enemy attacks wil go unopposed
 
-        }
+            }
+
         for(int SinCompleted = 0; SinCompleted < 5; SinCompleted++){
           Sinner[SinCompleted].coins = Sinner[SinCompleted].Setcoins;
           Sinner[SinCompleted].Skillbase = Sinner[SinCompleted].SetSkillbase;

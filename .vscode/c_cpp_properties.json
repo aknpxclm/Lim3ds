@@ -11,6 +11,7 @@
                 "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/**",
                 "/home/thinkjeremy/asfdasf/Lim3ds/libs/include/**",
                 "/home/thinkjeremy/asfdasf/Lim3ds/libs/include/**",
+                "/home/thinkjeremy/asfdasf/Lim3ds/libs/include/**",
                 "/opt/devkitpro/portlibs/3ds/include/**"
             ],
             "intelliSenseMode": "linux-gcc-x64"
