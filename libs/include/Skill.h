@@ -6,6 +6,7 @@ int Damagedealt(int coins, int Skillbase, int SkillcoinPow, int Clashes);
 int LimitSanity(int* Sanity);
 void SeedStart();
 int Form_or_Select_Random_Skill();
-void Rearrange_SkillPool(int SkillList[6]);
+void Rearrange_SkillPool(int SkillList[]);
+void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[]);
 
 #endif

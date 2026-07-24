@@ -49,7 +49,7 @@ typedef struct
 } Sprite;
 
 static C2D_SpriteSheet menuspriteSheet;
-static Sprite sprites[MAX_SPRITES];
+static Sprite Msprites[MAX_SPRITES];
 
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
@@ -74,7 +74,7 @@ struct Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
-SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
+SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
 
 //skill number/order for main boss second array is used to find the index for AtkOrder
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
@@ -87,6 +87,8 @@ int SkillPriorityLevel[5] = {0};
 
 //skill numbers for each skill slot for any amount for sinners
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};
+
+int BufferSkill[5] = {0, 0, 0, 0, 0};
 
 // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3}; //Sinners can only have three skill 1s, two skill 2s and , one skill 3
@@ -102,8 +104,7 @@ bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool TurnStart = false;
 bool StatsPrinted = false;
 bool StartMenuVisible = false;
-bool SkillsRandomlySet = false;
-bool SkillOrderSet = false;
+bool CreatedSkillStores = false;
 SeedStart();
 Rearrange_SkillPool(SkillList);
 
@@ -111,14 +112,15 @@ C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 	menuspriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
 	if (!menuspriteSheet) svcBreak(USERBREAK_PANIC);
 
-Sprite *sprite = &sprites[0]; //Setting config for the menu sprite for drawing
-	C2D_SpriteFromSheet(&sprite->spr, menuspriteSheet, 0/*sprite index in the sheet*/);
-	C2D_SpriteSetCenter(&sprite->spr, 0.1f, 0.1f);
-	C2D_SpriteSetPos(&sprite->spr, 30/*X position*/, -40/*Y position*/);
-	C2D_SpriteSetRotation(&sprite->spr, 0);
-	C2D_SpriteSetScale(&sprite->spr, 1/*X scale*/, 1/*Y scale*/);
-	sprite->dx = 0;
-	sprite->dy = 0;
+//Initialise all sprites in a sheet
+Sprite *Msprite = &Msprites[0];
+	C2D_SpriteFromSheet(&Msprite->spr, menuspriteSheet, 0/*sprite index in the sheet*/);
+	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
+	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
+	C2D_SpriteSetRotation(&Msprite->spr, 0);
+	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
+	Msprite->dx = 0;
+	Msprite->dy = 0;
 
 while(aptMainLoop()){
     hidScanInput();
@@ -131,10 +133,11 @@ switch(MenuPostion){ // Playing menu
 
     case StartScreen: //Start screen
     if(MenuPostion == StartScreen){ //Prevent redrawing the startmenu sprites when changing menu position
+    C2D_SpriteMove(&Msprites[0].spr, 30, 20); //Move sprite to center view
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	C2D_SceneBegin(top);
-	C2D_DrawSprite(&sprites[0].spr);
+	C2D_DrawSprite(&Msprites[0].spr);
 	C3D_FrameEnd(0);
     if(kDown & KEY_TOUCH) MenuPostion++; //Go to MainMenu
     }
@@ -144,20 +147,8 @@ switch(MenuPostion){ // Playing menu
     break;
         
     case CombatMenu: //Combat select area
-        
-    if(!SkillsRandomlySet){
-        for(int i = 0; i < 5; i++){
-            for(int j = 0; j < 2; j++){
-                SkillOptions[i][j] = SkillList[Form_or_Select_Random_Skill()];
-            }
-        }
-        SkillsRandomlySet = !SkillsRandomlySet;
-    }
-    if(!SkillOrderSet){
-        for(int k = 0; k < 5; k++){
-            EnSkillOrder[k][0] = SkillList[Form_or_Select_Random_Skill()];
-        }
-        SkillOrderSet = !SkillOrderSet;
+    if(CreatedSkillStores == false){
+    CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount);
     }
     if (!TurnStart){
     //(Should Draw / Make menu)
@@ -168,15 +159,15 @@ switch(MenuPostion){ // Playing menu
     if(!StatsPrinted){
     Sinner[0].OldHealth = Sinner[0].Health;
     Enemy[0].OldHealth = Enemy[0].Health;
-    printf("\x1b[16;20HPress L to start combat"); 
+    printf("\x1b[16;20HPress L to start combat");
     printf("\x1b[17;20HTurn %d", TurnCount);
     printf("\x1b[18;20HHealth: %f", Sinner[0].Health);
     printf("\x1b[19;20HHealth: %f", Enemy[0].Health);
     printf("\x1b[20;14HSinner Sanity: %d    Enemy Sanity: %d", Sinner[0].Sanity - 50, Enemy[0].Sanity - 50);
     StatsPrinted = true;
     }
-    if(SkillsRandomlySet == true && SkillOrderSet == true){
-        if (kDown & KEY_L) TurnStart = !TurnStart;
+    if(CreatedSkillStores == true){
+        if (kDown & KEY_L) TurnStart = !TurnStart; //Prevent abrupt cancels
     }
 
     }
@@ -250,12 +241,11 @@ switch(MenuPostion){ // Playing menu
         }
         //End this turn and start the next one
         TurnStart = !TurnStart;
-        SkillsRandomlySet = !SkillsRandomlySet;
-        SkillOrderSet = !SkillOrderSet;
-        TurnCount += 1; 
+        CreatedSkillStores = !CreatedSkillStores;
+        TurnCount++; 
         } // Turn loop
     } // Turn Running loop
-    break; //Leave case 2
+    break; //Leave combat code zone
 } 
 
     gfxFlushBuffers();

@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define SkillUsedFlag 444
+
 //Generate a random skill value to compare and clash with
 int ClashValue(int coins, int Skillbase, int SkillcoinPow, int Sanity){
  int total = 0;
@@ -40,7 +42,7 @@ int Form_or_Select_Random_Skill(){
 }
 
 //Rearranges the skill rank pool to make getting skills more random
-void Rearrange_SkillPool(int *SkillList){
+void Rearrange_SkillPool(int SkillList[]){
 /*index 0 represents one value in SkillList
 index 1 represents another value 
 index 2 represents a random index of SkillList to swap to*/
@@ -52,5 +54,24 @@ for(int j = 0; j < 6; j++){
     Swap[1] = SkillList[Swap[2]];
     SkillList[j] = Swap[1];
     SkillList[Swap[2]] = Swap[0];
+}
+}
+
+//Move skills down the selction area when a skill is used
+void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[]){
+int TopRowSkill = 0;
+int BufferSkillnum = 0;
+
+for(int i = 0; i < 5; i++){
+    TopRowSkill = SkillOptions[i][2];
+    BufferSkillnum = BufferSkill[i];
+
+    if(SkillOptions[i][1] == SkillUsedFlag){ //Bottom row skill used
+        SkillOptions[i][1] = TopRowSkill;
+        SkillOptions[i][2] = BufferSkillnum;
+    }
+    else if(SkillOptions[i][2] == SkillUsedFlag){ //Top row skill used
+        SkillOptions[i][2] = BufferSkillnum;
+    }
 }
 }
