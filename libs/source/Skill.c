@@ -63,15 +63,15 @@ int TopRowSkill = 0;
 int BufferSkillnum = 0;
 
 for(int i = 0; i < 5; i++){
-    TopRowSkill = SkillOptions[i][2];
+    TopRowSkill = SkillOptions[i][1];
     BufferSkillnum = BufferSkill[i];
 
-    if(SkillOptions[i][1] == SkillUsedFlag){ //Bottom row skill used
-        SkillOptions[i][1] = TopRowSkill;
-        SkillOptions[i][2] = BufferSkillnum;
+    if(SkillOptions[i][0] == SkillUsedFlag){ //Bottom row skill used
+        SkillOptions[i][0] = TopRowSkill;
+        SkillOptions[i][1] = BufferSkillnum;
     }
-    else if(SkillOptions[i][2] == SkillUsedFlag){ //Top row skill used
-        SkillOptions[i][2] = BufferSkillnum;
+    else if(SkillOptions[i][1] == SkillUsedFlag){ //Top row skill used
+        SkillOptions[i][1] = BufferSkillnum;
     }
 }
 }
