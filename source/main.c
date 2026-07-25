@@ -7,8 +7,6 @@
 #include "CombatFunctions.h"
 #include "SkillUIPositions.h"
 
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 240
 #define MAX_SPRITES 768
 
 #define StartScreen 0
@@ -22,7 +20,7 @@ romfsExit();
 gfxExit();
 }
 
-struct Characters{
+typedef struct{
 double Health;
 double OldHealth;
 int coins;
@@ -32,7 +30,7 @@ int Sanity;
 int Setcoins;
 int SetSkillbase;
 int SetSkillcoinPow;
-};
+}Characters;
 
 typedef struct Clashing_Checks{
     int SkillClashing;
@@ -60,17 +58,17 @@ C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 
 //placeholder stats till i can read files for values in a json or other c file
-struct Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
-                               {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                               {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                               {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                               {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};  //This looks so awful
+Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};  //This looks so awful
                                
-struct Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},  
-                              {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
-                              {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
-                              {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
-                              {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
+Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},  
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
@@ -103,14 +101,14 @@ int TurnCount = 1;
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool TurnStart = false;
 bool StatsPrinted = false;
-bool StartMenuVisible = false;
 bool CreatedSkillStores = false;
 SeedStart();
 Rearrange_SkillPool(SkillList);
 
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-	menuspriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
-	if (!menuspriteSheet) svcBreak(USERBREAK_PANIC);
+
+menuspriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
+if (!menuspriteSheet) svcBreak(USERBREAK_PANIC);
 
 //Initialise all sprites in a sheet
 Sprite *Msprite = &Msprites[0];
@@ -149,57 +147,57 @@ switch(MenuPostion){ // Playing menu
     case CombatMenu: //Combat select area
     if(CreatedSkillStores == false){
     CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount);
+    CreatedSkillStores = true;
     }
     if (!TurnStart){
     //(Should Draw / Make menu)
-    //This is currently a band-aid solution
-    if( Sinner[0].OldHealth != Sinner[0].Health || Enemy[0].OldHealth != Enemy[0].Health){
-        StatsPrinted = false;
-    }
-    if(!StatsPrinted){
-    Sinner[0].OldHealth = Sinner[0].Health;
-    Enemy[0].OldHealth = Enemy[0].Health;
-    printf("\x1b[16;20HPress L to start combat");
-    printf("\x1b[17;20HTurn %d", TurnCount);
-    printf("\x1b[18;20HHealth: %f", Sinner[0].Health);
-    printf("\x1b[19;20HHealth: %f", Enemy[0].Health);
-    printf("\x1b[20;14HSinner Sanity: %d    Enemy Sanity: %d", Sinner[0].Sanity - 50, Enemy[0].Sanity - 50);
-    StatsPrinted = true;
-    }
-    if(CreatedSkillStores == true){
-        if (kDown & KEY_L) TurnStart = !TurnStart; //Prevent abrupt cancels
-    }
+    //This is currently not using text functions in citro2D
+        if( Sinner[0].OldHealth != Sinner[0].Health || Enemy[0].OldHealth != Enemy[0].Health){
+            StatsPrinted = false;
+        }
+        if(!StatsPrinted){
+        Sinner[0].OldHealth = Sinner[0].Health;
+        Enemy[0].OldHealth = Enemy[0].Health;
+        printf("\x1b[16;20HPress L to start combat");
+        printf("\x1b[17;20HTurn %d", TurnCount);
+        printf("\x1b[18;20HHealth: %f", Sinner[0].Health);
+        printf("\x1b[19;20HHealth: %f", Enemy[0].Health);
+        printf("\x1b[20;14HSinner Sanity: %d    Enemy Sanity: %d", Sinner[0].Sanity - 50, Enemy[0].Sanity - 50);
+        StatsPrinted = true;
+        }
+        if(CreatedSkillStores == true){
+            if (kDown & KEY_L) TurnStart = !TurnStart; //Prevent abrupt cancels
+        }
 
     }
     else{
     consoleClear();
-        while(TurnStart){ //combat turn loop
-
-            for(int Search = 0; Search < 5; Search++){
-                //check if clashing
-                if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
-                    SkillPosInfo[Search].IsClashing = true;
-                    SkillPosInfo[Search].SkillClashing = Search;
-                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = !SelectSlotAppeared[AttackOrder[Search][CurrentIndex]]; // flip to true
-                    SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
-                }
-                //check if skill is going unopposed while another skill clashes the same slot
-                else if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
-                    SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
-                    if(SkillPosInfo[Search].IsClashing == true){
-                        SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
-                    }
-                    // reset check bool
-                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = !SelectSlotAppeared[AttackOrder[Search][CurrentIndex]];
-                }
-                //check if enemy attacks wil go unopposed
-                else if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
-                    {SkillPosInfo[Search].IsUnclashed = true;}
+    
+        for(int Search = 0; Search < 5; Search++){
+            //check if clashing
+            if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
+                SkillPosInfo[Search].IsClashing = true;
+                SkillPosInfo[Search].SkillClashing = Search;
+                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
+                SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
             }
+            //check if skill is going unopposed while another skill clashes the same slot
+            else if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
+                SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
+                if(SkillPosInfo[Search].IsClashing == true){
+                    SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
+                }
+                // reset check bool
+                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
+            }
+            //check if enemy attacks wil go unopposed, no sinner is clashing the slot
+            else if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
+                {SkillPosInfo[Search].IsUnclashed = true;}
+        }
 
         for(int SinCompleted = 0; SinCompleted < 5; SinCompleted++){
             Sinner[SinCompleted].coins = Sinner[SinCompleted].Setcoins;
@@ -235,15 +233,13 @@ switch(MenuPostion){ // Playing menu
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
 
         if(Enemy[4].Health < 0){
-                consoleClear();
-                printf("\x1b[16;20HYOU WON");
-                TurnStart = !TurnStart;
+            consoleClear();
+            printf("\x1b[16;20HYOU WON");
         }
         //End this turn and start the next one
         TurnStart = !TurnStart;
         CreatedSkillStores = !CreatedSkillStores;
         TurnCount++; 
-        } // Turn loop
     } // Turn Running loop
     break; //Leave combat code zone
 } 
