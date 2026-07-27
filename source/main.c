@@ -2,7 +2,6 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
 #include "Skill.h"
 #include "CombatFunctions.h"
 #include "SkillUIPositions.h"
@@ -19,6 +18,12 @@ C3D_Fini();
 romfsExit();
 gfxExit();
 }
+
+static C2D_SpriteSheet menuSpriteSheet;
+
+C2D_TextBuf staticBuf;
+C2D_TextBuf dynamBuf;
+C2D_Text staticTex[2];
 
 typedef struct{
 double Health;
@@ -46,7 +51,6 @@ typedef struct
 	float dx, dy; // velocity
 } Sprite;
 
-static C2D_SpriteSheet menuspriteSheet;
 static Sprite Msprites[MAX_SPRITES];
 
 int main(int argc, char **argv){  // initialise variables
@@ -73,12 +77,13 @@ Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
 SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
+SkillTouchPos EnUIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
 
-//skill number/order for main boss second array is used to find the index for AtkOrder
-int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
-
-//Each element is assigned a index based on ther skill selected to attack the array above
+//Each element is assigned a index based on ther skill selected to attack the Character array above
 int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+
+//skill number/order for main boss, second dimension is used to find the index for AtkOrder
+int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
 
 //higher priority means skill will clash over other skills
 int SkillPriorityLevel[5] = {0};
@@ -103,25 +108,35 @@ bool TurnStart = false;
 bool StatsPrinted = false;
 bool CreatedSkillStores = false;
 SeedStart();
-Rearrange_SkillPool(SkillList);
+Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] to a random position
 
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-menuspriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
-if (!menuspriteSheet) svcBreak(USERBREAK_PANIC);
+staticBuf = C2D_TextBufNew(4096);
+dynamBuf = C2D_TextBufNew(4096);
+
+C2D_TextParse(&staticTex[0], staticBuf, "Victory");
+C2D_TextParse(&staticTex[1], staticBuf, "Defeat");
+C2D_TextOptimize(&staticTex[0]);
+C2D_TextOptimize(&staticTex[1]);
+
+menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
+if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 
 //Initialise all sprites in a sheet
-Sprite *Msprite = &Msprites[0];
-	C2D_SpriteFromSheet(&Msprite->spr, menuspriteSheet, 0/*sprite index in the sheet*/);
-	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
-	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
-	C2D_SpriteSetRotation(&Msprite->spr, 0);
-	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
-	Msprite->dx = 0;
-	Msprite->dy = 0;
-
+for(int numSprites = 0; numSprites < C2D_SpriteSheetCount(menuSpriteSheet);numSprites++){
+    Sprite *Msprite = &Msprites[numSprites];
+    	C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, numSprites/*sprite index in the sheet*/);
+    	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
+    	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
+    	C2D_SpriteSetRotation(&Msprite->spr, 0);
+    	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
+    	Msprite->dx = 0;
+    	Msprite->dy = 0;
+}
 while(aptMainLoop()){
-    hidScanInput();
+    hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
     if(kDown & KEY_START) break;
     touchPosition touch;
@@ -152,26 +167,29 @@ switch(MenuPostion){ // Playing menu
     if (!TurnStart){
     //(Should Draw / Make menu)
     //This is currently not using text functions in citro2D
-        if( Sinner[0].OldHealth != Sinner[0].Health || Enemy[0].OldHealth != Enemy[0].Health){
-            StatsPrinted = false;
-        }
-        if(!StatsPrinted){
         Sinner[0].OldHealth = Sinner[0].Health;
         Enemy[0].OldHealth = Enemy[0].Health;
-        printf("\x1b[16;20HPress L to start combat");
-        printf("\x1b[17;20HTurn %d", TurnCount);
-        printf("\x1b[18;20HHealth: %f", Sinner[0].Health);
-        printf("\x1b[19;20HHealth: %f", Enemy[0].Health);
-        printf("\x1b[20;14HSinner Sanity: %d    Enemy Sanity: %d", Sinner[0].Sanity - 50, Enemy[0].Sanity - 50);
-        StatsPrinted = true;
-        }
+
+        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+        C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
+	    C2D_SceneBegin(bottom);
+
+        C2D_TextBufClear(dynamBuf); //clear previous text
+        char bufff[256];
+        C2D_Text dynamTex;
+        snprintf(bufff, sizeof(bufff), "Health: %lf Sanity: %d", Sinner[0].Health, Sinner[0].Sanity); //write to buffer
+        C2D_TextParse(&dynamTex, dynamBuf, bufff);
+        C2D_TextOptimize(&dynamTex);
+        C2D_DrawText(&dynamTex, 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
+
+	    C3D_FrameEnd(0);
+
         if(CreatedSkillStores == true){
             if (kDown & KEY_L) TurnStart = !TurnStart; //Prevent abrupt cancels
         }
 
     }
     else{
-    consoleClear();
     
         for(int Search = 0; Search < 5; Search++){
             //check if clashing
@@ -182,7 +200,7 @@ switch(MenuPostion){ // Playing menu
                 SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
             }
             //check if skill is going unopposed while another skill clashes the same slot
-            else if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
+            if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
                 SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
                 if(SkillPosInfo[Search].IsClashing == true){
                     SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
@@ -191,7 +209,7 @@ switch(MenuPostion){ // Playing menu
                 SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
             }
             //check if enemy attacks wil go unopposed, no sinner is clashing the slot
-            else if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
+            if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
                 EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
                 EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
                 EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
@@ -233,8 +251,12 @@ switch(MenuPostion){ // Playing menu
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
 
         if(Enemy[4].Health < 0){
-            consoleClear();
-            printf("\x1b[16;20HYOU WON");
+            C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+            C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+	        C2D_SceneBegin(bottom);
+            C2D_DrawText(&staticTex[0], 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
+	        C3D_FrameEnd(0);
+            MenuPostion = 1;
         }
         //End this turn and start the next one
         TurnStart = !TurnStart;
@@ -248,7 +270,9 @@ switch(MenuPostion){ // Playing menu
     gfxSwapBuffers();
     gspWaitForVBlank();
 }
-C2D_SpriteSheetFree(menuspriteSheet);
+C2D_SpriteSheetFree(menuSpriteSheet);
+C2D_TextBufDelete(staticBuf);
+C2D_TextBufDelete(dynamBuf);
 ExitApp();
-return 0;
+return 0; 
 }

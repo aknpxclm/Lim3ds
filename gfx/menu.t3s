@@ -1,2 +1,3 @@
--f rgba8888 -z auto
+--atlas -f rgba8888 -z auto
 Start_screen.png
+LoadingScreen.png
