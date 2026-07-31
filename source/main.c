@@ -12,15 +12,10 @@
 #define MainMenu 1
 #define CombatMenu 2
 
-void ExitApp(){
-C2D_Fini();
-C3D_Fini();
-romfsExit();
-gfxExit();
-}
-
+//Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
 
+//Text and text buffers
 C2D_TextBuf staticBuf;
 C2D_TextBuf dynamBuf;
 C2D_Text staticTex[2];
@@ -52,6 +47,40 @@ typedef struct
 } Sprite;
 
 static Sprite Msprites[MAX_SPRITES];
+
+void ExitApp(){
+C2D_Fini();
+C3D_Fini();
+romfsExit();
+gfxExit();
+}
+
+void InitStartImg(){
+    size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
+    for(int x = 0; x < numsprites; x++){
+    Sprite *Msprite = &Msprites[x];
+    	C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
+    	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
+    	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
+    	C2D_SpriteSetRotation(&Msprite->spr, 0);
+    	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
+    	Msprite->dx = 0;
+    	Msprite->dy = 0;
+}
+}
+
+void StartImg(int MenuPosition, u32 kDown, C3D_RenderTarget *top){
+if(MenuPosition == StartScreen)
+    { //Prevent redrawing the startmenu sprites when changing menu position
+    C2D_SpriteMove(&Msprites[0].spr, 30, 20); //Move sprite to center view
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+	C2D_SceneBegin(top);
+	C2D_DrawSprite(&Msprites[0].spr); //Draw Start_Screen.png
+	C3D_FrameEnd(0);
+    if(kDown & KEY_TOUCH) MenuPosition = MainMenu; //Switch to MainMenu
+    }
+}
 
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
@@ -98,43 +127,38 @@ int SkillList[6] = {1, 1, 1, 2, 2, 3}; //Sinners can only have three skill 1s, t
 
 int SelectlotNum[5] = {0};
 
-int MenuPostion = StartScreen;
+int MenuPosition = StartScreen;
 
 int SinClashNum = 0;
 int EnClashNum = 0;
-int TurnCount = 1; 
+int TurnCount = 1;
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool TurnStart = false;
-bool StatsPrinted = false;
 bool CreatedSkillStores = false;
-SeedStart();
-Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] to a random position
 
+SeedStart();
+Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
+
+//Create 3ds Render targets for the screens
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
+//Allocate memory for the buffers
 staticBuf = C2D_TextBufNew(4096);
 dynamBuf = C2D_TextBufNew(4096);
 
+//Parse conditional game text
 C2D_TextParse(&staticTex[0], staticBuf, "Victory");
 C2D_TextParse(&staticTex[1], staticBuf, "Defeat");
-C2D_TextOptimize(&staticTex[0]);
+C2D_TextOptimize(&staticTex[0]); //Optimizes the text to be rendered efficiently
 C2D_TextOptimize(&staticTex[1]);
 
 menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
 if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 
 //Initialise all sprites in a sheet
-for(int numSprites = 0; numSprites < C2D_SpriteSheetCount(menuSpriteSheet);numSprites++){
-    Sprite *Msprite = &Msprites[numSprites];
-    	C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, numSprites/*sprite index in the sheet*/);
-    	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
-    	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
-    	C2D_SpriteSetRotation(&Msprite->spr, 0);
-    	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
-    	Msprite->dx = 0;
-    	Msprite->dy = 0;
-}
+InitStartImg();
+
 while(aptMainLoop()){
     hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
@@ -142,31 +166,33 @@ while(aptMainLoop()){
     touchPosition touch;
     hidTouchRead(&touch);
 
-switch(MenuPostion){ // Playing menu
+switch(MenuPosition){ // In game start
 
     case StartScreen: //Start screen
-    if(MenuPostion == StartScreen){ //Prevent redrawing the startmenu sprites when changing menu position
-    C2D_SpriteMove(&Msprites[0].spr, 30, 20); //Move sprite to center view
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-	C2D_SceneBegin(top);
-	C2D_DrawSprite(&Msprites[0].spr);
-	C3D_FrameEnd(0);
-    if(kDown & KEY_TOUCH) MenuPostion++; //Go to MainMenu
-    }
+    StartImg(MenuPosition, kDown, top);
     break;
 
     case MainMenu: //Main menu
+    if(MenuPosition == MainMenu)
+    {
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 0.65f)); //Gray background
+	C2D_SceneBegin(top);
+        if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH) // if touchpad is pressed in the detection area...
+        {
+            MenuPosition = CombatMenu;
+        }
+        //more options in the menu will get their own conditions
+    C3D_FrameEnd(0);
+    }
     break;
         
     case CombatMenu: //Combat select area
     if(CreatedSkillStores == false){
-    CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount);
-    CreatedSkillStores = true;
+    CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
     }
     if (!TurnStart){
-    //(Should Draw / Make menu)
-    //This is currently not using text functions in citro2D
+    //(Should Draw / Make menu) - unfinished
         Sinner[0].OldHealth = Sinner[0].Health;
         Enemy[0].OldHealth = Enemy[0].Health;
 
@@ -174,6 +200,7 @@ switch(MenuPostion){ // Playing menu
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
 	    C2D_SceneBegin(bottom);
 
+        //uses 3ds/graphics/printing/system-font example
         C2D_TextBufClear(dynamBuf); //clear previous text
         char bufff[256];
         C2D_Text dynamTex;
@@ -256,7 +283,7 @@ switch(MenuPostion){ // Playing menu
 	        C2D_SceneBegin(bottom);
             C2D_DrawText(&staticTex[0], 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
 	        C3D_FrameEnd(0);
-            MenuPostion = 1;
+            MenuPosition = 1;
         }
         //End this turn and start the next one
         TurnStart = !TurnStart;

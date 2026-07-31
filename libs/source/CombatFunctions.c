@@ -56,7 +56,7 @@ else{
 }
 
 //Adds skill ranks to the enemy, sinners and buffer skill arrays
-void CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount){
+int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount){
     if(TurnCount == 1){
         for(int i = 0; i < 5/*Amount of sinners*/; i++){
             for(int j = 0; j < 2/*skill choices*/; j++){
@@ -70,4 +70,5 @@ void CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferS
     for(int l = 0; l < 5; l++){
         EnSkillOrder[l][0] = SkillList[Form_or_Select_Random_Skill()];
     }
+    return 1; //Completed sucessfully
 }
