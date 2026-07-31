@@ -3,7 +3,7 @@ Recreation of Limbus Company for the 3DS console family
 
 - This project aims to recreate a basic version of limbus company containing the main gameplay from the orignal game.
 - Story found in Limbus Company will not be in the project for the forseeable future.
-- No purchases will **ever** be in this project
+- I don't intend to replicate Limbus Company one-to-one, just the base gameplay.
 - This serves as my first full project as a beginner C programmer.
 
 ### Limbus Company
