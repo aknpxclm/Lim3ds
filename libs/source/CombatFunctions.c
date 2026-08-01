@@ -7,7 +7,7 @@
 
 
 //If a skill is going to clash the enemy's, use this function to clash and deal damage
-void ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int SinBase, int EnBase, int SinPow, int EnPow, double* SinHealth, double* EnHealth){
+int ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int SinBase, int EnBase, int SinPow, int EnPow, double* SinHealth, double* EnHealth){
     int SinClashNum = 0;
     int EnClashNum = 0;
     int Clashes = 0;
@@ -24,8 +24,6 @@ void ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int S
         }
         Clashes++;
     }
-    printf("\x1b[21;20H%d Clashes!", Clashes);
-    Clashes = 0;
     //check who "won" in total
     if(*SinCoin > *EnCoin){ 
         //sp gain for sinner and loss for enemy
@@ -40,6 +38,7 @@ void ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int S
         *SinSanity = LimitSanity(SinSanity);
         *SinHealth -= Damagedealt(*EnCoin, EnBase, EnPow, Clashes);
     }
+    return Clashes;
 }
 //Damage where a character doesnt clash
 void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth){

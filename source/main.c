@@ -55,33 +55,6 @@ romfsExit();
 gfxExit();
 }
 
-void InitStartImg(){
-    size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
-    for(int x = 0; x < numsprites; x++){
-    Sprite *Msprite = &Msprites[x];
-    	C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
-    	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
-    	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
-    	C2D_SpriteSetRotation(&Msprite->spr, 0);
-    	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
-    	Msprite->dx = 0;
-    	Msprite->dy = 0;
-}
-}
-
-void StartImg(int MenuPosition, u32 kDown, C3D_RenderTarget *top){
-if(MenuPosition == StartScreen)
-    { //Prevent redrawing the startmenu sprites when changing menu position
-    C2D_SpriteMove(&Msprites[0].spr, 30, 20); //Move sprite to center view
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-	C2D_SceneBegin(top);
-	C2D_DrawSprite(&Msprites[0].spr); //Draw Start_Screen.png
-	C3D_FrameEnd(0);
-    if(kDown & KEY_TOUCH) MenuPosition = MainMenu; //Switch to MainMenu
-    }
-}
-
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
 consoleInit(GFX_BOTTOM, NULL);
@@ -129,8 +102,7 @@ int SelectlotNum[5] = {0};
 
 int MenuPosition = StartScreen;
 
-int SinClashNum = 0;
-int EnClashNum = 0;
+int Clashes[5] = {0};
 int TurnCount = 1;
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool TurnStart = false;
@@ -157,7 +129,17 @@ menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
 if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 
 //Initialise all sprites in a sheet
-InitStartImg();
+    size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
+    for(int x = 0; x < numsprites; x++){
+    Sprite *Msprite = &Msprites[x];
+    	C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
+    	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
+    	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
+    	C2D_SpriteSetRotation(&Msprite->spr, 0);
+    	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
+    	Msprite->dx = 0;
+    	Msprite->dy = 0;
+    }
 
 while(aptMainLoop()){
     hidScanInput(); //Scans for keys pressed
@@ -169,7 +151,16 @@ while(aptMainLoop()){
 switch(MenuPosition){ // In game start
 
     case StartScreen: //Start screen
-    StartImg(MenuPosition, kDown, top);
+    if(MenuPosition == StartScreen)
+    { //Prevent redrawing the startmenu sprites when changing menu position
+    C2D_SpriteMove(&Msprites[0].spr, 30, 20); //Move sprite to center view
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+	C2D_SceneBegin(top);
+	C2D_DrawSprite(&Msprites[0].spr); //Draw Start_Screen.png
+	C3D_FrameEnd(0);
+    if(kDown & KEY_TOUCH) MenuPosition = MainMenu; //Switch to MainMenu
+    }
     break;
 
     case MainMenu: //Main menu
@@ -259,12 +250,12 @@ switch(MenuPosition){ // In game start
             Enemy[SinCompleted].SkillcoinPow = Enemy[SinCompleted].SetSkillcoinPow;
 
             //Holy arguements
-            if(SkillPosInfo[SinCompleted].IsClashing == true && SkillPosInfo[SinCompleted].IsUnclashed == false){ //Enemy and sinner clash skills
-            ClashingAtk(&Sinner[SinCompleted].Sanity, &Enemy[SinCompleted].Sanity, 
-                        &Sinner[SinCompleted].coins, &Enemy[SinCompleted].coins, 
-                        Sinner[SinCompleted].Skillbase, Enemy[SinCompleted].Skillbase, 
-                        Sinner[SinCompleted].SkillcoinPow, Enemy[SinCompleted].SkillcoinPow, 
-                        &Sinner[SinCompleted].Health, &Enemy[SinCompleted].Health);
+            if(SkillPosInfo[SinCompleted].IsClashing == true && SkillPosInfo[SinCompleted].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
+            Clashes[SinCompleted] = ClashingAtk(&Sinner[SinCompleted].Sanity, &Enemy[SinCompleted].Sanity, 
+                                                &Sinner[SinCompleted].coins, &Enemy[SinCompleted].coins, 
+                                                Sinner[SinCompleted].Skillbase, Enemy[SinCompleted].Skillbase, 
+                                                Sinner[SinCompleted].SkillcoinPow, Enemy[SinCompleted].SkillcoinPow, 
+                                                &Sinner[SinCompleted].Health, &Enemy[SinCompleted].Health);
             }
 
             else if(SkillPosInfo[SinCompleted].IsUnclashed == true && SkillPosInfo[SinCompleted].IsClashing == false){ //Enemy is going to attack unopposed
