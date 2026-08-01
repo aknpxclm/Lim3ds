@@ -73,10 +73,10 @@ Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
+
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
 SkillTouchPos EnUIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
-
 
 int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
