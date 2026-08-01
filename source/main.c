@@ -241,17 +241,14 @@ switch(MenuPosition){ // In game start
                                                 Sinner[SinCompleted].SkillcoinPow, Enemy[SinCompleted].SkillcoinPow, 
                                                 &Sinner[SinCompleted].Health, &Enemy[SinCompleted].Health);
             }
-
             else if(SkillPosInfo[SinCompleted].IsUnclashed == true && SkillPosInfo[SinCompleted].IsClashing == false){ //Enemy is going to attack unopposed
                 UnopposedAtk(Enemy[SinCompleted].coins, Enemy[SinCompleted].Skillbase, Enemy[SinCompleted].SkillcoinPow, &Sinner[SinCompleted].Health);
             }
-
             else{ //Sinner is going to attack unopposed
                 UnopposedAtk(Sinner[SinCompleted].coins, Sinner[SinCompleted].Skillbase, Sinner[SinCompleted].SkillcoinPow, &Enemy[SinCompleted].Health);
             }
             
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
-
         if(Enemy[4].Health < 0){
             C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
             C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
