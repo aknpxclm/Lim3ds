@@ -62,46 +62,30 @@ romfsInit();
 C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
-
 //placeholder stats till i can read files for values in a json or other c file
 Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
                         {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
                         {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
                         {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};  //This looks so awful
-                               
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};  //This looks so awful                            
 Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},  
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
-
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
-
 SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
 SkillTouchPos EnUIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
 
-//Each element is assigned a index based on ther skill selected to attack the Character array above
-int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 
-//skill number/order for main boss, second dimension is used to find the index for AtkOrder
-int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
-
-//higher priority means skill will clash over other skills
-int SkillPriorityLevel[5] = {0};
-
-//skill numbers for each skill slot for any amount for sinners
-int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};
-
-int BufferSkill[5] = {0, 0, 0, 0, 0};
-
-// original order before skills will be randomised and listed / picked from
-int SkillList[6] = {1, 1, 1, 2, 2, 3}; //Sinners can only have three skill 1s, two skill 2s and , one skill 3
-
+int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
+int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
+int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
+int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
+int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
+int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 int SelectlotNum[5] = {0};
-
 int MenuPosition = StartScreen;
-
 int Clashes[5] = {0};
 int TurnCount = 1;
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
