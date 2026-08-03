@@ -55,6 +55,9 @@ romfsExit();
 gfxExit();
 }
 
+//sprite animation example from http://www.nyankolab.com/
+static const u64 GFXRefresh = 25/*ms*/; //refresh graphics 40 times a second for 40fps
+
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
 consoleInit(GFX_BOTTOM, NULL);
@@ -78,6 +81,8 @@ ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0
 SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
 SkillTouchPos EnUIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
 
+
+
 int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
@@ -85,9 +90,10 @@ int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbe
 int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 int SelectlotNum[5] = {0};
-int MenuPosition = StartScreen;
+int CurrentSinner = 0;
 int Clashes[5] = {0};
 int TurnCount = 1;
+int MenuPosition = StartScreen;
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool TurnStart = false;
 bool CreatedSkillStores = false;
@@ -126,6 +132,7 @@ if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
     }
 
 while(aptMainLoop()){
+
     hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
     if(kDown & KEY_START) break;
@@ -174,7 +181,6 @@ switch(MenuPosition){ // In game start
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
 	    C2D_SceneBegin(bottom);
-
         //uses 3ds/graphics/printing/system-font example
         C2D_TextBufClear(dynamBuf); //clear previous text
         char bufff[256];
@@ -183,69 +189,67 @@ switch(MenuPosition){ // In game start
         C2D_TextParse(&dynamTex, dynamBuf, bufff);
         C2D_TextOptimize(&dynamTex);
         C2D_DrawText(&dynamTex, 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
-
 	    C3D_FrameEnd(0);
-
-        if(CreatedSkillStores == true){
-            if (kDown & KEY_L) TurnStart = !TurnStart; //Prevent abrupt cancels
+        
+        if(CreatedSkillStores == true && kDown & KEY_L)
+        {
+            TurnStart = !TurnStart; //Prevent abrupt cancels
+            for(int Search = 0; Search < 5; Search++){
+                //check if clashing
+                if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
+                    SkillPosInfo[Search].IsClashing = true;
+                    SkillPosInfo[Search].SkillClashing = Search;
+                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
+                    SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
+                }
+                //check if skill is going unopposed while another skill clashes the same slot
+                if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
+                    SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
+                    if(SkillPosInfo[Search].IsClashing == true){
+                        SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
+                    }
+                    // reset check bool
+                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
+                }
+                //check if enemy attacks wil go unopposed, no sinner is clashing the slot
+                if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
+                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
+                    {SkillPosInfo[Search].IsUnclashed = true;}
+            }
         }
-
     }
     else{
-    
-        for(int Search = 0; Search < 5; Search++){
-            //check if clashing
-            if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
-                SkillPosInfo[Search].IsClashing = true;
-                SkillPosInfo[Search].SkillClashing = Search;
-                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
-                SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
-            }
-            //check if skill is going unopposed while another skill clashes the same slot
-            if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
-                SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
-                if(SkillPosInfo[Search].IsClashing == true){
-                    SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
-                }
-                // reset check bool
-                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
-            }
-            //check if enemy attacks wil go unopposed, no sinner is clashing the slot
-            if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
-                {SkillPosInfo[Search].IsUnclashed = true;}
-        }
 
-        for(int SinCompleted = 0; SinCompleted < 5; SinCompleted++){
-            Sinner[SinCompleted].coins = Sinner[SinCompleted].Setcoins;
-            Sinner[SinCompleted].Skillbase = Sinner[SinCompleted].SetSkillbase;
-            Sinner[SinCompleted].SkillcoinPow = Sinner[SinCompleted].SetSkillcoinPow;
+        for(CurrentSinner; CurrentSinner < 5; CurrentSinner++){
+            Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
+            Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
+            Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
         
-            if(SinCompleted > 0){
-                Enemy[SinCompleted].Health = Enemy[SinCompleted - 1].Health;
-                Enemy[SinCompleted].Sanity = Enemy[SinCompleted - 1].Sanity;
+            if(CurrentSinner > 0){
+                Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
+                Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
             }
 
-            Enemy[SinCompleted].coins = Enemy[SinCompleted].Setcoins;
-            Enemy[SinCompleted].Skillbase = Enemy[SinCompleted].SetSkillbase;
-            Enemy[SinCompleted].SkillcoinPow = Enemy[SinCompleted].SetSkillcoinPow;
+            Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Setcoins;
+            Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].SetSkillbase;
+            Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].SetSkillcoinPow;
 
             //Holy arguements
-            if(SkillPosInfo[SinCompleted].IsClashing == true && SkillPosInfo[SinCompleted].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-            Clashes[SinCompleted] = ClashingAtk(&Sinner[SinCompleted].Sanity, &Enemy[SinCompleted].Sanity, 
-                                                &Sinner[SinCompleted].coins, &Enemy[SinCompleted].coins, 
-                                                Sinner[SinCompleted].Skillbase, Enemy[SinCompleted].Skillbase, 
-                                                Sinner[SinCompleted].SkillcoinPow, Enemy[SinCompleted].SkillcoinPow, 
-                                                &Sinner[SinCompleted].Health, &Enemy[SinCompleted].Health);
+            if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
+            Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, 
+                                                &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, 
+                                                Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, 
+                                                Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, 
+                                                &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
             }
-            else if(SkillPosInfo[SinCompleted].IsUnclashed == true && SkillPosInfo[SinCompleted].IsClashing == false){ //Enemy is going to attack unopposed
-                UnopposedAtk(Enemy[SinCompleted].coins, Enemy[SinCompleted].Skillbase, Enemy[SinCompleted].SkillcoinPow, &Sinner[SinCompleted].Health);
+            else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
+                UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
             }
             else{ //Sinner is going to attack unopposed
-                UnopposedAtk(Sinner[SinCompleted].coins, Sinner[SinCompleted].Skillbase, Sinner[SinCompleted].SkillcoinPow, &Enemy[SinCompleted].Health);
+                UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
             }
             
         } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
@@ -257,10 +261,16 @@ switch(MenuPosition){ // In game start
 	        C3D_FrameEnd(0);
             MenuPosition = 1;
         }
+
+        if(CurrentSinner == 5/*All sinners have completed their actions*/){
+        //reset to first sinner
+        CurrentSinner = 0;
         //End this turn and start the next one
         TurnStart = !TurnStart;
         CreatedSkillStores = !CreatedSkillStores;
         TurnCount++; 
+        }
+        
     } // Turn Running loop
     break; //Leave combat code zone
 } 
