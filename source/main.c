@@ -12,6 +12,13 @@
 #define MainMenu 1
 #define CombatMenu 2
 
+void ExitApp(){
+C2D_Fini();
+C3D_Fini();
+romfsExit();
+gfxExit();
+}
+
 //Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
 
@@ -48,13 +55,6 @@ typedef struct
 
 static Sprite Msprites[MAX_SPRITES];
 
-void ExitApp(){
-C2D_Fini();
-C3D_Fini();
-romfsExit();
-gfxExit();
-}
-
 //sprite animation example from http://www.nyankolab.com/
 static const u64 GFXRefresh = 25/*ms*/; //refresh graphics 40 times a second for 40fps
 
@@ -81,7 +81,12 @@ ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0
 SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
 SkillTouchPos EnUIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
 
+u64 InitialTimeMs = 0;
+u64 CurrentTimeMs = 0;
+u64 ElapsedTimeMs = 0;
 
+int CurrentFrameIndex = 0;
+size_t SkillSprites = 0;;
 
 int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
@@ -93,11 +98,12 @@ int SelectlotNum[5] = {0};
 int CurrentSinner = 0;
 int Clashes[5] = {0};
 int TurnCount = 1;
+int TurnStart = 0; //0: Combat menu, 1: Clashes and dmg applied, 1< gfx
 int MenuPosition = StartScreen;
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
-bool TurnStart = false;
 bool CreatedSkillStores = false;
 
+InitialTimeMs = osGetTime();
 SeedStart();
 Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
 
@@ -119,17 +125,17 @@ menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
 if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 
 //Initialise all sprites in a sheet
-    size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
-    for(int x = 0; x < numsprites; x++){
+size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
+for(int x = 0; x < numsprites; x++){
     Sprite *Msprite = &Msprites[x];
-    	C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
-    	C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
-    	C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
-    	C2D_SpriteSetRotation(&Msprite->spr, 0);
-    	C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
-    	Msprite->dx = 0;
-    	Msprite->dy = 0;
-    }
+    C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
+    C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
+    C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
+    C2D_SpriteSetRotation(&Msprite->spr, 0);
+    C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
+    Msprite->dx = 0;
+    Msprite->dy = 0;
+}
 
 while(aptMainLoop()){
 
@@ -170,11 +176,13 @@ switch(MenuPosition){ // In game start
     break;
         
     case CombatMenu: //Combat select area
-    if(CreatedSkillStores == false){
-    CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
-    }
-    if (!TurnStart){
+    
+    if (TurnStart == 0){
     //(Should Draw / Make menu) - unfinished
+        if(CreatedSkillStores == false)
+        {
+        CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
+        }
         Sinner[0].OldHealth = Sinner[0].Health;
         Enemy[0].OldHealth = Enemy[0].Health;
 
@@ -186,14 +194,14 @@ switch(MenuPosition){ // In game start
         char bufff[256];
         C2D_Text dynamTex;
         snprintf(bufff, sizeof(bufff), "Health: %lf Sanity: %d", Sinner[0].Health, Sinner[0].Sanity); //write to buffer
-        C2D_TextParse(&dynamTex, dynamBuf, bufff);
+        C2D_TextParse(&dynamTex, dynamBuf, bufff); //parse the buffer
         C2D_TextOptimize(&dynamTex);
         C2D_DrawText(&dynamTex, 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
 	    C3D_FrameEnd(0);
         
-        if(CreatedSkillStores == true && kDown & KEY_L)
+        if(CreatedSkillStores == true && kDown & KEY_L) //Prevent abrupt cancels
         {
-            TurnStart = !TurnStart; //Prevent abrupt cancels
+            TurnStart = 1;
             for(int Search = 0; Search < 5; Search++){
                 //check if clashing
                 if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
@@ -217,64 +225,79 @@ switch(MenuPosition){ // In game start
                     EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
                     EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
                     EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
-                    {SkillPosInfo[Search].IsUnclashed = true;}
+                    {
+                    SkillPosInfo[Search].IsUnclashed = true;
+                    }
             }
         }
     }
-    else{
+    else if(TurnStart == 1)
+    { // Turn Running loop
 
-        for(CurrentSinner; CurrentSinner < 5; CurrentSinner++){
-            Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
-            Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
-            Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
+        Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
+        Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
+        Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
         
-            if(CurrentSinner > 0){
-                Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
-                Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
-            }
-
-            Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Setcoins;
-            Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].SetSkillbase;
-            Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].SetSkillcoinPow;
-
-            //Holy arguements
-            if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-            Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, 
-                                                &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, 
-                                                Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, 
-                                                Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, 
-                                                &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
-            }
-            else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
-                UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
-            }
-            else{ //Sinner is going to attack unopposed
-                UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
-            }
-            
-        } //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
-        if(Enemy[4].Health < 0){
-            C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-            C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-	        C2D_SceneBegin(bottom);
-            C2D_DrawText(&staticTex[0], 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
-	        C3D_FrameEnd(0);
-            MenuPosition = 1;
+        if(CurrentSinner > 0){
+            Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
+            Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
         }
 
-        if(CurrentSinner == 5/*All sinners have completed their actions*/){
-        //reset to first sinner
+        Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Setcoins;
+        Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].SetSkillbase;
+        Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].SetSkillcoinPow;
+
+        //Holy arguements
+        if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
+        Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, 
+                                            &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, 
+                                            Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, 
+                                            Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, 
+                                            &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
+        }
+        else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
+            UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
+        }
+        else{ //Sinner is going to attack unopposed
+            UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
+        }
+        TurnStart++;
+    }
+    else
+    {
+        SkillSprites = C2D_SpriteSheetCount(menuSpriteSheet/*PLACEHOLDER*/);
+
+        CurrentTimeMs = osGetTime();
+        ElapsedTimeMs = (CurrentTimeMs - InitialTimeMs);
+        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+	    C2D_SceneBegin(top);
+
+	    C3D_FrameEnd(0);
+    }
+        CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
+        
+    if(Enemy[4].Health < 0){
+        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+        C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+	    C2D_SceneBegin(bottom);
+        C2D_DrawText(&staticTex[0], 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
+	    C3D_FrameEnd(0);
+        MenuPosition = 1;
+    }
+
+    if(CurrentSinner == 5/*All sinners have completed their actions*/){
+          //reset to first sinner
         CurrentSinner = 0;
         //End this turn and start the next one
-        TurnStart = !TurnStart;
+        TurnStart = 0;
         CreatedSkillStores = !CreatedSkillStores;
         TurnCount++; 
-        }
-        
-    } // Turn Running loop
+    }
     break; //Leave combat code zone
-} 
 
+} 
+    
     gfxFlushBuffers();
     gfxSwapBuffers();
     gspWaitForVBlank();
