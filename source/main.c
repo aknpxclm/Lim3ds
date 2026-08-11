@@ -66,15 +66,15 @@ C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 //placeholder stats till i can read files for values in a json or other c file
-Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, 
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, 
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};  //This looks so awful                            
-Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2},  
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, 
+Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, \
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, \
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, \
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, \
+                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};                            
+Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
+                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
@@ -98,8 +98,9 @@ int SelectlotNum[5] = {0};
 int CurrentSinner = 0;
 int Clashes[5] = {0};
 int TurnCount = 1;
-int TurnStart = 0; //0: Combat menu, 1: Clashes and dmg applied, 1< gfx
 int MenuPosition = StartScreen;
+int TurnStart = 0;
+int InCombatOrGFX = 0; //1 combat clashing logic, 2 GFX
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 
@@ -176,64 +177,64 @@ switch(MenuPosition){ // In game start
     break;
         
     case CombatMenu: //Combat select area
-    
-    if (TurnStart == 0){
-    //(Should Draw / Make menu) - unfinished
-        if(CreatedSkillStores == false)
-        {
-        CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
-        }
-        Sinner[0].OldHealth = Sinner[0].Health;
-        Enemy[0].OldHealth = Enemy[0].Health;
-
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
-	    C2D_SceneBegin(bottom);
-        //uses 3ds/graphics/printing/system-font example
-        C2D_TextBufClear(dynamBuf); //clear previous text
-        char bufff[256];
-        C2D_Text dynamTex;
-        snprintf(bufff, sizeof(bufff), "Health: %lf Sanity: %d", Sinner[0].Health, Sinner[0].Sanity); //write to buffer
-        C2D_TextParse(&dynamTex, dynamBuf, bufff); //parse the buffer
-        C2D_TextOptimize(&dynamTex);
-        C2D_DrawText(&dynamTex, 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
-	    C3D_FrameEnd(0);
-        
-        if(CreatedSkillStores == true && kDown & KEY_L) //Prevent abrupt cancels
-        {
-            TurnStart = 1;
-            for(int Search = 0; Search < 5; Search++){
-                //check if clashing
-                if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
-                    SkillPosInfo[Search].IsClashing = true;
-                    SkillPosInfo[Search].SkillClashing = Search;
-                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
-                    SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
-                }
-                //check if skill is going unopposed while another skill clashes the same slot
-                if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
-                    SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
-                    if(SkillPosInfo[Search].IsClashing == true){
-                        SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
-                    }
-                    // reset check bool
-                    SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
-                }
-                //check if enemy attacks wil go unopposed, no sinner is clashing the slot
-                if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || 
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || 
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || //Awful counter: 2
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || 
-                    EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
-                    {
-                    SkillPosInfo[Search].IsUnclashed = true;
-                    }
+        C2D_SceneBegin(bottom);
+    //(Should Draw / Make menu) - unfinished
+    if(CreatedSkillStores == false)
+    {
+    CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
+    }
+    Sinner[0].OldHealth = Sinner[0].Health;
+    Enemy[0].OldHealth = Enemy[0].Health;
+    //uses 3ds/graphics/printing/system-font example
+    C2D_TextBufClear(dynamBuf); //clear previous text
+    char bufff[256];
+    C2D_Text dynamTex;
+
+    snprintf(bufff, sizeof(bufff), "Health: %lf  %lf  %lf  %lf  %lf\n Sanity: %d  %d  %d  %d  %d", \
+     Sinner[0].Health, Sinner[1].Health, Sinner[2].Health, Sinner[3].Health, Sinner[4].Health, \
+     Sinner[0].Sanity, Sinner[1].Sanity, Sinner[2].Sanity, Sinner[3].Sanity, Sinner[4].Sanity); //write to buffer
+
+    C2D_TextParse(&dynamTex, dynamBuf, bufff); //parse the buffer
+    C2D_TextOptimize(&dynamTex);
+    C2D_DrawText(&dynamTex, 0, 8.0f, 8.0f, 0.0f, 1.0f, 1.0f);
+    
+    if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
+    {
+        InCombatOrGFX = 1; //combat
+        for(int Search = 0; Search < 5; Search++){
+            //check if clashing
+            if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
+                SkillPosInfo[Search].IsClashing = true;
+                SkillPosInfo[Search].SkillClashing = Search;
+                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
+                SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
             }
+            //check if skill is going unopposed while another skill clashes the same slot
+            if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
+                SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
+                if(SkillPosInfo[Search].IsClashing == true){
+                    SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
+                }
+                // reset check bool
+                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
+            }
+            //check if enemy attacks wil go unopposed, no sinner is clashing the slot
+            if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || \
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || \
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || \
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || \
+                EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
+                {
+                SkillPosInfo[Search].IsUnclashed = true;
+                }
         }
     }
-    else if(TurnStart == 1)
-    { // Turn Running loop
 
+    switch(InCombatOrGFX){
+
+        case 1: // Turn Running loop -> Clashing
         Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
         Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
         Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
@@ -249,11 +250,11 @@ switch(MenuPosition){ // In game start
 
         //Holy arguements
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-        Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, 
-                                            &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, 
-                                            Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, 
-                                            Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, 
-                                            &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
+        Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, \
+                                             &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, \
+                                             Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, \
+                                             Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, \
+                                             &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
             UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
@@ -261,43 +262,43 @@ switch(MenuPosition){ // In game start
         else{ //Sinner is going to attack unopposed
             UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
         }
-        TurnStart++;
-    }
-    else
-    {
+        InCombatOrGFX = 2; //GFX
+        break;
+
+        case 2: //GFX of the clash and combat
         SkillSprites = C2D_SpriteSheetCount(menuSpriteSheet/*PLACEHOLDER*/);
 
         CurrentTimeMs = osGetTime();
         ElapsedTimeMs = (CurrentTimeMs - InitialTimeMs);
-        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-	    C2D_SceneBegin(top);
-
-	    C3D_FrameEnd(0);
-    }
-        CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
+        C2D_SceneBegin(top);
         
+        CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}
+        InCombatOrGFX = 0;
+        break;
+    }
+    
+    
     if(Enemy[4].Health < 0){
-        C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	    C2D_SceneBegin(bottom);
         C2D_DrawText(&staticTex[0], 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
-	    C3D_FrameEnd(0);
-        MenuPosition = 1;
+        MenuPosition = MainMenu;
+        C3D_FrameEnd(0);
+        break;
     }
 
     if(CurrentSinner == 5/*All sinners have completed their actions*/){
-          //reset to first sinner
+        //reset to first sinner
         CurrentSinner = 0;
         //End this turn and start the next one
-        TurnStart = 0;
-        CreatedSkillStores = !CreatedSkillStores;
-        TurnCount++; 
+        
+        CreatedSkillStores = false;
+        TurnCount++;
     }
+        C3D_FrameEnd(0);
     break; //Leave combat code zone
 
-} 
-    
+}
     gfxFlushBuffers();
     gfxSwapBuffers();
     gspWaitForVBlank();
