@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "Skill.h"
 #include "CombatFunctions.h"
-#include "SkillUIPositions.h"
+#include "MenuSelec.h"
 
 #define MAX_SPRITES 768
 
@@ -56,7 +56,7 @@ typedef struct
 static Sprite Msprites[MAX_SPRITES];
 
 //sprite animation example from http://www.nyankolab.com/
-static const u64 GFXRefresh = 25/*ms*/; //refresh graphics 40 times a second for 40fps
+static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
@@ -78,17 +78,15 @@ Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
                        {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
-SkillTouchPos UIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill}; // X & Y areas for touch selecting skills on the bottom screen
-SkillTouchPos EnUIPostion[5] = {FirstSkill, SecondSkill, ThirdSkill, FourthSkill, FifthSkill};
 
 u64 InitialTimeMs = 0;
 u64 CurrentTimeMs = 0;
 u64 ElapsedTimeMs = 0;
 
 int CurrentFrameIndex = 0;
-size_t SkillSprites = 0;;
+size_t SkillSprites = 0;
 
-int AttackOrder[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
+int AttackOrder[5][2] = {{0, NOTSELECTED/* = 6*/}, {0, 6}, {0, 6}, {0, 6}, {0, }};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -96,13 +94,16 @@ int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original o
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 int SelectlotNum[5] = {0};
 int CurrentSinner = 0;
+int CurrSinTOChooseSkill = NOTSELECTED;
 int Clashes[5] = {0};
 int TurnCount = 1;
 int MenuPosition = StartScreen;
 int TurnStart = 0;
-int InCombatOrGFX = 0; //1 combat clashing logic, 2 GFX
+int InCombatOrGFX = 0; //1: combat clashing logic, 2: GFX of clashes
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
+bool BeganSelec = false;
+bool SkillTargetingLocked = false;
 
 InitialTimeMs = osGetTime();
 SeedStart();
@@ -142,6 +143,7 @@ while(aptMainLoop()){
 
     hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
+    u32 kHeld = hidKeysHeld();
     if(kDown & KEY_START) break;
     touchPosition touch;
     hidTouchRead(&touch);
@@ -151,7 +153,7 @@ switch(MenuPosition){ // In game start
     case StartScreen: //Start screen
     if(MenuPosition == StartScreen)
     { //Prevent redrawing the startmenu sprites when changing menu position
-    C2D_SpriteMove(&Msprites[0].spr, 30, 20); //Move sprite to center view
+    C2D_SpriteSetPos(&Msprites[0].spr, 30, 20); //Move sprite to center view
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	C2D_SceneBegin(top);
@@ -187,18 +189,41 @@ switch(MenuPosition){ // In game start
     }
     Sinner[0].OldHealth = Sinner[0].Health;
     Enemy[0].OldHealth = Enemy[0].Health;
+
+    if(kHeld & KEY_TOUCH){
+        CurrSinTOChooseSkill = BeginSinSelec(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &BeganSelec);
+    }
+    else
+    {
+        SkillTargetingLocked = false;
+        BeganSelec = false;
+    }
+    if(kHeld & KEY_TOUCH && BeganSelec)
+    {
+        AttackOrder[CurrSinTOChooseSkill][1] = CursorToEN_Skill(touch.px, touch.py);
+    }
+    else
+    {
+
+    }
     //uses 3ds/graphics/printing/system-font example
     C2D_TextBufClear(dynamBuf); //clear previous text
-    char bufff[256];
-    C2D_Text dynamTex;
+    char HpBuf[256];
+    char Sanbuf[256];
+    C2D_Text dynamTex[2];
 
-    snprintf(bufff, sizeof(bufff), "Health: %lf  %lf  %lf  %lf  %lf\n Sanity: %d  %d  %d  %d  %d", \
-     Sinner[0].Health, Sinner[1].Health, Sinner[2].Health, Sinner[3].Health, Sinner[4].Health, \
+    snprintf(HpBuf, sizeof(HpBuf), "Health: %lf  %lf  %lf  %lf  %lf", \
+     Sinner[0].Health, Sinner[1].Health, Sinner[2].Health, Sinner[3].Health, Sinner[4].Health);
+    
+    snprintf(Sanbuf, sizeof(Sanbuf), "Sanity: %d  %d  %d  %d  %d", \
      Sinner[0].Sanity, Sinner[1].Sanity, Sinner[2].Sanity, Sinner[3].Sanity, Sinner[4].Sanity); //write to buffer
 
-    C2D_TextParse(&dynamTex, dynamBuf, bufff); //parse the buffer
-    C2D_TextOptimize(&dynamTex);
-    C2D_DrawText(&dynamTex, 0, 8.0f, 8.0f, 0.0f, 1.0f, 1.0f);
+    C2D_TextParse(&dynamTex[0], dynamBuf, HpBuf); //parse the formatted strings
+    C2D_TextParse(&dynamTex[1], dynamBuf, Sanbuf);
+    C2D_TextOptimize(&dynamTex[0]);
+    C2D_TextOptimize(&dynamTex[1]);
+    C2D_DrawText(&dynamTex[0], 0, 8.0f, 8.0f, 0.0f, 1.0f, 1.0f);
+    C2D_DrawText(&dynamTex[1], 0, 12.0f, 12.0f, 0.0f, 1.0f, 1.0f);
     
     if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
     {
@@ -227,7 +252,7 @@ switch(MenuPosition){ // In game start
                 EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || \
                 EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
                 {
-                SkillPosInfo[Search].IsUnclashed = true;
+                    SkillPosInfo[Search].IsUnclashed = true;
                 }
         }
     }
@@ -269,9 +294,20 @@ switch(MenuPosition){ // In game start
         SkillSprites = C2D_SpriteSheetCount(menuSpriteSheet/*PLACEHOLDER*/);
 
         CurrentTimeMs = osGetTime();
-        ElapsedTimeMs = (CurrentTimeMs - InitialTimeMs);
+        ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
+        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_SceneBegin(top);
-        
+        if(ElapsedTimeMs >= GFXRefreshMs)
+        {
+            ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
+            //draw current frame index of the animation
+            //increase to the next index
+            InitialTimeMs = osGetTime(); //set new initial time
+        }
+        else
+        {
+            //draw current frame index of the animation
+        }
         CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}
         InCombatOrGFX = 0;
         break;
