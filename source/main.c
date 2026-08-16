@@ -5,19 +5,13 @@
 #include "Skill.h"
 #include "CombatFunctions.h"
 #include "MenuSelec.h"
+#include "Sinner_Enemy_defin.h"
 
 #define MAX_SPRITES 768
 
 #define StartScreen 0
 #define MainMenu 1
 #define CombatMenu 2
-
-void ExitApp(){
-C2D_Fini();
-C3D_Fini();
-romfsExit();
-gfxExit();
-}
 
 //Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
@@ -26,26 +20,6 @@ static C2D_SpriteSheet menuSpriteSheet;
 C2D_TextBuf staticBuf;
 C2D_TextBuf dynamBuf;
 C2D_Text staticTex[2];
-
-typedef struct{
-double Health;
-double OldHealth;
-int coins;
-int Skillbase;
-int SkillcoinPow;
-int Sanity;
-int Setcoins;
-int SetSkillbase;
-int SetSkillcoinPow;
-}Characters;
-
-typedef struct Clashing_Checks{
-    int SkillClashing;
-    int Priority;
-    bool IsClashing;
-    bool IsUnclashed; //Based on if the enemy is clashing
-
-}ClashParams;
 
 typedef struct
 {
@@ -57,6 +31,35 @@ static Sprite Msprites[MAX_SPRITES];
 
 //sprite animation example from http://www.nyankolab.com/
 static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
+
+void ExitApp(){
+C2D_Fini();
+C3D_Fini();
+romfsExit();
+gfxExit();
+}
+
+void SinnerTex(Characters Sinner[5], C2D_TextBuf dynamBuf, float xPosHP, float yPosHP, float xPosSP, float yPosSP)
+{
+    //uses 3ds/graphics/printing/system-font example
+    C2D_TextBufClear(dynamBuf); //clear previous text
+    char HpBuf[256];
+    char Sanbuf[256];
+    C2D_Text dynamTex[2];
+
+    snprintf(HpBuf, sizeof(HpBuf), "Health: %lf  %lf  %lf  %lf  %lf", \
+     Sinner[0].Health, Sinner[1].Health, Sinner[2].Health, Sinner[3].Health, Sinner[4].Health);
+    
+    snprintf(Sanbuf, sizeof(Sanbuf), "Sanity: %d  %d  %d  %d  %d", \
+     Sinner[0].Sanity, Sinner[1].Sanity, Sinner[2].Sanity, Sinner[3].Sanity, Sinner[4].Sanity); //write to buffer
+
+    C2D_TextParse(&dynamTex[0], dynamBuf, HpBuf); //parse the formatted strings
+    C2D_TextParse(&dynamTex[1], dynamBuf, Sanbuf);
+    C2D_TextOptimize(&dynamTex[0]);
+    C2D_TextOptimize(&dynamTex[1]);
+    C2D_DrawText(&dynamTex[0], 0, xPosHP, yPosHP, 0.0f, 1.0f, 1.0f);
+    C2D_DrawText(&dynamTex[1], 0, xPosSP, yPosSP, 0.0f, 1.0f, 1.0f);
+}
 
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
@@ -163,6 +166,7 @@ switch(MenuPosition){ // In game start
     }
     break;
 
+
     case MainMenu: //Main menu
     if(MenuPosition == MainMenu)
     {
@@ -177,7 +181,8 @@ switch(MenuPosition){ // In game start
     C3D_FrameEnd(0);
     }
     break;
-        
+       
+    
     case CombatMenu: //Combat select area
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
@@ -202,44 +207,27 @@ switch(MenuPosition){ // In game start
     {
         AttackOrder[CurrSinTOChooseSkill][1] = CursorToEN_Skill(touch.px, touch.py);
     }
-    else
-    {
 
-    }
-    //uses 3ds/graphics/printing/system-font example
-    C2D_TextBufClear(dynamBuf); //clear previous text
-    char HpBuf[256];
-    char Sanbuf[256];
-    C2D_Text dynamTex[2];
-
-    snprintf(HpBuf, sizeof(HpBuf), "Health: %lf  %lf  %lf  %lf  %lf", \
-     Sinner[0].Health, Sinner[1].Health, Sinner[2].Health, Sinner[3].Health, Sinner[4].Health);
-    
-    snprintf(Sanbuf, sizeof(Sanbuf), "Sanity: %d  %d  %d  %d  %d", \
-     Sinner[0].Sanity, Sinner[1].Sanity, Sinner[2].Sanity, Sinner[3].Sanity, Sinner[4].Sanity); //write to buffer
-
-    C2D_TextParse(&dynamTex[0], dynamBuf, HpBuf); //parse the formatted strings
-    C2D_TextParse(&dynamTex[1], dynamBuf, Sanbuf);
-    C2D_TextOptimize(&dynamTex[0]);
-    C2D_TextOptimize(&dynamTex[1]);
-    C2D_DrawText(&dynamTex[0], 0, 8.0f, 8.0f, 0.0f, 1.0f, 1.0f);
-    C2D_DrawText(&dynamTex[1], 0, 12.0f, 12.0f, 0.0f, 1.0f, 1.0f);
+    SinnerTex(Sinner, dynamBuf, 8.0f, 8.0f, 8.0f, 12.0f);
     
     if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
     {
         InCombatOrGFX = 1; //combat
         for(int Search = 0; Search < 5; Search++){
             //check if clashing
-            if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex]){
+            if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex])
+            {
                 SkillPosInfo[Search].IsClashing = true;
                 SkillPosInfo[Search].SkillClashing = Search;
                 SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
                 SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
             }
             //check if skill is going unopposed while another skill clashes the same slot
-            if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true){
+            if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true)
+            {
                 SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
-                if(SkillPosInfo[Search].IsClashing == true){
+                if(SkillPosInfo[Search].IsClashing == true)
+                {
                     SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
                 }
                 // reset check bool
