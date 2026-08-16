@@ -16,12 +16,8 @@ int ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int Si
         SinClashNum = ClashValue(*SinCoin, SinBase, SinPow, *SinSanity);
         EnClashNum = ClashValue(*EnCoin, EnBase, EnPow, *EnSanity);
         // check who wins
-        if(SinClashNum > EnClashNum){ //Sinner win
-            *EnCoin -= 1;
-        }
-        else if(SinClashNum < EnClashNum){ // enemy win
-            *SinCoin -= 1;
-        }
+        *EnCoin -= (EnClashNum < SinClashNum); //if enemy won subtract 0
+        *SinCoin -= (SinClashNum < EnClashNum); //if sinner won subtract 0
         Clashes++;
     }
     //check who "won" in total
@@ -46,12 +42,7 @@ void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth){
 }
 //compares the priority of two skills 
 int ComparePriority(int Pri1,int Pri2){
-if(Pri1 > Pri2){
-    return 1;
-}
-else{
-    return 0;
-}
+return (Pri1 > Pri2); //Branchless???
 }
 
 //Adds skill ranks to the enemy, sinners and buffer skill arrays

@@ -5,14 +5,13 @@
 
 //Generate a random skill value to compare and clash with
 int ClashValue(int coins, int Skillbase, int SkillcoinPow, int Sanity){
- int total = 0;
- total += Skillbase;
+int coinFlip = 0;
+int total = 0;
+total += Skillbase;
 for (int i = 0; i < coins; i++)
 {
-    int coinFlip = rand() % 100;
-    if (coinFlip < Sanity){
-        total += SkillcoinPow;
-    }
+    coinFlip = rand() % 100;
+    total += (coinFlip < Sanity) * SkillcoinPow;
 }
 return total;
 }
@@ -25,16 +24,10 @@ void SeedStart(){
 srand(time(NULL) * (rand() % 100));
 }
 //Keeps sanity between 5 and 95 (displayed as -45 and 45)
-int LimitSanity(int* Sanity){
-if(*Sanity > 95){
-return 95;
-}
-else if(*Sanity < 5){
-return 5;
-}
-else{
-return *Sanity;
-}
+int LimitSanity(int* Sanity)
+{
+//If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
+return *Sanity * (*Sanity < 95) * (*Sanity > 5) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
 }
 //Returns a random index from 0 - 5 to swap a skill rank to
 int Form_or_Select_Random_Skill(){

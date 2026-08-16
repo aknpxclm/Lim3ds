@@ -89,7 +89,7 @@ u64 ElapsedTimeMs = 0;
 int CurrentFrameIndex = 0;
 size_t SkillSprites = 0;
 
-int AttackOrder[5][2] = {{0, NOTSELECTED/* = 6*/}, {0, 6}, {0, 6}, {0, 6}, {0, }};  //Each element is assigned a index based on ther skill selected to attack the Character array above
+int AttackOrder[5][2] = {{0, NOTSELECTED/* = 6*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -226,7 +226,8 @@ switch(MenuPosition){ // In game start
             if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true)
             {
                 SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
-                if(SkillPosInfo[Search].IsClashing == true)
+                //Check if other skill has the higher pirority and remove them from clashing if it is lower
+                if(SkillPosInfo[Search].IsClashing)
                 {
                     SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
                 }
