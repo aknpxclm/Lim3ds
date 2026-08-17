@@ -16,7 +16,6 @@
 //Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
 
-//Text and text buffers
 C2D_TextBuf staticBuf;
 C2D_TextBuf dynamBuf;
 C2D_Text staticTex[2];
@@ -27,7 +26,7 @@ typedef struct
 	float dx, dy; // velocity
 } Sprite;
 
-static Sprite Msprites[MAX_SPRITES];
+static C2D_Sprite Menusprites[MAX_SPRITES];
 
 //sprite animation example from http://www.nyankolab.com/
 static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
@@ -89,7 +88,8 @@ u64 ElapsedTimeMs = 0;
 int CurrentFrameIndex = 0;
 size_t SkillSprites = 0;
 
-int AttackOrder[5][2] = {{0, NOTSELECTED/* = 6*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
+int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 6*/}, \
+{0, 6}, {0, 6}, {0, 6}, {0, 6}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -132,14 +132,12 @@ if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 //Initialise all sprites in a sheet
 size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
 for(int x = 0; x < numsprites; x++){
-    Sprite *Msprite = &Msprites[x];
-    C2D_SpriteFromSheet(&Msprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
-    C2D_SpriteSetCenter(&Msprite->spr, 0.1f, 0.1f);
-    C2D_SpriteSetPos(&Msprite->spr, 0/*X position*/, 0/*Y position*/);
-    C2D_SpriteSetRotation(&Msprite->spr, 0);
-    C2D_SpriteSetScale(&Msprite->spr, 1/*X scale*/, 1/*Y scale*/);
-    Msprite->dx = 0;
-    Msprite->dy = 0;
+    C2D_Sprite *Menusprite = &Menusprites[x];
+    C2D_SpriteFromSheet(&Menusprite, menuSpriteSheet, x/*sprite index in the sheet*/);
+    C2D_SpriteSetCenter(&Menusprite, 0.1f, 0.1f);
+    C2D_SpriteSetPos(&Menusprite, 0/*X position*/, 0/*Y position*/);
+    C2D_SpriteSetRotation(&Menusprite, 0);
+    C2D_SpriteSetScale(&Menusprite, 1/*X scale*/, 1/*Y scale*/);
 }
 
 while(aptMainLoop()){
@@ -156,11 +154,11 @@ switch(MenuPosition){ // In game start
     case StartScreen: //Start screen
     if(MenuPosition == StartScreen)
     { //Prevent redrawing the startmenu sprites when changing menu position
-    C2D_SpriteSetPos(&Msprites[0].spr, 30, 20); //Move sprite to center view
+    C2D_SpriteSetPos(&Menusprites[0], 30, 20); //Move sprite to center view
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	C2D_SceneBegin(top);
-	C2D_DrawSprite(&Msprites[0].spr); //Draw Start_Screen.png
+	C2D_DrawSprite(&Menusprites[0]); //Draw Start_Screen.png
 	C3D_FrameEnd(0);
     if(kDown & KEY_TOUCH) MenuPosition = MainMenu; //Switch to MainMenu
     }
@@ -173,11 +171,12 @@ switch(MenuPosition){ // In game start
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 0.65f)); //Gray background
 	C2D_SceneBegin(top);
-        if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH) // if touchpad is pressed in the detection area...
-        {
-            MenuPosition = CombatMenu;
-        }
-        //more options in the menu will get their own conditions
+    if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH)
+    {
+        // if touchpad is pressed in the detection area...
+        MenuPosition = CombatMenu;
+    }
+    //more options in the menu will get their own conditions
     C3D_FrameEnd(0);
     }
     break;
@@ -302,7 +301,6 @@ switch(MenuPosition){ // In game start
         break;
     }
     
-    
     if(Enemy[4].Health < 0){
         C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	    C2D_SceneBegin(bottom);
@@ -316,7 +314,6 @@ switch(MenuPosition){ // In game start
         //reset to first sinner
         CurrentSinner = 0;
         //End this turn and start the next one
-        
         CreatedSkillStores = false;
         TurnCount++;
     }

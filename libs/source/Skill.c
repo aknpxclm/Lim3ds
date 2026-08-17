@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <time.h>
-
-#define SkillUsedFlag 444
+#include "Skill.h"
 
 //Generate a random skill value to compare and clash with
-int ClashValue(int coins, int Skillbase, int SkillcoinPow, int Sanity){
+int ClashValue(int coins, int Skillbase, int SkillcoinPow, int Sanity)
+{
 int coinFlip = 0;
 int total = 0;
 total += Skillbase;
@@ -15,6 +15,7 @@ for (int i = 0; i < coins; i++)
 }
 return total;
 }
+
 //Calculate damage of skill
 int Damagedealt(int coins, int Skillbase, int SkillcoinPow, int Clashes){
 return Skillbase + (coins * SkillcoinPow) * (1 + (3 * (Clashes * 0.01))); 
@@ -27,7 +28,7 @@ srand(time(NULL) * (rand() % 100));
 int LimitSanity(int* Sanity)
 {
 //If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
-return *Sanity * (*Sanity < 95) * (*Sanity > 5) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
+return *Sanity * ((*Sanity < 95) & (*Sanity > 5)) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
 }
 //Returns a random index from 0 - 5 to swap a skill rank to
 int Form_or_Select_Random_Skill(){
@@ -51,7 +52,7 @@ for(int j = 0; j < 6; j++){
 }
 
 //Move skills down the selction area when a skill is used
-void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[]){
+void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[]){
 int TopRowSkill = 0;
 int BufferSkillnum = 0;
 
@@ -66,5 +67,6 @@ for(int i = 0; i < 5; i++){
     else if(SkillOptions[i][1] == SkillUsedFlag){ //Top row skill used
         SkillOptions[i][1] = BufferSkillnum;
     }
+    BufferSkill[i] = SkillList[Form_or_Select_Random_Skill()]; //generate a new skill rank in the buffer
 }
 }

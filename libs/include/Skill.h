@@ -7,6 +7,8 @@ int LimitSanity(int* Sanity);
 void SeedStart();
 int Form_or_Select_Random_Skill();
 void Rearrange_SkillPool(int SkillList[]);
-void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[]);
+void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[]);
+
+#define SkillUsedFlag 444
 
 #endif
