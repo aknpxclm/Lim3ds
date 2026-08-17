@@ -1,7 +1,6 @@
-#include <stdbool.h>
 #include "MenuSelec.h"
 
-int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *BeganSelec)
+int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, int *SkillTargetingLocked, int *BeganSelec)
 {
     if(*SkillTargetingLocked)
     {
@@ -12,36 +11,36 @@ int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillT
 
     if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48)
     {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *SkillTargetingLocked = 1;
+        *BeganSelec = 1;
         return 0; //slot 1
     }
     else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 216 && TOUCHy >= 230)
     {
-        *SkillTargetingLocked = true;
+        *SkillTargetingLocked = 1;
         return 1; //slot 2
     }
     else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 216 && TOUCHy >= 230)
     {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *SkillTargetingLocked = 1;
+        *BeganSelec = 1;
         return 2; //slot 3
     }
     else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 216 && TOUCHy >= 230)
     {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *SkillTargetingLocked = 1;
+        *BeganSelec = 1;
         return 3; //slot 4
     }
     else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 216 && TOUCHy >= 230)
     {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *SkillTargetingLocked = 1;
+        *BeganSelec = 1;
         return 4; //slot 5
     }
     else
     {
-        *BeganSelec = false;
+        *BeganSelec = 0;
         return NOTSELECTED;
     }
 }
