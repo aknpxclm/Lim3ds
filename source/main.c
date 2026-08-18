@@ -2,10 +2,10 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "Sinner_Enemy_defin.h"
 #include "Skill.h"
 #include "CombatFunctions.h"
 #include "MenuSelec.h"
-#include "Sinner_Enemy_defin.h"
 
 #define MAX_SPRITES 768
 
