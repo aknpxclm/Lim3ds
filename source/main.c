@@ -5,13 +5,14 @@
 #include "Sinner_Enemy_defin.h"
 #include "Skill.h"
 #include "CombatFunctions.h"
-#include "MenuSelec.h"
 
 #define MAX_SPRITES 768
 
 #define StartScreen 0
 #define MainMenu 1
 #define CombatMenu 2
+
+#define NOTSELECTED 6
 
 //Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
@@ -58,6 +59,59 @@ void SinnerTex(Characters Sinner[5], C2D_TextBuf dynamBuf, float xPosHP, float y
     C2D_TextOptimize(&dynamTex[1]);
     C2D_DrawText(&dynamTex[0], 0, xPosHP, yPosHP, 0.0f, 1.0f, 1.0f);
     C2D_DrawText(&dynamTex[1], 0, xPosSP, yPosSP, 0.0f, 1.0f, 1.0f);
+}
+
+int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *BeganSelec)
+{
+    if(*SkillTargetingLocked) return CurrSinTOChooseSkill;
+        /*return current skill index that the useer is choosing to clash a skill with;
+        ignoring touch pos until, touch screen is listed or skills are selected to clash*/
+    if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48)
+    {
+        *SkillTargetingLocked = true;
+        *BeganSelec = true;
+        return 0; //slot 1
+    }
+    else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 216 && TOUCHy >= 230)
+    {
+        *SkillTargetingLocked = true;
+        *BeganSelec = true;
+        return 1; //slot 2
+    }
+    else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 216 && TOUCHy >= 230)
+    {
+        *SkillTargetingLocked = true;
+        *BeganSelec = true;
+        return 2; //slot 3
+    }
+    else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 216 && TOUCHy >= 230)
+    {
+        *SkillTargetingLocked = true;
+        *BeganSelec = true;
+        return 3; //slot 4
+    }
+    else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 216 && TOUCHy >= 230)
+    {
+        *SkillTargetingLocked = true;
+        *BeganSelec = true;
+        return 4; //slot 5
+    }
+    else
+    {
+        *BeganSelec = false;
+        return NOTSELECTED;
+    }
+}
+
+int CursorToEN_Skill(int TOUCHx, int TOUCHy)
+{
+    // x & y are assuming that the hidtouch function are based on pixel coordinates
+    if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48) return 0; //slot 1
+    else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 24 && TOUCHy >= 48) return 1; //slot 2
+    else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 24 && TOUCHy >= 48) return 2; //slot 3
+    else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 24 && TOUCHy >= 48) return 3; //slot 4
+    else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 24 && TOUCHy >= 48) return 4; //slot 5
+    else return NOTSELECTED; //not selecting
 }
 
 int main(int argc, char **argv){  // initialise variables
@@ -187,6 +241,8 @@ switch(MenuPosition){ // In game start
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
         C2D_SceneBegin(bottom);
     //(Should Draw / Make menu) - unfinished
+    if(InCombatOrGFX > 0)
+    {
     if(CreatedSkillStores == false)
     {
     CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
@@ -207,11 +263,9 @@ switch(MenuPosition){ // In game start
         AttackOrder[CurrSinTOChooseSkill][1] = CursorToEN_Skill(touch.px, touch.py);
     }
 
-    SinnerTex(Sinner, dynamBuf, 8.0f, 8.0f, 8.0f, 12.0f);
-    
     if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
     {
-        InCombatOrGFX = 1; //combat
+    InCombatOrGFX = 1; //combat
         for(int Search = 0; Search < 5; Search++){
             //check if clashing
             if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex])
@@ -244,18 +298,21 @@ switch(MenuPosition){ // In game start
                 }
         }
     }
-
+    }
+    
+    SinnerTex(Sinner, dynamBuf, 8.0f, 8.0f, 8.0f, 12.0f);
+    
     switch(InCombatOrGFX){
 
         case 1: // Turn Running loop -> Clashing
-        Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
-        Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
-        Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
-        
-        if(CurrentSinner > 0){
+        if(CurrentSinner > 0){ //solo sinner for now
             Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
             Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
         }
+
+        Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
+        Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
+        Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
 
         Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Setcoins;
         Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].SetSkillbase;
@@ -263,10 +320,8 @@ switch(MenuPosition){ // In game start
 
         //Holy arguements
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-        Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, \
-                                             &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, \
-                                             Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, \
-                                             Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, \
+        Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, \
+                                             Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, \
                                              &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
@@ -279,7 +334,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case 2: //GFX of the clash and combat
-        SkillSprites = C2D_SpriteSheetCount(menuSpriteSheet/*PLACEHOLDER*/);
+        SkillSprites = C2D_SpriteSheetCount(menuSpriteSheet/*PLACEHOLDER*/); //load winning character's sprite animation
 
         CurrentTimeMs = osGetTime();
         ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
@@ -289,15 +344,18 @@ switch(MenuPosition){ // In game start
         {
             ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
             //draw current frame index of the animation
-            //increase to the next index
+            if(CurrentFrameIndex != SkillSprites) CurrentFrameIndex++;
             InitialTimeMs = osGetTime(); //set new initial time
         }
         else
         {
             //draw current frame index of the animation
         }
+        if(CurrentFrameIndex == SkillSprites){
+        CurrentFrameIndex = 0;
         CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}
-        InCombatOrGFX = 0;
+        
+        }
         break;
     }
     
@@ -311,8 +369,8 @@ switch(MenuPosition){ // In game start
     }
 
     if(CurrentSinner == 5/*All sinners have completed their actions*/){
-        //reset to first sinner
-        CurrentSinner = 0;
+        InCombatOrGFX = 0; //exit clash and GFX
+        CurrentSinner = 0; //reset to first sinner
         //End this turn and start the next one
         CreatedSkillStores = false;
         TurnCount++;

@@ -28,7 +28,14 @@ srand(time(NULL) * (rand() % 100));
 int LimitSanity(int* Sanity)
 {
 //If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
-return *Sanity * ((*Sanity < 95) & (*Sanity > 5)) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
+if(*Sanity > 95){
+    return 95;
+}
+else if(*Sanity < 5){
+    return 5;
+}
+else return *Sanity;
+//return *Sanity * ((*Sanity < 95) & (*Sanity > 5)) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
 }
 //Returns a random index from 0 - 5 to swap a skill rank to
 int Form_or_Select_Random_Skill(){
