@@ -114,6 +114,24 @@ int CursorToEN_Skill(int TOUCHx, int TOUCHy)
     else return NOTSELECTED; //not selecting
 }
 
+void SetUpBoss(SkillInfo *Enskill[5][3], bool BossOrMultipleEnemy){ //true if there will be a boss
+if(BossOrMultipleEnemy){
+    int coin = 0;
+    int base = 0;
+    int coinpow = 0;
+    for(int i = 0; i < 3; i++){
+        coin = Enskill[0][i]->coins;
+        base = Enskill[0][i]->Skillbase;
+        coinpow = Enskill[0][i]->SkillcoinPow;
+        for(int j = 1; j < 5; j++){
+            Enskill[j][i]->coins = coin;
+            Enskill[j][i]->Skillbase = base;
+            Enskill[j][i]->SkillcoinPow = coinpow;
+        }
+    }
+}
+}
+
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
 consoleInit(GFX_BOTTOM, NULL);
@@ -133,12 +151,12 @@ Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50}, \
                        {1560.0f, 0, 2, 4, 2, 50}, \
                        {1560.0f, 0, 2, 4, 2, 50}};
 //Skill info for each sinner's skill ranks
-SkillInfo SinSkill[5][3] = {{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-SkillInfo EnSkill[5][3] = {{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
@@ -237,6 +255,7 @@ switch(MenuPosition){ // In game start
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 0.65f)); //Gray background
 	C2D_SceneBegin(top);
+    SetUpBoss(EnSkill, true);
     if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH)
     {
         // if touchpad is pressed in the detection area...

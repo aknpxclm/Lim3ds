@@ -10,7 +10,7 @@ int SkillcoinPow;
 int Sanity;
 }Characters;
 
-typedef struct {
+typedef struct Skill{
 int coins;
 int Skillbase;
 int SkillcoinPow;
