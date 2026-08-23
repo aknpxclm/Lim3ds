@@ -4,7 +4,6 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/libs/include/**",
                 "/opt/devkitpro/**",
                 "/opt/devkitpro/libctru/**",
                 "/opt/devkitpro/devkitARM/include/**",
@@ -12,7 +11,7 @@
                 "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/**",
                 "/home/thinkjeremy/asfdasf/Lim3ds/libs/include/**"
             ],
-            "intelliSenseMode": "linux-gcc-x64",
+            "intelliSenseMode": "linux-gcc-x86",
             "cStandard": "c17"
         }
     ],
