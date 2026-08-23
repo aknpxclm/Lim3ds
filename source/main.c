@@ -12,7 +12,7 @@
 #define MainMenu 1
 #define CombatMenu 2
 
-#define NOTSELECTED 6
+#define NOTSELECTED 9
 
 //Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
@@ -27,7 +27,7 @@ typedef struct
 	float dx, dy; // velocity
 } Sprite;
 
-static C2D_Sprite Menusprites[MAX_SPRITES];
+static C2D_Sprite Sprites[MAX_SPRITES];
 
 //sprite animation example from http://www.nyankolab.com/
 static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
@@ -122,16 +122,28 @@ C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 //placeholder stats till i can read files for values in a json or other c file
-Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50, 2, 4, 4}, \
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, \
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, \
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}, \
-                        {0.0f, 0.0, 0, 0, 0, 50, 0, 0, 0}};                            
-Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}, \
-                       {1560.0f, 0, 2, 4, 2, 50, 2, 4, 2}};
+Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50}, \
+                        {0.0f, 0.0, 0, 0, 0, 50}, \
+                        {0.0f, 0.0, 0, 0, 0, 50}, \
+                        {0.0f, 0.0, 0, 0, 0, 50}, \
+                        {0.0f, 0.0, 0, 0, 0, 50}};                            
+Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50}, \
+                       {1560.0f, 0, 2, 4, 2, 50}, \
+                       {1560.0f, 0, 2, 4, 2, 50}, \
+                       {1560.0f, 0, 2, 4, 2, 50}, \
+                       {1560.0f, 0, 2, 4, 2, 50}};
+//Skill info for each sinner's skill ranks
+SkillInfo SinSkill[5][3] = {{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+SkillInfo EnSkill[5][3] = {{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+int EnSkillPattern[] = {2, 2, 1, 1, 1};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
@@ -152,7 +164,7 @@ int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can
 int SelectlotNum[5] = {0};
 int CurrentSinner = 0;
 int CurrSinTOChooseSkill = NOTSELECTED;
-int Clashes[5] = {0};
+int Clashes = 0;
 int TurnCount = 1;
 int MenuPosition = StartScreen;
 int TurnStart = 0;
@@ -186,7 +198,7 @@ if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 //Initialise all sprites in a sheet
 size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
 for(int x = 0; x < numsprites; x++){
-    C2D_Sprite *Menusprite = &Menusprites[x];
+    C2D_Sprite *Menusprite = &Sprites[x];
     C2D_SpriteFromSheet(&Menusprite, menuSpriteSheet, x/*sprite index in the sheet*/);
     C2D_SpriteSetCenter(&Menusprite, 0.1f, 0.1f);
     C2D_SpriteSetPos(&Menusprite, 0/*X position*/, 0/*Y position*/);
@@ -208,11 +220,11 @@ switch(MenuPosition){ // In game start
     case StartScreen: //Start screen
     if(MenuPosition == StartScreen)
     { //Prevent redrawing the startmenu sprites when changing menu position
-    C2D_SpriteSetPos(&Menusprites[0], 30, 20); //Move sprite to center view
+    C2D_SpriteSetPos(&Sprites[0], 30, 20); //Move sprite to center view
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	C2D_SceneBegin(top);
-	C2D_DrawSprite(&Menusprites[0]); //Draw Start_Screen.png
+	C2D_DrawSprite(&Sprites[0]); //Draw Start_Screen.png
 	C3D_FrameEnd(0);
     if(kDown & KEY_TOUCH) MenuPosition = MainMenu; //Switch to MainMenu
     }
@@ -260,7 +272,7 @@ switch(MenuPosition){ // In game start
     }
     if(kHeld & KEY_TOUCH && BeganSelec)
     {
-        AttackOrder[CurrSinTOChooseSkill][1] = CursorToEN_Skill(touch.px, touch.py);
+        AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
     }
 
     if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
@@ -310,19 +322,19 @@ switch(MenuPosition){ // In game start
             Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
         }
 
-        Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Setcoins;
-        Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].SetSkillbase;
-        Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].SetSkillcoinPow;
+        Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].coins;
+        Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].Skillbase;
+        Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].SkillcoinPow;
 
-        Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Setcoins;
-        Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].SetSkillbase;
-        Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].SetSkillcoinPow;
+        Enemy[CurrentSinner].coins = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].coins;
+        Enemy[CurrentSinner].Skillbase = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].Skillbase;
+        Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
 
         //Holy arguements
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-        Clashes[CurrentSinner] = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, \
-                                             Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, \
-                                             &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
+        Clashes = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, \
+                              Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, \
+                              &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
             UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);

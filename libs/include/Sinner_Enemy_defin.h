@@ -8,10 +8,13 @@ int coins;
 int Skillbase;
 int SkillcoinPow;
 int Sanity;
-int Setcoins;
-int SetSkillbase;
-int SetSkillcoinPow;
 }Characters;
+
+typedef struct {
+int coins;
+int Skillbase;
+int SkillcoinPow;
+}SkillInfo;
 
 typedef struct Clashing_Checks{
 int SkillClashing;
