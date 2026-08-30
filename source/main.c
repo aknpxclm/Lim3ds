@@ -108,19 +108,19 @@ int CursorToEN_Skill(int TOUCHx, int TOUCHy)
     else return NOTSELECTED; //not selecting
 }
 
-void SetUpBoss(SkillInfo *Enskill[5][3], bool BossOrMultipleEnemy){ //true if there will be a boss
+void SetUpBoss(SkillInfo Enskill[5][3], bool BossOrMultipleEnemy){ //true if there will be a boss
 if(BossOrMultipleEnemy){
     int coin = 0;
     int base = 0;
     int coinpow = 0;
     for(int i = 0; i < 3; i++){
-        coin = Enskill[0][i]->coins;
-        base = Enskill[0][i]->Skillbase;
-        coinpow = Enskill[0][i]->SkillcoinPow;
+        coin = Enskill[0][i].coins;
+        base = Enskill[0][i].Skillbase;
+        coinpow = Enskill[0][i].SkillcoinPow;
         for(int j = 1; j < 5; j++){
-            Enskill[j][i]->coins = coin;
-            Enskill[j][i]->Skillbase = base;
-            Enskill[j][i]->SkillcoinPow = coinpow;
+            Enskill[j][i].coins = coin;
+            Enskill[j][i].Skillbase = base;
+            Enskill[j][i].SkillcoinPow = coinpow;
         }
     }
 }

@@ -43,7 +43,7 @@ int Form_or_Select_Random_Skill(){
 }
 
 //Rearranges the skill rank pool to make getting skills more random
-void Rearrange_SkillPool(int SkillList[]){
+void Rearrange_SkillPool(int SkillList[6]){
 /*index 0 represents one value in SkillList
 index 1 represents another value 
 index 2 represents a random index of SkillList to swap to*/
