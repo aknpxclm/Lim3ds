@@ -21,16 +21,10 @@ C2D_TextBuf staticBuf;
 C2D_TextBuf dynamBuf;
 C2D_Text staticTex[2];
 
-typedef struct
-{
-	C2D_Sprite spr;
-	float dx, dy; // velocity
-} Sprite;
-
 static C2D_Sprite Sprites[MAX_SPRITES];
 
 //sprite animation example from http://www.nyankolab.com/
-static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
+static u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
 void ExitApp(){
 C2D_Fini();
@@ -134,7 +128,6 @@ if(BossOrMultipleEnemy){
 
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
-consoleInit(GFX_BOTTOM, NULL);
 romfsInit();
 C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
@@ -151,17 +144,18 @@ Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50}, \
                        {1560.0f, 0, 2, 4, 2, 50}, \
                        {1560.0f, 0, 2, 4, 2, 50}};
 //Skill info for each sinner's skill ranks
-SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {0, 0, 0}, {0, 0, 0}}, \
+SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {0, 0, 0}, {0, 0, 0}}, \
+
+SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-int EnSkillPattern[] = {2, 2, 1, 1, 1};
+int EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
@@ -179,14 +173,12 @@ int SkillPriorityLevel[5] = {0};                                   //higher prio
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
 int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
-int SelectlotNum[5] = {0};
-int CurrentSinner = 0;
-int CurrSinTOChooseSkill = NOTSELECTED;
-int Clashes = 0;
-int TurnCount = 1;
-int MenuPosition = StartScreen;
-int TurnStart = 0;
-int InCombatOrGFX = 0; //1: combat clashing logic, 2: GFX of clashes
+uint16_t CurrentSinner = 0;
+uint16_t CurrSinTOChooseSkill = NOTSELECTED;
+uint16_t Clashes = 0; //max 255 which should be enough for these variables
+uint16_t TurnCount = 1;
+uint16_t MenuPosition = StartScreen;
+uint16_t InCombatOrGFX = 0; //1: combat clashing logic, 2: GFX of clashes
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
@@ -217,18 +209,18 @@ if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
 for(int x = 0; x < numsprites; x++){
     C2D_Sprite *Menusprite = &Sprites[x];
-    C2D_SpriteFromSheet(&Menusprite, menuSpriteSheet, x/*sprite index in the sheet*/);
-    C2D_SpriteSetCenter(&Menusprite, 0.1f, 0.1f);
-    C2D_SpriteSetPos(&Menusprite, 0/*X position*/, 0/*Y position*/);
-    C2D_SpriteSetRotation(&Menusprite, 0);
-    C2D_SpriteSetScale(&Menusprite, 1/*X scale*/, 1/*Y scale*/);
+    C2D_SpriteFromSheet(Menusprite, menuSpriteSheet, x/*sprite index in the sheet*/);
+    C2D_SpriteSetCenter(Menusprite, 0.1f, 0.1f);
+    C2D_SpriteSetPos(Menusprite, 0/*X position*/, 0/*Y position*/);
+    C2D_SpriteSetRotation(Menusprite, 0);
+    C2D_SpriteSetScale(Menusprite, 1/*X scale*/, 1/*Y scale*/);
 }
 
 while(aptMainLoop()){
 
     hidScanInput(); //Scans for keys pressed
-    u32 kDown = hidKeysDown();
-    u32 kHeld = hidKeysHeld();
+    uint32_t kDown = hidKeysDown();
+    uint32_t kHeld = hidKeysHeld();
     if(kDown & KEY_START) break;
     touchPosition touch;
     hidTouchRead(&touch);
@@ -244,7 +236,10 @@ switch(MenuPosition){ // In game start
 	C2D_SceneBegin(top);
 	C2D_DrawSprite(&Sprites[0]); //Draw Start_Screen.png
 	C3D_FrameEnd(0);
-    if(kDown & KEY_TOUCH) MenuPosition = MainMenu; //Switch to MainMenu
+    if(kDown & KEY_TOUCH) {
+        C2D_SpriteSheetFree(menuSpriteSheet);
+        MenuPosition = MainMenu;}
+        //Switch to MainMenu
     }
     break;
 
@@ -296,7 +291,7 @@ switch(MenuPosition){ // In game start
 
     if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
     {
-    InCombatOrGFX = 1; //combat
+        InCombatOrGFX = 1; //combat
         for(int Search = 0; Search < 5; Search++){
             //check if clashing
             if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex])
@@ -384,8 +379,8 @@ switch(MenuPosition){ // In game start
         }
         if(CurrentFrameIndex == SkillSprites){
         CurrentFrameIndex = 0;
+        InCombatOrGFX = 1;
         CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}
-        
         }
         break;
     }
@@ -414,7 +409,7 @@ switch(MenuPosition){ // In game start
     gfxSwapBuffers();
     gspWaitForVBlank();
 }
-C2D_SpriteSheetFree(menuSpriteSheet);
+
 C2D_TextBufDelete(staticBuf);
 C2D_TextBufDelete(dynamBuf);
 ExitApp();

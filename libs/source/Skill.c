@@ -59,7 +59,7 @@ for(int j = 0; j < 6; j++){
 }
 
 //Move skills down the selction area when a skill is used
-void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[]){
+void ShiftSkillSelects(int SkillOptions[5][2], int BufferSkill[5], int SkillList[6]){
 int TopRowSkill = 0;
 int BufferSkillnum = 0;
 
