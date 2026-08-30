@@ -43,7 +43,7 @@ int Form_or_Select_Random_Skill(){
 }
 
 //Rearranges the skill rank pool to make getting skills more random
-void Rearrange_SkillPool(int SkillList[6]){
+void Rearrange_SkillPool(int SkillList[]){
 /*index 0 represents one value in SkillList
 index 1 represents another value 
 index 2 represents a random index of SkillList to swap to*/
@@ -59,7 +59,7 @@ for(int j = 0; j < 6; j++){
 }
 
 //Move skills down the selction area when a skill is used
-void ShiftSkillSelects(int SkillOptions[5][2], int BufferSkill[5], int SkillList[6]){
+void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[]){
 int TopRowSkill = 0;
 int BufferSkillnum = 0;
 
