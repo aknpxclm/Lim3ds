@@ -17,9 +17,7 @@
 //Spritesheets
 static C2D_SpriteSheet menuSpriteSheet;
 
-C2D_TextBuf staticBuf;
 C2D_TextBuf dynamBuf;
-C2D_Text staticTex[2];
 
 typedef struct
 {
@@ -140,28 +138,12 @@ C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 
 //placeholder stats till i can read files for values in a json or other c file
-Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50}, \
-                        {0.0f, 0.0, 0, 0, 0, 50}, \
-                        {0.0f, 0.0, 0, 0, 0, 50}, \
-                        {0.0f, 0.0, 0, 0, 0, 50}, \
-                        {0.0f, 0.0, 0, 0, 0, 50}};                            
-Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50}, \
-                       {1560.0f, 0, 2, 4, 2, 50}, \
-                       {1560.0f, 0, 2, 4, 2, 50}, \
-                       {1560.0f, 0, 2, 4, 2, 50}, \
-                       {1560.0f, 0, 2, 4, 2, 50}};
+Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50}, {0.0f, 0.0, 0, 0, 0, 50}, {0.0f, 0.0, 0, 0, 0, 50}, {0.0f, 0.0, 0, 0, 0, 50}, {0.0f, 0.0, 0, 0, 0, 50}};                            
+Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}};
 //Skill info for each sinner's skill ranks
-SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 
-SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 int EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
@@ -173,8 +155,7 @@ u64 ElapsedTimeMs = 0;
 int CurrentFrameIndex = 0;
 size_t SkillSprites = 0;
 
-int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 6*/}, \
-{0, 6}, {0, 6}, {0, 6}, {0, 6}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
+int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 6*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -200,14 +181,7 @@ C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
 //Allocate memory for the buffers
-staticBuf = C2D_TextBufNew(4096);
 dynamBuf = C2D_TextBufNew(4096);
-
-//Parse conditional game text
-C2D_TextParse(&staticTex[0], staticBuf, "Victory");
-C2D_TextParse(&staticTex[1], staticBuf, "Defeat");
-C2D_TextOptimize(&staticTex[0]); //Optimizes the text to be rendered efficiently
-C2D_TextOptimize(&staticTex[1]);
 
 menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
 if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
@@ -386,11 +360,8 @@ switch(MenuPosition){ // In game start
     }
     
     if(Enemy[4].Health < 0){
-        C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-	    C2D_SceneBegin(bottom);
-        C2D_DrawText(&staticTex[0], 0, 8.0f, 8.0f, 0.5f, 0.0f, 1.0f);
         MenuPosition = MainMenu;
-        C3D_FrameEnd(0);
+        goto exit;
         break;
     }
 
@@ -409,8 +380,7 @@ switch(MenuPosition){ // In game start
     gfxSwapBuffers();
     gspWaitForVBlank();
 }
-
-C2D_TextBufDelete(staticBuf);
+exit:
 C2D_TextBufDelete(dynamBuf);
 ExitApp();
 return 0; 
