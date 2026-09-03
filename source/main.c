@@ -21,6 +21,12 @@ typedef struct
 	float dx, dy; // velocity
 } Sprite;
 
+enum Menu{
+    StartMen = 0,
+    MainMen,
+    CombatMen
+};
+
 static Sprite Sprites[MAX_SPRITES];
 
 //sprite animation example from http://www.nyankolab.com/
@@ -167,6 +173,7 @@ bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
 bool SkillTargetingLocked = false;
+bool ConfirmQuit = false;
 
 InitialTimeMs = osGetTime();
 SeedStart();
@@ -194,7 +201,9 @@ while(aptMainLoop()){
     hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
     u32 kHeld = hidKeysHeld();
-    if(kDown & KEY_START) break;
+    if(kDown & KEY_START) ConfirmQuit = true;
+    if(kDown & KEY_B && ConfirmQuit == true) ConfirmQuit = false;
+    if(kDown & KEY_START && ConfirmQuit == true) break;
     touchPosition touch;
     hidTouchRead(&touch);
 
@@ -202,20 +211,20 @@ while(aptMainLoop()){
 
 switch(MenuPosition){ // In game start
 
-    case 0: //Start screen
+    case StartMen: //Start screen
         C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_SceneBegin(top);
         C2D_DrawSprite(&Sprites[0].spr);
-        if(kDown & KEY_TOUCH)
+        if(kDown)
         {
-            MenuPosition = 1;
+            MenuPosition = MainMen;
             C2D_SpriteSheetFree(menuSpriteSheet);
         }
     break;
 
 
-    case 1: //Main menu
+    case MainMen: //Main menu
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 0.65f)); //Gray background
     C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //thanks to natexs for showing the proper way to use both screens
 	C2D_SceneBegin(top);
@@ -223,12 +232,12 @@ switch(MenuPosition){ // In game start
     if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH)
     {
         // if touchpad is pressed in the detection area...
-        MenuPosition = 2;
+        MenuPosition = CombatMen;
     }
     break;
        
     
-    case 2: //Combat select area
+    case CombatMen: //Combat select area
         C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
         C2D_SceneBegin(bottom);
@@ -310,11 +319,8 @@ switch(MenuPosition){ // In game start
         Enemy[CurrentSinner].Skillbase = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].Skillbase;
         Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
 
-        //Holy arguements
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-        Clashes = ClashingAtk(&Sinner[CurrentSinner].Sanity, &Enemy[CurrentSinner].Sanity, &Sinner[CurrentSinner].coins, &Enemy[CurrentSinner].coins, \
-                              Sinner[CurrentSinner].Skillbase, Enemy[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, Enemy[CurrentSinner].SkillcoinPow, \
-                              &Sinner[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
+        Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
             UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
@@ -351,8 +357,7 @@ switch(MenuPosition){ // In game start
     }
     
     if(Enemy[4].Health < 0){
-        MenuPosition = 1;
-        goto exit;
+        MenuPosition = MainMen;
         break;
     }
 
@@ -368,7 +373,6 @@ switch(MenuPosition){ // In game start
 }
     C3D_FrameEnd(0);
 }
-exit:
 C2D_TextBufDelete(dynamBuf);
 ExitApp();
 return 0; 

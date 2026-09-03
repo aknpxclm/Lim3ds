@@ -1,37 +1,40 @@
 #include "CombatFunctions.h"
 #include "Skill.h"
+#include "Sinner_Enemy_defin.h"
 
 #define ENSANITYLOSS 5
 #define SINSANITYLOSS 3
 
 
 //If a skill is going to clash the enemy's, use this function to clash and deal damage
-int ClashingAtk(int* SinSanity, int* EnSanity, int* SinCoin, int* EnCoin, int SinBase, int EnBase, int SinPow, int EnPow, double* SinHealth, double* EnHealth){
+int ClashingAtk(Characters *Sinner, Characters *Enemy){
     int SinClashNum = 0;
     int EnClashNum = 0;
     int Clashes = 0;
-    while(*SinCoin > 0 && *EnCoin > 0){ //clash loop
+    while(Sinner->coins > 0 && Enemy->coins > 0){ //clash loop
         // get clash values for enemy and sinner
-        SinClashNum = ClashValue(*SinCoin, SinBase, SinPow, *SinSanity);
-        EnClashNum = ClashValue(*EnCoin, EnBase, EnPow, *EnSanity);
+        SinClashNum = ClashValue(Sinner->coins, Sinner->Skillbase, Sinner->SkillcoinPow, Sinner->Sanity);
+        EnClashNum = ClashValue(Enemy->coins, Enemy->Skillbase, Enemy->SkillcoinPow, Enemy->Sanity);
         // check who wins
-        *EnCoin -= (EnClashNum < SinClashNum); //if enemy won subtract 0
-        *SinCoin -= (SinClashNum < EnClashNum); //if sinner won subtract 0
+        Enemy->coins -= (EnClashNum < SinClashNum); //if enemy won subtract 0
+        Sinner->coins -= (SinClashNum < EnClashNum); //if sinner won subtract 0
         Clashes++;
     }
     //check who "won" in total
-    if(*SinCoin > *EnCoin){ 
+    if(Sinner->coins > Enemy->coins){ 
         //sp gain for sinner and loss for enemy
-        *SinSanity = LimitSanity((SinSanity + (10 + Clashes)));
-        *EnSanity -= ENSANITYLOSS;
-        *EnSanity = LimitSanity(EnSanity);
-        *EnHealth -= Damagedealt(*SinCoin, SinBase, SinPow, Clashes);
+        Sinner->Sanity += (10 + Clashes);
+        Sinner->Sanity = LimitSanity(&Sinner->Sanity);
+        Enemy->Sanity -= ENSANITYLOSS;
+        Enemy->Sanity = LimitSanity(&Enemy->Sanity);
+        Enemy->Health -= Damagedealt(Sinner->coins, Sinner->Skillbase, Sinner->SkillcoinPow, Clashes);
     }
     else{
-        *EnSanity = LimitSanity((EnSanity + (10 + Clashes)));
-        *SinSanity -= SINSANITYLOSS;
-        *SinSanity = LimitSanity(SinSanity);
-        *SinHealth -= Damagedealt(*EnCoin, EnBase, EnPow, Clashes);
+        Enemy->Sanity += (10 + Clashes);
+        Enemy->Sanity = LimitSanity(&Enemy->Sanity);
+        Sinner->Sanity -= SINSANITYLOSS;
+        Sinner->Sanity = LimitSanity(&Sinner->Sanity);
+        Sinner->Health -= Damagedealt(Enemy->coins, Enemy->Skillbase, Enemy->SkillcoinPow, Clashes);
     }
     return Clashes;
 }

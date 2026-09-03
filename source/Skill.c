@@ -25,7 +25,7 @@ void SeedStart(){
 srand(time(NULL) * (rand() % 100));
 }
 //Keeps sanity between 5 and 95 (displayed as -45 and 45)
-int LimitSanity(int* Sanity)
+int LimitSanity(int *Sanity)
 {
 //If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
 if(*Sanity > 95){

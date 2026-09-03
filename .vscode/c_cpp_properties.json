@@ -4,12 +4,12 @@
             "name": "Linux",
             "includePath": [
                 "${default}",
+                "/home/thinkjeremy/asfdasf/Lim3ds/include/**",
                 "/opt/devkitpro/**",
                 "/opt/devkitpro/libctru/**",
                 "/opt/devkitpro/devkitARM/include/**",
                 "/opt/devkitpro/devkitARM/arm-none-eabi/include/**",
-                "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/**",
-                "/home/thinkjeremy/asfdasf/Lim3ds/include/**"
+                "/opt/devkitpro/devkitARM/lib/gcc/arm-none-eabi/**"
             ],
             "intelliSenseMode": "linux-gcc-x86",
             "cStandard": "c17"
