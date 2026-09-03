@@ -1,3 +1,2 @@
---atlas -f rgba5551 -z auto
-Start_screen.png
+-f rgba5551 -z auto
 LoadingScreen.png

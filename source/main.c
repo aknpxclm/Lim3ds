@@ -8,10 +8,6 @@
 
 #define MAX_SPRITES 768
 
-#define StartScreen 0
-#define MainMenu 1
-#define CombatMenu 2
-
 #define NOTSELECTED 9
 
 //Spritesheets
@@ -161,12 +157,12 @@ int SkillPriorityLevel[5] = {0};                                   //higher prio
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
 int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
-uint16_t CurrentSinner = 0;
-uint16_t CurrSinTOChooseSkill = NOTSELECTED;
-uint16_t Clashes = 0; //max 255 which should be enough for these variables
-uint16_t TurnCount = 1;
-int MenuPosition = StartScreen;
-uint16_t InCombatOrGFX = 0; //1: combat clashing logic, 2: GFX of clashes
+u16 CurrentSinner = 0;
+u16 CurrSinTOChooseSkill = NOTSELECTED;
+u16 Clashes = 0; //max 255 which should be enough for these variables
+u16 TurnCount = 1;
+int MenuPosition = 0;
+u16 InCombatOrGFX = 0; //1: combat clashing logic, 2: GFX of clashes
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
@@ -184,24 +180,20 @@ C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 dynamBuf = C2D_TextBufNew(4096);
 
 menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
-if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
+    if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 
-//Initialise all sprites in a sheet
-//size_t numsprites = C2D_SpriteSheetCount(menuSpriteSheet);
-//for(int x = 0; x < numsprites; x++){
-    Sprite *Menusprite = &Sprites[0];
+Sprite *Menusprite = &Sprites[0];
     C2D_SpriteFromSheet(&Menusprite->spr, menuSpriteSheet, 0/*sprite index in the sheet*/);
     C2D_SpriteSetCenter(&Menusprite->spr, 0.1f, 0.1f);
-    C2D_SpriteSetPos(&Menusprite->spr, 0/*X position*/, 0/*Y position*/);
+    C2D_SpriteSetPos(&Menusprite->spr, 30/*X position*/, 20/*Y position*/);
     C2D_SpriteSetRotation(&Menusprite->spr, 0);
     C2D_SpriteSetScale(&Menusprite->spr, 1/*X scale*/, 1/*Y scale*/);
-//}
 
 while(aptMainLoop()){
 
     hidScanInput(); //Scans for keys pressed
-    uint32_t kDown = hidKeysDown();
-    uint32_t kHeld = hidKeysHeld();
+    u32 kDown = hidKeysDown();
+    u32 kHeld = hidKeysHeld();
     if(kDown & KEY_START) break;
     touchPosition touch;
     hidTouchRead(&touch);
@@ -210,34 +202,34 @@ while(aptMainLoop()){
 
 switch(MenuPosition){ // In game start
 
-    case StartScreen: //Start screen
-    C2D_SpriteSetPos(&Sprites[0].spr, 30, 20); //Move sprite to center view
-	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-	C2D_SceneBegin(top);
-	C2D_DrawSprite(&Sprites[0].spr); //Draw Start_Screen.png
-	C3D_FrameEnd(0);
-    if(kDown & KEY_TOUCH) {
-        C2D_SpriteSheetFree(menuSpriteSheet);
-        MenuPosition = MainMenu;
-    }
-        //Switch to MainMenu
+    case 0: //Start screen
+        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+        C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+        C2D_SceneBegin(top);
+        C2D_DrawSprite(&Sprites[0].spr);
+        if(kDown & KEY_TOUCH)
+        {
+            MenuPosition = 1;
+            C2D_SpriteSheetFree(menuSpriteSheet);
+        }
     break;
 
 
-    case MainMenu: //Main menu
+    case 1: //Main menu
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 0.65f)); //Gray background
+    C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 	C2D_SceneBegin(top);
     SetUpBoss(EnSkill, true);
     if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH)
     {
         // if touchpad is pressed in the detection area...
-        MenuPosition = CombatMenu;
+        MenuPosition = 2;
     }
-    //more options in the menu will get their own condition
     break;
        
     
-    case CombatMenu: //Combat select area
+    case 2: //Combat select area
+        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
         C2D_SceneBegin(bottom);
     //(Should Draw / Make menu) - unfinished
@@ -338,7 +330,6 @@ switch(MenuPosition){ // In game start
 
         CurrentTimeMs = osGetTime();
         ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
-        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_SceneBegin(top);
         if(ElapsedTimeMs >= GFXRefreshMs)
         {
@@ -360,7 +351,7 @@ switch(MenuPosition){ // In game start
     }
     
     if(Enemy[4].Health < 0){
-        MenuPosition = MainMenu;
+        MenuPosition = 1;
         goto exit;
         break;
     }
@@ -376,9 +367,6 @@ switch(MenuPosition){ // In game start
 
 }
     C3D_FrameEnd(0);
-    gfxFlushBuffers();
-    gfxSwapBuffers();
-    gspWaitForVBlank();
 }
 exit:
 C2D_TextBufDelete(dynamBuf);
