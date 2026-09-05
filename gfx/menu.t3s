@@ -1,2 +1,4 @@
--f rgba5551 -z auto
+--atlas -f rgba5551 -z auto
 LoadingScreen.png
+TopLobby.png
+BottomLobby.png

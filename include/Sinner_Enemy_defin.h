@@ -8,6 +8,7 @@ int coins;
 int Skillbase;
 int SkillcoinPow;
 int Sanity;
+int Char_ID; //id of the identity of sinner or enemy identifier
 }Characters;
 
 typedef struct Skill{

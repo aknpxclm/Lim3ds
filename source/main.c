@@ -7,6 +7,8 @@
 #include "CombatFunctions.h"
 
 #define MAX_SPRITES 768
+#define SCREEN_WIDTH  400
+#define SCREEN_HEIGHT 240
 
 #define NOTSELECTED 9
 
@@ -140,35 +142,58 @@ C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 
 //placeholder stats till i can read files for values in a json or other c file
-Characters Sinner[5] = {{195.0f, 0.0, 2, 4, 4, 50}, {0.0f, 0.0, 0, 0, 0, 50}, {0.0f, 0.0, 0, 0, 0, 50}, {0.0f, 0.0, 0, 0, 0, 50}, {0.0f, 0.0, 0, 0, 0, 50}};                            
-Characters Enemy[5] = {{1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}, {1560.0f, 0, 2, 4, 2, 50}};
+Characters Sinner[5] = {{195.0f, 0.0, 0, 0, 0, 50, 1}, \
+                        {195.0f, 0.0, 0, 0, 0, 50, 1},   \
+                        {195.0f, 0.0, 0, 0, 0, 50, 1},   \
+                        {195.0f, 0.0, 0, 0, 0, 50, 1},   \
+                        {195.0f, 0.0, 0, 0, 0, 50, 1}};                          
+Characters Enemy[5] = {{1560.0f, 0, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 0, 50, 1}};
 //Skill info for each sinner's skill ranks
-SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-
-int EnSkillPattern[5] = {2, 2, 1, 1, 1};
+SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
-u64 InitialTimeMs = 0;
-u64 CurrentTimeMs = 0;
-u64 ElapsedTimeMs = 0;
-
-int CurrentFrameIndex = 0;
 size_t SkillSprites = 0;
 
-int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 6*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}};  //Each element is assigned a index based on ther skill selected to attack the Character array above
+int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}}; 
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
 int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
+
+int EnSkillPattern[5] = {2, 2, 1, 1, 1};
+
+int MenuPosition = 0;
+int CurrentFrameIndex = 0;
+
+u64 InitialTimeMs = 0;
+u64 CurrentTimeMs = 0;
+u64 ElapsedTimeMs = 0;
+
 u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
 u16 TurnCount = 1;
-int MenuPosition = 0;
-u16 InCombatOrGFX = 0; //1: combat clashing logic, 2: GFX of clashes
+
+u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
+u8 TeamOrCombatMenu = 0;
+u8 IdleIndex[2] = {0, 0};
+u8 IdleMax[2] = {0, 0};
+
 bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
@@ -189,12 +214,15 @@ dynamBuf = C2D_TextBufNew(4096);
 menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
     if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
 
-Sprite *Menusprite = &Sprites[0];
-    C2D_SpriteFromSheet(&Menusprite->spr, menuSpriteSheet, 0/*sprite index in the sheet*/);
+for(int x = 0; x < 3; x++){
+Sprite *Menusprite = &Sprites[x];
+    C2D_SpriteFromSheet(&Menusprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
     C2D_SpriteSetCenter(&Menusprite->spr, 0.1f, 0.1f);
     C2D_SpriteSetPos(&Menusprite->spr, 30/*X position*/, 20/*Y position*/);
     C2D_SpriteSetRotation(&Menusprite->spr, 0);
     C2D_SpriteSetScale(&Menusprite->spr, 1/*X scale*/, 1/*Y scale*/);
+}
+C2D_SpriteSetPos(&Sprites[2].spr, -10, 20);
 
 while(aptMainLoop()){
 
@@ -215,25 +243,38 @@ switch(MenuPosition){ // In game start
         C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_SceneBegin(top);
-        C2D_DrawSprite(&Sprites[0].spr);
+        C2D_DrawSprite(&Sprites[0].spr); //"Loading screen"
         if(kDown)
         {
             MenuPosition = MainMen;
-            C2D_SpriteSheetFree(menuSpriteSheet);
         }
     break;
 
 
     case MainMen: //Main menu
-	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 0.65f)); //Gray background
-    C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //thanks to natexs for showing the proper way to use both screens
+	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+    C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
 	C2D_SceneBegin(top);
-    SetUpBoss(EnSkill, true);
-    if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/&& kDown & KEY_TOUCH)
+    C2D_DrawSprite(&Sprites[1].spr); //Lobby_simple
+    switch(TeamOrCombatMenu)
     {
-        // if touchpad is pressed in the detection area...
-        MenuPosition = CombatMen;
+        case 0: //To enter fights / combat menu
+        if(kDown & KEY_TOUCH){
+            if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
+            {
+            // if touchpad is pressed in the detection area...
+            SetUpBoss(EnSkill, true);
+            MenuPosition = CombatMen;
+            }
+        }
+        break;
+
+        case 1: //team selection menu
+        
+        break;
     }
+    C2D_SceneBegin(bottom);
+    C2D_DrawSprite(&Sprites[2].spr);
     break;
        
     
@@ -242,7 +283,7 @@ switch(MenuPosition){ // In game start
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
         C2D_SceneBegin(bottom);
     //(Should Draw / Make menu) - unfinished
-    if(InCombatOrGFX > 0)
+    if(InCombatOrGFX == 0)
     {
     if(CreatedSkillStores == false)
     {
@@ -305,6 +346,27 @@ switch(MenuPosition){ // In game start
     
     switch(InCombatOrGFX){
 
+        case 0: //idle animations
+        CurrentTimeMs = osGetTime();
+        ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
+        C2D_SceneBegin(top);
+        if(ElapsedTimeMs >= GFXRefreshMs)
+        {
+            ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
+                //C2D_DrawSprite(&Sprites[... + IdleIndex[0]].spr);
+                //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
+                IdleIndex[0] = (IdleIndex[0] + 1) % IdleMax[0];
+                IdleIndex[1] = (IdleIndex[1] + 1) % IdleMax[1];
+            
+            InitialTimeMs = osGetTime(); //set new initial time
+        }
+        else
+        {
+            //C2D_DrawSprite(&Sprites[... + IdleIndex[0]].spr);
+            //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
+        }
+        break;
+
         case 1: // Turn Running loop -> Clashing
         if(CurrentSinner > 0){ //solo sinner for now
             Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
@@ -320,7 +382,7 @@ switch(MenuPosition){ // In game start
         Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
 
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-        Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
+            Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
             UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
@@ -373,6 +435,7 @@ switch(MenuPosition){ // In game start
 }
     C3D_FrameEnd(0);
 }
+C2D_SpriteSheetFree(menuSpriteSheet);
 C2D_TextBufDelete(dynamBuf);
 ExitApp();
 return 0; 

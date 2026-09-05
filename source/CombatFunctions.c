@@ -1,6 +1,6 @@
-#include "CombatFunctions.h"
 #include "Skill.h"
 #include "Sinner_Enemy_defin.h"
+#include "CombatFunctions.h"
 
 #define ENSANITYLOSS 5
 #define SINSANITYLOSS 3
