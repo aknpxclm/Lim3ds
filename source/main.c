@@ -2,11 +2,12 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "MenuVals.h"
 #include "Sinner_Enemy_defin.h"
 #include "Skill.h"
 #include "CombatFunctions.h"
 
-#define MAX_SPRITES 768
+
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
 
@@ -23,25 +24,21 @@ typedef struct
 	float dx, dy; // velocity
 } Sprite;
 
-enum Menu{
-    StartMen = 0,
-    MainMen,
-    CombatMen
-};
 
-static Sprite Sprites[MAX_SPRITES];
+
+static Sprite MenuSprites[20]; //max sprites are 768
 
 //sprite animation example from http://www.nyankolab.com/
 static u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
 void ExitApp(){
+gfxExit();
+romfsExit();
 C2D_Fini();
 C3D_Fini();
-romfsExit();
-gfxExit();
 }
 
-void SinnerTex(Characters Sinner[5], C2D_TextBuf dynamBuf, float xPosHP, float yPosHP, float xPosSP, float yPosSP)
+void SinnerTex(Characters Sinner[], C2D_TextBuf dynamBuf, float xPosHP, float yPosHP, float xPosSP, float yPosSP)
 {
     //uses 3ds/graphics/printing/system-font example
     C2D_TextBufClear(dynamBuf); //clear previous text
@@ -134,6 +131,21 @@ if(BossOrMultipleEnemy){
 }
 }
 
+void LoadMainMen()
+{
+    menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
+    if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
+
+    for(int x = 0; x < 3; x++){
+        Sprite *Menusprite = &MenuSprites[x];
+        C2D_SpriteFromSheet(&Menusprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
+        C2D_SpriteSetCenter(&Menusprite->spr, 0.1f, 0.1f);
+        C2D_SpriteSetPos(&Menusprite->spr, 30/*X position*/, 20/*Y position*/);
+        C2D_SpriteSetRotation(&Menusprite->spr, 0);
+        C2D_SpriteSetScale(&Menusprite->spr, 1/*X scale*/, 1/*Y scale*/);
+    }
+}
+
 int main(int argc, char **argv){  // initialise variables
 gfxInitDefault();
 romfsInit();
@@ -177,7 +189,6 @@ int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can
 
 int EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
-int MenuPosition = 0;
 int CurrentFrameIndex = 0;
 
 u64 InitialTimeMs = 0;
@@ -189,8 +200,8 @@ u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
 u16 TurnCount = 1;
 
+u8 MenuPosition = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
-u8 TeamOrCombatMenu = 0;
 u8 IdleIndex[2] = {0, 0};
 u8 IdleMax[2] = {0, 0};
 
@@ -211,18 +222,8 @@ C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 //Allocate memory for the buffers
 dynamBuf = C2D_TextBufNew(4096);
 
-menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
-    if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
-
-for(int x = 0; x < 3; x++){
-Sprite *Menusprite = &Sprites[x];
-    C2D_SpriteFromSheet(&Menusprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
-    C2D_SpriteSetCenter(&Menusprite->spr, 0.1f, 0.1f);
-    C2D_SpriteSetPos(&Menusprite->spr, 30/*X position*/, 20/*Y position*/);
-    C2D_SpriteSetRotation(&Menusprite->spr, 0);
-    C2D_SpriteSetScale(&Menusprite->spr, 1/*X scale*/, 1/*Y scale*/);
-}
-C2D_SpriteSetPos(&Sprites[2].spr, -10, 20);
+LoadMainMen();
+C2D_SpriteSetPos(&MenuSprites[2].spr, -10, 20); //set bottom lobby png pos
 
 while(aptMainLoop()){
 
@@ -243,7 +244,7 @@ switch(MenuPosition){ // In game start
         C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_SceneBegin(top);
-        C2D_DrawSprite(&Sprites[0].spr); //"Loading screen"
+        C2D_DrawSprite(&MenuSprites[Loading].spr); //"Loading screen"
         if(kDown)
         {
             MenuPosition = MainMen;
@@ -255,26 +256,18 @@ switch(MenuPosition){ // In game start
 	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
     C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
 	C2D_SceneBegin(top);
-    C2D_DrawSprite(&Sprites[1].spr); //Lobby_simple
-    switch(TeamOrCombatMenu)
-    {
-        case 0: //To enter fights / combat menu
-        if(kDown & KEY_TOUCH){
-            if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
-            {
-            // if touchpad is pressed in the detection area...
-            SetUpBoss(EnSkill, true);
-            MenuPosition = CombatMen;
-            }
-        }
-        break;
-
-        case 1: //team selection menu
-        
-        break;
-    }
+    C2D_DrawSprite(&MenuSprites[LobbyTop].spr);
     C2D_SceneBegin(bottom);
-    C2D_DrawSprite(&Sprites[2].spr);
+    C2D_DrawSprite(&MenuSprites[LobbyBot].spr);
+    if(kDown & KEY_TOUCH){
+        if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
+        {
+        // if touchpad is pressed in the detection area...
+        SetUpBoss(EnSkill, true);
+        MenuPosition = CombatMen;
+        C2D_SpriteSheetFree(menuSpriteSheet);
+        }
+    }
     break;
        
     
@@ -420,6 +413,8 @@ switch(MenuPosition){ // In game start
     
     if(Enemy[4].Health < 0){
         MenuPosition = MainMen;
+        menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
+            if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC); //reload menu sprites when returning to main menu
         break;
     }
 
