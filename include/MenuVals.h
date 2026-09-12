@@ -7,6 +7,11 @@ enum Menu{
     CombatMen
 };
 
+enum Rendering{
+    GFX = 0,
+    Combat
+};
+
 enum Msprites{
     Loading = 0,
     LobbyTop,

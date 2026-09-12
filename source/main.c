@@ -10,12 +10,10 @@
 #include "SlotSelect.h"
 #include "LobbyRend.h"
 #include "CombatTex.h"
+#include "CombSpriteRen.h"
 #include "SlotTarget.h"
 
 #define NOTSELECTED 9
-
-//sprite animation example from http://www.nyankolab.com/
-static u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
 void ExitApp(){
 FreeMain_M();
@@ -58,8 +56,6 @@ SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
 
-size_t SkillSprites = 0;
-
 int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}}; 
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
@@ -69,11 +65,11 @@ int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can
 
 int EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
-int CurrentFrameIndex = 0;
+size_t SkillSprites = 0;
 
-u64 InitialTimeMs = 0;
-u64 CurrentTimeMs = 0;
-u64 ElapsedTimeMs = 0;
+Time Time_T = {0, 0, 0};
+
+u32 CurrentFrameIndex = 0;
 
 u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
@@ -90,7 +86,8 @@ bool CreatedSkillStores = false;
 bool BeganSelec = false;
 bool SkillTargetingLocked = false;
 
-InitialTimeMs = osGetTime();
+Time_T.InitialTimeMs = osGetTime();
+
 SeedStart();
 Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
 
@@ -142,7 +139,7 @@ switch(MenuPosition){ // In game start
     {
     if(CreatedSkillStores == false)
     {
-    CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
+        CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
     }
     Sinner[0].OldHealth = Sinner[0].Health;
     Enemy[0].OldHealth = Enemy[0].Health;
@@ -167,28 +164,11 @@ switch(MenuPosition){ // In game start
 
     switch(InCombatOrGFX){
 
-        case 0: //idle animations
-        CurrentTimeMs = osGetTime();
-        ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
-        C2D_SceneBegin(top);
-        if(ElapsedTimeMs >= GFXRefreshMs)
-        {
-            ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
-                //C2D_DrawSprite(&Sprites[... + IdleIndex[0]].spr);
-                //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
-                IdleIndex[Ally] = (IdleIndex[Ally] + 1) % IdleMax[Ally];
-                IdleIndex[Opponent] = (IdleIndex[Opponent] + 1) % IdleMax[Opponent];
-            
-            InitialTimeMs = osGetTime(); //set new initial time
-        }
-        else
-        {
-            //C2D_DrawSprite(&Sprites[... + IdleIndex[0]].spr);
-            //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
-        }
+        case GFX: //idle animations / GFX of the clash and combat
+        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentFrameIndex, &CurrentSinner, IdleIndex, IdleMax, &InCombatOrGFX);
         break;
 
-        case 1: // Turn Running loop -> Clashing
+        case Combat: // Turn Running loop -> Clashing
         if(CurrentSinner > 0){ //solo sinner for now
             Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
             Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
@@ -211,32 +191,9 @@ switch(MenuPosition){ // In game start
         else{ //Sinner is going to attack unopposed
             UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
         }
-        InCombatOrGFX = 2; //GFX
+        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentFrameIndex, &CurrentSinner, IdleIndex, IdleMax, &InCombatOrGFX);
         break;
-
-        case 2: //GFX of the clash and combat
-        //SkillSprites = C2D_SpriteSheetCount(/*NO SKILL SHEETS YET*/); load winning character's sprite animation
-
-        CurrentTimeMs = osGetTime();
-        ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
-        C2D_SceneBegin(top);
-        if(ElapsedTimeMs >= GFXRefreshMs)
-        {
-            ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
-            //draw current frame index of the animation
-            if(CurrentFrameIndex != SkillSprites) CurrentFrameIndex++;
-            InitialTimeMs = osGetTime(); //set new initial time
-        }
-        else
-        {
-            //draw current frame index of the animation
-        }
-        if(CurrentFrameIndex == SkillSprites){
-        CurrentFrameIndex = 0;
-        InCombatOrGFX = 1;
-        CurrentSinner++; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}
-        }
-        break;
+        
     }
     
     if(Enemy[4].Health < 0){

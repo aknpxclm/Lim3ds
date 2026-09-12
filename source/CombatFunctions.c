@@ -4,7 +4,7 @@
 
 #define ENSANITYLOSS 5
 #define SINSANITYLOSS 3
-
+#define MAX_CLASH 50
 
 //If a skill is going to clash the enemy's, use this function to clash and deal damage
 int ClashingAtk(Characters *Sinner, Characters *Enemy)
@@ -20,6 +20,7 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy)
         Enemy->coins -= (EnClashNum < SinClashNum); //if enemy won subtract 0
         Sinner->coins -= (SinClashNum < EnClashNum); //if sinner won subtract 0
         Clashes++;
+        if(Clashes == MAX_CLASH) return Clashes; //leave if at max clashes and do nothing after
     }
     //check who "won" in total
     if(Sinner->coins > Enemy->coins){ 

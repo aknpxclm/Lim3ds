@@ -30,7 +30,7 @@ void InitMain_M()
     C2D_SpriteSetPos(&MenuSprites[2].spr, -10, 20); //set bottom lobby png pos
 }
 
-void DrawMainSp(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition)
+void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition)
 {
     C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
     C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
