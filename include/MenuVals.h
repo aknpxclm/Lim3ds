@@ -9,7 +9,8 @@ enum Menu{
 
 enum Rendering{
     GFX = 0,
-    Combat
+    Combat,
+    CombatGFX
 };
 
 enum Msprites{

@@ -70,11 +70,11 @@ size_t SkillSprites = 0;
 Time Time_T = {0, 0, 0};
 
 u32 CurrentFrameIndex = 0;
+u32 TurnCount = 1;
 
 u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
-u16 TurnCount = 1;
 
 u8 MenuPosition = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
@@ -111,13 +111,13 @@ while(aptMainLoop()){
 switch(MenuPosition){ // In game start
 
     case StartMen: //Start screen
-        DrawMainSp(top, bottom, MenuPosition);
+        DrawMain_S(top, bottom, MenuPosition);
         if(kDown) MenuPosition = MainMen;
     break;
 
 
     case MainMen: //Main menu
-	DrawMainSp(top, bottom, MenuPosition);
+	DrawMain_S(top, bottom, MenuPosition);
     if(kDown & KEY_TOUCH){
         if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
         {
@@ -164,7 +164,7 @@ switch(MenuPosition){ // In game start
 
     switch(InCombatOrGFX){
 
-        case GFX: //idle animations / GFX of the clash and combat
+        case GFX: //idle animations
         RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentFrameIndex, &CurrentSinner, IdleIndex, IdleMax, &InCombatOrGFX);
         break;
 
@@ -191,9 +191,13 @@ switch(MenuPosition){ // In game start
         else{ //Sinner is going to attack unopposed
             UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
         }
+        InCombatOrGFX = 2;
+        break;
+
+        case CombatGFX: //GFX of the clash and combat
         RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentFrameIndex, &CurrentSinner, IdleIndex, IdleMax, &InCombatOrGFX);
         break;
-        
+
     }
     
     if(Enemy[4].Health < 0){

@@ -16,7 +16,7 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites
     {
         case 0:
         Time_t->CurrentTimeMs = osGetTime();
-        Time_t->ElapsedTimeMs += (*Time_t->CurrentTimeMs - *Time_t->InitialTimeMs);
+        Time_t->ElapsedTimeMs += (Time_t->CurrentTimeMs - Time_t->InitialTimeMs);
         C2D_SceneBegin(top);
         if(Time_t->ElapsedTimeMs >= GFXRefreshMs)
         {
@@ -36,7 +36,7 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites
         }
         break;
 
-        case 1:
+        case 2:
         //SkillSprites = C2D_SpriteSheetCount(/*NO SKILL SHEETS YET*/); load winning character's sprite animation
 
         Time_t->CurrentTimeMs = osGetTime();
