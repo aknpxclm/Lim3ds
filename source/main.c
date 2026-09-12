@@ -6,111 +6,22 @@
 #include "Sinner_Enemy_defin.h"
 #include "Skill.h"
 #include "CombatFunctions.h"
-
-
-#define SCREEN_WIDTH  400
-#define SCREEN_HEIGHT 240
+#include "SlotSelect.h"
+#include "LobbyRend.h"
+#include "CombatTex.h"
 
 #define NOTSELECTED 9
-
-//Spritesheets
-static C2D_SpriteSheet menuSpriteSheet;
-
-C2D_TextBuf dynamBuf;
-
-typedef struct
-{
-	C2D_Sprite spr;
-	float dx, dy; // velocity
-} Sprite;
-
-
-
-static Sprite MenuSprites[20]; //max sprites are 768
 
 //sprite animation example from http://www.nyankolab.com/
 static u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
 void ExitApp(){
+FreeMain_M();
+FreeTexBuf();
 gfxExit();
 romfsExit();
 C2D_Fini();
 C3D_Fini();
-}
-
-void SinnerTex(Characters Sinner[], C2D_TextBuf dynamBuf, float xPosHP, float yPosHP, float xPosSP, float yPosSP)
-{
-    //uses 3ds/graphics/printing/system-font example
-    C2D_TextBufClear(dynamBuf); //clear previous text
-    char HpBuf[256];
-    char Sanbuf[256];
-    C2D_Text dynamTex[2];
-
-    snprintf(HpBuf, sizeof(HpBuf), "Health: %lf  %lf  %lf  %lf  %lf", \
-     Sinner[0].Health, Sinner[1].Health, Sinner[2].Health, Sinner[3].Health, Sinner[4].Health);
-    
-    snprintf(Sanbuf, sizeof(Sanbuf), "Sanity: %d  %d  %d  %d  %d", \
-     Sinner[0].Sanity, Sinner[1].Sanity, Sinner[2].Sanity, Sinner[3].Sanity, Sinner[4].Sanity); //write to buffer
-
-    C2D_TextParse(&dynamTex[0], dynamBuf, HpBuf); //parse the formatted strings
-    C2D_TextParse(&dynamTex[1], dynamBuf, Sanbuf);
-    C2D_TextOptimize(&dynamTex[0]);
-    C2D_TextOptimize(&dynamTex[1]);
-    C2D_DrawText(&dynamTex[0], 0, xPosHP, yPosHP, 0.0f, 1.0f, 1.0f);
-    C2D_DrawText(&dynamTex[1], 0, xPosSP, yPosSP, 0.0f, 1.0f, 1.0f);
-}
-
-int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *BeganSelec)
-{
-    if(*SkillTargetingLocked) return CurrSinTOChooseSkill;
-        /*return current skill index that the useer is choosing to clash a skill with;
-        ignoring touch pos until, touch screen is listed or skills are selected to clash*/
-    if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48)
-    {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
-        return 0; //slot 1
-    }
-    else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 216 && TOUCHy >= 230)
-    {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
-        return 1; //slot 2
-    }
-    else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 216 && TOUCHy >= 230)
-    {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
-        return 2; //slot 3
-    }
-    else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 216 && TOUCHy >= 230)
-    {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
-        return 3; //slot 4
-    }
-    else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 216 && TOUCHy >= 230)
-    {
-        *SkillTargetingLocked = true;
-        *BeganSelec = true;
-        return 4; //slot 5
-    }
-    else
-    {
-        *BeganSelec = false;
-        return NOTSELECTED;
-    }
-}
-
-int CursorToEN_Skill(int TOUCHx, int TOUCHy)
-{
-    // x & y are assuming that the hidtouch function are based on pixel coordinates
-    if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48) return 0; //slot 1
-    else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 24 && TOUCHy >= 48) return 1; //slot 2
-    else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 24 && TOUCHy >= 48) return 2; //slot 3
-    else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 24 && TOUCHy >= 48) return 3; //slot 4
-    else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 24 && TOUCHy >= 48) return 4; //slot 5
-    else return NOTSELECTED; //not selecting
 }
 
 void SetUpBoss(SkillInfo Enskill[][3], bool BossOrMultipleEnemy){ //true if there will be a boss
@@ -129,21 +40,6 @@ if(BossOrMultipleEnemy){
         }
     }
 }
-}
-
-void LoadMainMen()
-{
-    menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
-    if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
-
-    for(int x = 0; x < 3; x++){
-        Sprite *Menusprite = &MenuSprites[x];
-        C2D_SpriteFromSheet(&Menusprite->spr, menuSpriteSheet, x/*sprite index in the sheet*/);
-        C2D_SpriteSetCenter(&Menusprite->spr, 0.1f, 0.1f);
-        C2D_SpriteSetPos(&Menusprite->spr, 30/*X position*/, 20/*Y position*/);
-        C2D_SpriteSetRotation(&Menusprite->spr, 0);
-        C2D_SpriteSetScale(&Menusprite->spr, 1/*X scale*/, 1/*Y scale*/);
-    }
 }
 
 int main(int argc, char **argv){  // initialise variables
@@ -209,7 +105,6 @@ bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
 bool SkillTargetingLocked = false;
-bool ConfirmQuit = false;
 
 InitialTimeMs = osGetTime();
 SeedStart();
@@ -219,20 +114,14 @@ Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a ran
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-//Allocate memory for the buffers
-dynamBuf = C2D_TextBufNew(4096);
-
-LoadMainMen();
-C2D_SpriteSetPos(&MenuSprites[2].spr, -10, 20); //set bottom lobby png pos
+InitMain_M();
 
 while(aptMainLoop()){
 
     hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
     u32 kHeld = hidKeysHeld();
-    if(kDown & KEY_START) ConfirmQuit = true;
-    if(kDown & KEY_B && ConfirmQuit == true) ConfirmQuit = false;
-    if(kDown & KEY_START && ConfirmQuit == true) break;
+    if(kDown & KEY_START) break;
     touchPosition touch;
     hidTouchRead(&touch);
 
@@ -241,31 +130,20 @@ while(aptMainLoop()){
 switch(MenuPosition){ // In game start
 
     case StartMen: //Start screen
-        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-        C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-        C2D_SceneBegin(top);
-        C2D_DrawSprite(&MenuSprites[Loading].spr); //"Loading screen"
-        if(kDown)
-        {
-            MenuPosition = MainMen;
-        }
+        DrawMainSp(top, bottom, MenuPosition);
+        if(kDown) MenuPosition = MainMen;
     break;
 
 
     case MainMen: //Main menu
-	C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-    C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
-	C2D_SceneBegin(top);
-    C2D_DrawSprite(&MenuSprites[LobbyTop].spr);
-    C2D_SceneBegin(bottom);
-    C2D_DrawSprite(&MenuSprites[LobbyBot].spr);
+	DrawMainSp(top, bottom, MenuPosition);
     if(kDown & KEY_TOUCH){
         if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
         {
         // if touchpad is pressed in the detection area...
         SetUpBoss(EnSkill, true);
         MenuPosition = CombatMen;
-        C2D_SpriteSheetFree(menuSpriteSheet);
+        FreeMain_M();
         }
     }
     break;
@@ -288,11 +166,7 @@ switch(MenuPosition){ // In game start
     if(kHeld & KEY_TOUCH){
         CurrSinTOChooseSkill = BeginSinSelec(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &BeganSelec);
     }
-    else
-    {
-        SkillTargetingLocked = false;
-        BeganSelec = false;
-    }
+    else{ SkillTargetingLocked = false; BeganSelec = false; }
     if(kHeld & KEY_TOUCH && BeganSelec)
     {
         AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
@@ -335,7 +209,7 @@ switch(MenuPosition){ // In game start
     }
     }
     
-    SinnerTex(Sinner, dynamBuf, 8.0f, 8.0f, 8.0f, 12.0f);
+    SinnerTex(Sinner, 8.0f, 8.0f, 8.0f, 12.0f);
     
     switch(InCombatOrGFX){
 
@@ -387,7 +261,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case 2: //GFX of the clash and combat
-        SkillSprites = C2D_SpriteSheetCount(menuSpriteSheet/*PLACEHOLDER*/); //load winning character's sprite animation
+        //SkillSprites = C2D_SpriteSheetCount(/*NO SKILL SHEETS YET*/); load winning character's sprite animation
 
         CurrentTimeMs = osGetTime();
         ElapsedTimeMs += (CurrentTimeMs - InitialTimeMs);
@@ -413,8 +287,7 @@ switch(MenuPosition){ // In game start
     
     if(Enemy[4].Health < 0){
         MenuPosition = MainMen;
-        menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
-            if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC); //reload menu sprites when returning to main menu
+        InitMain_M(); //reload menu sprites when returning to main menu
         break;
     }
 
@@ -430,8 +303,6 @@ switch(MenuPosition){ // In game start
 }
     C3D_FrameEnd(0);
 }
-C2D_SpriteSheetFree(menuSpriteSheet);
-C2D_TextBufDelete(dynamBuf);
 ExitApp();
 return 0; 
 }
