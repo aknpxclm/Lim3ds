@@ -2,6 +2,7 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
+
 #include "MenuVals.h"
 #include "Sinner_Enemy_defin.h"
 #include "Skill.h"
@@ -9,6 +10,7 @@
 #include "SlotSelect.h"
 #include "LobbyRend.h"
 #include "CombatTex.h"
+#include "SlotTarget.h"
 
 #define NOTSELECTED 9
 
@@ -22,24 +24,6 @@ gfxExit();
 romfsExit();
 C2D_Fini();
 C3D_Fini();
-}
-
-void SetUpBoss(SkillInfo Enskill[][3], bool BossOrMultipleEnemy){ //true if there will be a boss
-if(BossOrMultipleEnemy){
-    int coin = 0;
-    int base = 0;
-    int coinpow = 0;
-    for(int i = 0; i < 3; i++){
-        coin = Enskill[0][i].coins;
-        base = Enskill[0][i].Skillbase;
-        coinpow = Enskill[0][i].SkillcoinPow;
-        for(int j = 1; j < 5; j++){
-            Enskill[j][i].coins = coin;
-            Enskill[j][i].Skillbase = base;
-            Enskill[j][i].SkillcoinPow = coinpow;
-        }
-    }
-}
 }
 
 int main(int argc, char **argv){  // initialise variables
@@ -175,42 +159,12 @@ switch(MenuPosition){ // In game start
     if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
     {
         InCombatOrGFX = 1; //combat
-        for(int Search = 0; Search < 5; Search++){
-            //check if clashing
-            if(AttackOrder[Search][CurrentIndex] == EnSkillOrder[Search][CurrentIndex])
-            {
-                SkillPosInfo[Search].IsClashing = true;
-                SkillPosInfo[Search].SkillClashing = Search;
-                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = true; // skill is targeting a slot
-                SkillPriorityLevel[AttackOrder[Search][CurrentIndex]] = AttackOrder[Search][CurrentIndex]; //record what skill slot was targeted
-            }
-            //check if skill is going unopposed while another skill clashes the same slot
-            if(SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] == true)
-            {
-                SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriorityLevel[Search], SkillPriorityLevel[AttackOrder[Search][CurrentIndex]]);
-                //Check if other skill has the higher pirority and remove them from clashing if it is lower
-                if(SkillPosInfo[Search].IsClashing)
-                {
-                    SkillPosInfo[AttackOrder[Search][CurrentIndex]].IsClashing = false;
-                }
-                // reset check bool
-                SelectSlotAppeared[AttackOrder[Search][CurrentIndex]] = false;
-            }
-            //check if enemy attacks wil go unopposed, no sinner is clashing the slot
-            if(EnSkillOrder[Search][CurrentIndex] != AttackOrder[0][CurrentIndex] || \
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[1][CurrentIndex] || \
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[2][CurrentIndex] || \
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[3][CurrentIndex] || \
-                EnSkillOrder[Search][CurrentIndex] != AttackOrder[4][CurrentIndex])
-                {
-                    SkillPosInfo[Search].IsUnclashed = true;
-                }
-        }
+        DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPriorityLevel, SelectSlotAppeared, SkillPosInfo);
     }
     }
-    
+
     SinnerTex(Sinner, 8.0f, 8.0f, 8.0f, 12.0f);
-    
+
     switch(InCombatOrGFX){
 
         case 0: //idle animations
@@ -222,8 +176,8 @@ switch(MenuPosition){ // In game start
             ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
                 //C2D_DrawSprite(&Sprites[... + IdleIndex[0]].spr);
                 //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
-                IdleIndex[0] = (IdleIndex[0] + 1) % IdleMax[0];
-                IdleIndex[1] = (IdleIndex[1] + 1) % IdleMax[1];
+                IdleIndex[Ally] = (IdleIndex[Ally] + 1) % IdleMax[Ally];
+                IdleIndex[Opponent] = (IdleIndex[Opponent] + 1) % IdleMax[Opponent];
             
             InitialTimeMs = osGetTime(); //set new initial time
         }

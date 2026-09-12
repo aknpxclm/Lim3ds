@@ -7,7 +7,8 @@
 
 
 //If a skill is going to clash the enemy's, use this function to clash and deal damage
-int ClashingAtk(Characters *Sinner, Characters *Enemy){
+int ClashingAtk(Characters *Sinner, Characters *Enemy)
+{
     int SinClashNum = 0;
     int EnClashNum = 0;
     int Clashes = 0;
@@ -39,16 +40,19 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy){
     return Clashes;
 }
 //Damage where a character doesnt clash
-void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth){
+void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth)
+{
     *OpposingHealth -= Damagedealt(Coin, Base, Pow, 0); //No clashes so pass in no clashing conditionals (Sanity, opposing stats)
 }
 //compares the priority of two skills 
-int ComparePriority(int Pri1,int Pri2){
+int ComparePriority(int Pri1,int Pri2)
+{
 return (Pri1 > Pri2); //Branchless???
 }
 
 //Adds skill ranks to the enemy, sinners and buffer skill arrays
-int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount){
+int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount)
+{
     if(TurnCount == 1){
         for(int i = 0; i < 5/*Amount of sinners*/; i++){
             for(int j = 0; j < 2/*skill choices*/; j++){
@@ -63,4 +67,23 @@ int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSk
         EnSkillOrder[l][0] = SkillList[Form_or_Select_Random_Skill()];
     }
     return 1; //Completed sucessfully
+}
+
+void SetUpBoss(SkillInfo Enskill[][3], bool BossOrMultipleEnemy/*true if there will be a boss*/)
+{ 
+if(BossOrMultipleEnemy){
+    int coin = 0;
+    int base = 0;
+    int coinpow = 0;
+    for(int i = 0; i < 3; i++){
+        coin = Enskill[0][i].coins;
+        base = Enskill[0][i].Skillbase;
+        coinpow = Enskill[0][i].SkillcoinPow;
+        for(int j = 1; j < 5; j++){
+            Enskill[j][i].coins = coin;
+            Enskill[j][i].Skillbase = base;
+            Enskill[j][i].SkillcoinPow = coinpow;
+        }
+    }
+}
 }

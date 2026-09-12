@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #ifndef SINNER_ENEMY_DEFIN_H_
 #define SINNER_ENEMY_DEFIN_H_
 
@@ -23,5 +25,11 @@ int Priority;
 bool IsClashing;
 bool IsUnclashed; //Based on if the enemy is clashing
 }ClashParams;
+
+enum SpriteTarget
+{
+    Ally = 0,
+    Opponent
+};
 
 #endif
