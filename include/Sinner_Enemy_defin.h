@@ -1,3 +1,4 @@
+#include <3ds.h>
 #include <stdbool.h>
 
 #ifndef SINNER_ENEMY_DEFIN_H_
@@ -20,10 +21,11 @@ int SkillcoinPow;
 }SkillInfo;
 
 typedef struct Clashing_Checks{
-int SkillClashing;
-int Priority;
-bool IsClashing;
-bool IsUnclashed; //Based on if the enemy is clashing
+u8 SkillClashing;  //Skill slot that is going to be clashed
+u8 Priority;       //higher priority means skill will clash over other skills
+bool SlotAppeared; //Shows if a skill is already clashing a slot
+bool IsClashing;   //sinner is clashing a skill
+bool IsUnclashed;  //Based on if the enemy is clashing the current sinner's skill
 }ClashParams;
 
 enum SpriteTarget

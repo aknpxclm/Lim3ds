@@ -41,9 +41,9 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy)
     return Clashes;
 }
 //Damage where a character doesnt clash
-void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth)
+void UnopposedAtk(Characters *Attack, Characters *Oppo)
 {
-    *OpposingHealth -= Damagedealt(Coin, Base, Pow, 0); //No clashes so pass in no clashing conditionals (Sanity, opposing stats)
+    Oppo->Health -= Damagedealt(Attack->coins, Attack->Skillbase, Attack->SkillcoinPow, 0); //No clashes so pass in no clashing conditionals (Sanity, opposing stats)
 }
 //compares the priority of two skills 
 int ComparePriority(int Pri1,int Pri2)

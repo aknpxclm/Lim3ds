@@ -17,11 +17,13 @@ return total;
 }
 
 //Calculate damage of skill
-int Damagedealt(int coins, int Skillbase, int SkillcoinPow, int Clashes){
+int Damagedealt(int coins, int Skillbase, int SkillcoinPow, int Clashes)
+{
 return Skillbase + (coins * SkillcoinPow) * (1 + (3 * (Clashes * 0.01))); 
 }
 //Generates seed
-void SeedStart(){
+void SeedStart()
+{
 srand(time(NULL) * (rand() % 100));
 }
 //Keeps sanity between 5 and 95 (displayed as -45 and 45)
@@ -43,7 +45,8 @@ int Form_or_Select_Random_Skill(){
 }
 
 //Rearranges the skill rank pool to make getting skills more random
-void Rearrange_SkillPool(int SkillList[]){
+void Rearrange_SkillPool(int SkillList[])
+{
 /*index 0 represents one value in SkillList
 index 1 represents another value 
 index 2 represents a random index of SkillList to swap to*/
@@ -59,7 +62,8 @@ for(int j = 0; j < 6; j++){
 }
 
 //Move skills down the selction area when a skill is used
-void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[]){
+void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[])
+{
 int TopRowSkill = 0;
 int BufferSkillnum = 0;
 

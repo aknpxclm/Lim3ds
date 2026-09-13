@@ -54,11 +54,10 @@ SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 
-ClashParams SkillPosInfo[5] = {{0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}, {0, 0, false, false}};
+ClashParams SkillPosInfo[5] = {{0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}};
 
-int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 6}, {0, 6}, {0, 6}, {0, 6}}; 
+int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
-int SkillPriorityLevel[5] = {0};                                   //higher priority means skill will clash over other skills
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
 int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
@@ -81,7 +80,6 @@ u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of cl
 u8 IdleIndex[2] = {0, 0};
 u8 IdleMax[2] = {0, 0};
 
-bool SelectSlotAppeared[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
 bool SkillTargetingLocked = false;
@@ -137,27 +135,27 @@ switch(MenuPosition){ // In game start
     //(Should Draw / Make menu) - unfinished
     if(InCombatOrGFX == 0)
     {
-    if(CreatedSkillStores == false)
-    {
-        CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
-    }
-    Sinner[0].OldHealth = Sinner[0].Health;
-    Enemy[0].OldHealth = Enemy[0].Health;
+        if(CreatedSkillStores == false)
+        {
+            CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
+        }
+        Sinner[0].OldHealth = Sinner[0].Health;
+        Enemy[0].OldHealth = Enemy[0].Health;
 
-    if(kHeld & KEY_TOUCH){
-        CurrSinTOChooseSkill = BeginSinSelec(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &BeganSelec);
-    }
-    else{ SkillTargetingLocked = false; BeganSelec = false; }
-    if(kHeld & KEY_TOUCH && BeganSelec)
-    {
-        AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
-    }
+        if(kHeld & KEY_TOUCH){
+            CurrSinTOChooseSkill = BeginSinSelec(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &BeganSelec);
+        }
+        else{ SkillTargetingLocked = false; BeganSelec = false; }
+        if(kHeld & KEY_TOUCH && BeganSelec)
+        {
+            AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
+        }
 
-    if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
-    {
-        InCombatOrGFX = 1; //combat
-        DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPriorityLevel, SelectSlotAppeared, SkillPosInfo);
-    }
+        if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
+        {
+            InCombatOrGFX = 1; //combat
+            DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPosInfo);
+        }
     }
 
     SinnerTex(Sinner, 8.0f, 8.0f, 8.0f, 12.0f);
@@ -183,13 +181,13 @@ switch(MenuPosition){ // In game start
         Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
 
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-            Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
+            Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
-            UnopposedAtk(Enemy[CurrentSinner].coins, Enemy[CurrentSinner].Skillbase, Enemy[CurrentSinner].SkillcoinPow, &Sinner[CurrentSinner].Health);
+           UnopposedAtk(&Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Sinner[CurrentSinner]);
         }
         else{ //Sinner is going to attack unopposed
-            UnopposedAtk(Sinner[CurrentSinner].coins, Sinner[CurrentSinner].Skillbase, Sinner[CurrentSinner].SkillcoinPow, &Enemy[CurrentSinner].Health);
+            UnopposedAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
         }
         InCombatOrGFX = 2;
         break;

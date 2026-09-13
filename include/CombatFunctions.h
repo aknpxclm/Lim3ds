@@ -2,7 +2,7 @@
 #define COMBATFUNCTIONS_H_
 
 int ClashingAtk(Characters *Sinner, Characters *Enemy);
-void UnopposedAtk(int Coin, int Base, int Pow, double* OpposingHealth);
+void UnopposedAtk(Characters *Attack, Characters *Oppo);
 int ComparePriority(int Pri1,int Pri2);
 int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int Turncount);
 void SetUpBoss(SkillInfo Enskill[][3], bool BossOrMultipleEnemy);

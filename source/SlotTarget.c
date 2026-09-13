@@ -3,37 +3,33 @@
 #include "CombatFunctions.h"
 #include "SlotTarget.h"
 
-void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], int SkillPriLvl[], bool SelectSlotAppeared[], ClashParams SkillPosInfo[])
+void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams SkillPosInfo[])
 {
-    for(int Search = 0; Search < 5; Search++){
-        //check if clashing
-        if(AtkOrder[Search][1] == EnSklOrder[Search][1])
+    for(int Slot = 0; Slot < 5; Slot++)
+    {
+        if(AtkOrder[Slot][1] == EnSklOrder[Slot][1]) //if the slots are targeting each other they clash
         {
-            SkillPosInfo[Search].IsClashing = true;
-            SkillPosInfo[Search].SkillClashing = Search;
-            SelectSlotAppeared[AtkOrder[Search][1]] = true; // skill is targeting a slot
-            SkillPriLvl[AtkOrder[Search][1]] = AtkOrder[Search][1]; //record what skill slot was targeted
+            SkillPosInfo[Slot].SlotAppeared = true; // skill is targeting a slot
+            SkillPosInfo[Slot].IsClashing = true;
+            SkillPosInfo[Slot].SkillClashing = AtkOrder[Slot][1]; //record what skill slot was targeted
         }
         //check if skill is going unopposed while another skill clashes the same slot
-        if(SelectSlotAppeared[AtkOrder[Search][1]] == true)
+        if(SkillPosInfo[AtkOrder[Slot][1]].SlotAppeared == true && Slot != 0)
         {
-            SkillPosInfo[Search].IsClashing = ComparePriority(SkillPriLvl[Search], SkillPriLvl[AtkOrder[Search][1]]);
+            SkillPosInfo[Slot].IsClashing = ComparePriority(SkillPosInfo[Slot].Priority, SkillPosInfo[AtkOrder[Slot][1]].Priority);
             //Check if other skill has the higher pirority and remove them from clashing if it is lower
-            if(SkillPosInfo[Search].IsClashing)
+            if(SkillPosInfo[Slot].IsClashing)
             {
-                SkillPosInfo[AtkOrder[Search][1]].IsClashing = false;
+                SkillPosInfo[AtkOrder[Slot][1]].IsClashing = false;
             }
             // reset check bool
-            SelectSlotAppeared[AtkOrder[Search][1]] = false;
+            SkillPosInfo[AtkOrder[Slot][1]].SlotAppeared = false;
         }
         //check if enemy attacks wil go unopposed, no sinner is clashing the slot
-        if(EnSklOrder[Search][1] != AtkOrder[0][1] || \
-            EnSklOrder[Search][1] != AtkOrder[1][1] || \
-            EnSklOrder[Search][1] != AtkOrder[2][1] || \
-            EnSklOrder[Search][1] != AtkOrder[3][1] || \
-            EnSklOrder[Search][1] != AtkOrder[4][1])
-            {
-                SkillPosInfo[Search].IsUnclashed = true;
-            }
+        if(EnSklOrder[Slot][1] != AtkOrder[0][1] || EnSklOrder[Slot][1] != AtkOrder[1][1] || \
+            EnSklOrder[Slot][1] != AtkOrder[2][1] || EnSklOrder[Slot][1] != AtkOrder[3][1] || \
+            EnSklOrder[Slot][1] != AtkOrder[4][1])
+            
+            SkillPosInfo[Slot].IsUnclashed = true;
     }
 }

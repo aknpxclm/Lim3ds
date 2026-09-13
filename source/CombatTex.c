@@ -8,7 +8,7 @@ static C2D_TextBuf dynamBuf;
 void CreateTexBuf()
 {
     //Allocate memory for the buffer
-    dynamBuf = C2D_TextBufNew(4096);
+    dynamBuf = C2D_TextBufNew(1024);
 }
 
 void SinnerTex(Characters Sinner[], float xPosHP, float yPosHP, float xPosSP, float yPosSP)
