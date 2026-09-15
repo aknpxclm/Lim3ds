@@ -81,7 +81,7 @@ u8 IdleMax[2] = {0, 0};
 
 bool PriGivenAlredy[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
-bool BeganSelec = false;
+bool StartSelec = false;
 bool SkillTargetingLocked = false;
 
 Time_T.InitialTimeMs = osGetTime();
@@ -143,10 +143,10 @@ switch(MenuPosition){ // In game start
         Enemy[0].OldHealth = Enemy[0].Health;
 
         if(kHeld & KEY_TOUCH){
-            CurrSinTOChooseSkill = BeginSinSelec(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &BeganSelec);
+            CurrSinTOChooseSkill = BeginSinSelect(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &StartSelec);
         }
-        else{ SkillTargetingLocked = false; BeganSelec = false; }
-        if(kHeld & KEY_TOUCH && BeganSelec)
+        else{ SkillTargetingLocked = false; StartSelec = false; }
+        if(kHeld & KEY_TOUCH && StartSelec)
         {
             AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
         }

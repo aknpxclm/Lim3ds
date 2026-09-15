@@ -3,6 +3,7 @@
 #include "CombatFunctions.h"
 #include "SlotSelect.h"
 
+//Sets variables in a struct depending on what type of attack will happen
 void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams SkillPosInfo[])
 {
     for(int Slot = 0; Slot < 5; Slot++)
@@ -33,8 +34,8 @@ void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams S
             SkillPosInfo[Slot].IsUnclashed = true;
     }
 }
-
-int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *BeganSelec)
+//Creates sinner character anchor to select the slot it targets
+int BeginSinSelect(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec)
 {
     if(*SkillTargetingLocked) return CurrSinTOChooseSkill;
         /*return current skill index that the useer is choosing to clash a skill with;
@@ -42,38 +43,35 @@ int BeginSinSelec(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillT
     if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48)
     {
         *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *StartSelec = true;
         return 0; //slot 1
     }
     else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 216 && TOUCHy >= 230)
     {
         *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *StartSelec = true;
         return 1; //slot 2
     }
     else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 216 && TOUCHy >= 230)
     {
         *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *StartSelec = true;
         return 2; //slot 3
     }
     else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 216 && TOUCHy >= 230)
     {
         *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *StartSelec = true;
         return 3; //slot 4
     }
     else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 216 && TOUCHy >= 230)
     {
         *SkillTargetingLocked = true;
-        *BeganSelec = true;
+        *StartSelec = true;
         return 4; //slot 5
     }
-    else
-    {
-        *BeganSelec = false;
-        return 9; // "NOTSELECTED"
-    }
+    *StartSelec = false;
+    return 9; // "NOTSELECTED"
 }
 
 int CursorToEN_Skill(int TOUCHx, int TOUCHy)
