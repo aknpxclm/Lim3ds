@@ -11,7 +11,6 @@
 #include "LobbyRend.h"
 #include "CombatTex.h"
 #include "CombSpriteRen.h"
-#include "SlotTarget.h"
 
 #define NOTSELECTED 9
 
@@ -80,6 +79,7 @@ u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of cl
 u8 IdleIndex[2] = {0, 0};
 u8 IdleMax[2] = {0, 0};
 
+bool PriGivenAlredy[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool BeganSelec = false;
 bool SkillTargetingLocked = false;
@@ -100,6 +100,7 @@ while(aptMainLoop()){
     hidScanInput(); //Scans for keys pressed
     u32 kDown = hidKeysDown();
     u32 kHeld = hidKeysHeld();
+    u32 kUp = hidKeysUp();
     if(kDown & KEY_START) break;
     touchPosition touch;
     hidTouchRead(&touch);
@@ -131,7 +132,6 @@ switch(MenuPosition){ // In game start
     case CombatMen: //Combat select area
         C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
         C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
-        C2D_SceneBegin(bottom);
     //(Should Draw / Make menu) - unfinished
     if(InCombatOrGFX == 0)
     {
@@ -150,6 +150,20 @@ switch(MenuPosition){ // In game start
         {
             AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
         }
+        if(kUp & KEY_TOUCH) //if the user released from the touch pad recently
+        {
+            if(CurrSinTOChooseSkill != 9)
+            {
+                if(PriGivenAlredy[CurrSinTOChooseSkill] == false)
+                {
+                    PriGivenAlredy[CurrSinTOChooseSkill] = true;
+                    SkillPosInfo[CurrSinTOChooseSkill].Priority += 1; //if first time slot selected, increase by one
+                }
+                else SkillPosInfo[CurrSinTOChooseSkill].Priority += 2;
+                CurrSinTOChooseSkill = NOTSELECTED;
+            }
+            
+        }
 
         if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
         {
@@ -158,6 +172,7 @@ switch(MenuPosition){ // In game start
         }
     }
 
+    C2D_SceneBegin(bottom);
     SinnerTex(Sinner, 8.0f, 8.0f, 8.0f, 12.0f);
 
     switch(InCombatOrGFX){
