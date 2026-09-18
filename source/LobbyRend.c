@@ -1,6 +1,6 @@
 #include <3ds.h>
 #include <citro2d.h>
-#include "MenuVals.h"
+#include "Sinner_Enemy_defin.h"
 #include "LobbyRend.h"
 
 //max sprites is 768
@@ -54,4 +54,19 @@ void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition
 void FreeMain_M()
 {
     C2D_SpriteSheetFree(menuSpriteSheet);
+}
+
+void DrawSubMain(u8 MainSubPos)
+{
+    switch(MainSubPos)
+    {
+        case 0: //lobby with stage select
+        break;
+
+        case 1: //Team Select
+        break;
+
+        case 2: //TBD
+        break;
+    }
 }

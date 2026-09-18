@@ -4,6 +4,12 @@
 #ifndef SINNER_ENEMY_DEFIN_H_
 #define SINNER_ENEMY_DEFIN_H_
 
+enum Menu{ StartMen = 0, MainMen, CombatMen };
+
+enum Rendering{ GFX = 0, Combat, CombatGFX };
+
+enum Msprites{ Loading = 0, LobbyTop, LobbyBot };
+
 typedef struct {
 double Health;
 double OldHealth;

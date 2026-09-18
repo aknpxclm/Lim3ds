@@ -2,15 +2,17 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
-
-#include "MenuVals.h"
 #include "Sinner_Enemy_defin.h"
 #include "Skill.h"
+#include "LoadCharac.h"
 #include "CombatFunctions.h"
 #include "SlotSelect.h"
 #include "LobbyRend.h"
 #include "CombatTex.h"
 #include "CombSpriteRen.h"
+
+#define SCREEN_WIDTH  400
+#define SCREEN_HEIGHT 240
 
 #define NOTSELECTED 9
 
@@ -55,6 +57,8 @@ SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}};
 
+char *LoadPath;
+
 int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -62,6 +66,9 @@ int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original o
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 
 int EnSkillPattern[5] = {2, 2, 1, 1, 1};
+
+int IdToload = 0;
+int TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)
 
 size_t SkillSprites = 0;
 
@@ -74,7 +81,9 @@ u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
 
+u8 CursorOn_X_Sinner = 0;
 u8 MenuPosition = 0;
+u8 MainSubPos = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
 u8 IdleIndex[2] = {0, 0};
 u8 IdleMax[2] = {0, 0};
@@ -84,16 +93,19 @@ bool CreatedSkillStores = false;
 bool StartSelec = false;
 bool SkillTargetingLocked = false;
 
-Time_T.InitialTimeMs = osGetTime();
-
-SeedStart();
-Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
+bool UserInDeepSelect = false;
 
 //Create 3ds Render targets for the screens
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
+Time_T.InitialTimeMs = osGetTime();
+
+SeedStart();
+Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
+
 InitMain_M();
+LoadPath = AllocPathBuf();
 
 while(aptMainLoop()){
 
@@ -117,6 +129,40 @@ switch(MenuPosition){ // In game start
 
     case MainMen: //Main menu
 	DrawMain_S(top, bottom, MenuPosition);
+    if(!UserInDeepSelect)
+    {
+        if(kDown & KEY_DRIGHT && MainSubPos <= 2) MainSubPos += 1;
+        if(kDown & KEY_DLEFT && MainSubPos > 0) MainSubPos -= 1;
+    }
+
+    switch(MainSubPos)
+    {
+        case 0:
+        break;
+
+        case 1: //team select
+        if(kDown & KEY_A) UserInDeepSelect = true; //enter id select
+        if(kDown & KEY_B) UserInDeepSelect = false;
+        if(UserInDeepSelect == true)
+        {
+            if(kDown & KEY_DRIGHT && CursorOn_X_Sinner < 4) CursorOn_X_Sinner += 1;
+            if(kDown & KEY_DLEFT && CursorOn_X_Sinner > 0) CursorOn_X_Sinner -= 1;
+            if(kDown & KEY_DUP && IdToload < TotalSinIdsInGame) IdToload += 1;
+            if(kDown & KEY_DDOWN && IdToload > 0) IdToload -= 1;
+
+            if(kUp & KEY_X)
+            {
+                CharIdPath(IdToload, LoadPath);
+                LoadSinInfo(&SinSkill[CursorOn_X_Sinner], LoadPath);
+                IdToload = 0;
+            }
+        }
+        break;
+
+        case 2:
+        break;
+    }
+
     if(kDown & KEY_TOUCH){
         if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
         {
@@ -167,7 +213,7 @@ switch(MenuPosition){ // In game start
 
         if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
         {
-            InCombatOrGFX = 1; //combat
+            InCombatOrGFX = Combat;
             DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPosInfo);
         }
     }
@@ -204,7 +250,7 @@ switch(MenuPosition){ // In game start
         else{ //Sinner is going to attack unopposed
             UnopposedAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
         }
-        InCombatOrGFX = 2;
+        InCombatOrGFX = CombatGFX;
         break;
 
         case CombatGFX: //GFX of the clash and combat
@@ -220,7 +266,7 @@ switch(MenuPosition){ // In game start
     }
 
     if(CurrentSinner == 5/*All sinners have completed their actions*/){
-        InCombatOrGFX = 0; //exit clash and GFX
+        InCombatOrGFX = GFX; //exit clash and GFX
         CurrentSinner = 0; //reset to first sinner
         //End this turn and start the next one
         CreatedSkillStores = false;
@@ -231,6 +277,7 @@ switch(MenuPosition){ // In game start
 }
     C3D_FrameEnd(0);
 }
+FreePath(LoadPath);
 ExitApp();
 return 0; 
 }
