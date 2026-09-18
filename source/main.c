@@ -55,6 +55,8 @@ SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 
+SkillInfo *SkillBuf;
+
 ClashParams SkillPosInfo[5] = {{0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}};
 
 char *LoadPath;
@@ -64,7 +66,6 @@ int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill numbe
 int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
 int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
-
 int EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
 int IdToload = 0;
@@ -105,6 +106,7 @@ SeedStart();
 Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
 
 InitMain_M();
+SkillBuf = SkillInfoBuf();
 LoadPath = AllocPathBuf();
 
 while(aptMainLoop()){
@@ -153,7 +155,8 @@ switch(MenuPosition){ // In game start
             if(kUp & KEY_X)
             {
                 CharIdPath(IdToload, LoadPath);
-                LoadSinInfo(&SinSkill[CursorOn_X_Sinner], LoadPath);
+                LoadSinInfo(SkillBuf, LoadPath);
+                PassInSkillInfo(SinSkill, SkillBuf, CursorOn_X_Sinner);
                 IdToload = 0;
             }
         }
@@ -277,7 +280,7 @@ switch(MenuPosition){ // In game start
 }
     C3D_FrameEnd(0);
 }
-FreePath(LoadPath);
+FreeSkillFileInfo(LoadPath, SkillBuf);
 ExitApp();
 return 0; 
 }

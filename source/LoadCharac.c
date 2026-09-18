@@ -16,7 +16,7 @@ char *AllocPathBuf()
     int CurrentLen = 0;
 
     Lim3ds = opendir("./LimChars");
-    if(Lim3ds == NULL) return;
+    if(Lim3ds == NULL) return NULL;
 
     while((entry = readdir(Lim3ds)) != NULL) //finds the length of the .bin file with the longest len
     {
@@ -35,14 +35,29 @@ char *AllocPathBuf()
     return Path;
 }
 
-void LoadSinInfo(SkillInfo *Sinner, char *Path)
+SkillInfo *SkillInfoBuf()
+{
+    return (SkillInfo*)malloc(sizeof(SkillInfo) * 3);
+}
+
+void LoadSinInfo(SkillInfo *Sinners_Skills, char *Path)
 {
     FILE *SinBin;
     SinBin = fopen(Path, "rb");
 
-    fread(Sinner, sizeof(SkillInfo), 3, SinBin); //copy skill numbers for each rank 1 -> 3 from a .bin file
+    fread(Sinners_Skills, sizeof(SkillInfo), 3, SinBin); //copy skill numbers for each rank 1 -> 3 from a .bin file
 
     fclose(SinBin);
+}
+
+void PassInSkillInfo(SkillInfo Sinner[][3], SkillInfo *SkillBuf, u8 LoadOnSinner)
+{
+    for(int i = 0; i < 3; i++)
+    {
+        Sinner[LoadOnSinner][i].coins = SkillBuf[i].coins;
+        Sinner[LoadOnSinner][i].Skillbase = SkillBuf[i].Skillbase;
+        Sinner[LoadOnSinner][i].SkillcoinPow = SkillBuf[i].SkillcoinPow;
+    }
 }
 
 void CharIdPath(int SinId, char *Path)
@@ -56,7 +71,8 @@ void CharIdPath(int SinId, char *Path)
     }
 }
 
-void FreePath(char *Path)
+void FreeSkillFileInfo(char *Path, SkillInfo *SkillBuf)
 {
+    free(SkillBuf);
     free(Path);
 }
