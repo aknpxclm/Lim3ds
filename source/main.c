@@ -68,9 +68,6 @@ int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original o
 int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 int EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
-int IdToload = 0;
-int TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)
-
 size_t SkillSprites = 0;
 
 Time Time_T = {0, 0, 0};
@@ -82,7 +79,6 @@ u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
 
-u8 CursorOn_X_Sinner = 0;
 u8 MenuPosition = 0;
 u8 MainSubPos = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
@@ -93,8 +89,6 @@ bool PriGivenAlredy[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
 bool StartSelec = false;
 bool SkillTargetingLocked = false;
-
-bool UserInDeepSelect = false;
 
 //Create 3ds Render targets for the screens
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -115,9 +109,9 @@ while(aptMainLoop()){
     u32 kDown = hidKeysDown();
     u32 kHeld = hidKeysHeld();
     u32 kUp = hidKeysUp();
-    if(kDown & KEY_START) break;
     touchPosition touch;
     hidTouchRead(&touch);
+    if(kDown & KEY_START) break;
 
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
@@ -131,40 +125,8 @@ switch(MenuPosition){ // In game start
 
     case MainMen: //Main menu
 	DrawMain_S(top, bottom, MenuPosition);
-    if(!UserInDeepSelect)
-    {
-        if(kDown & KEY_DRIGHT && MainSubPos <= 2) MainSubPos += 1;
-        if(kDown & KEY_DLEFT && MainSubPos > 0) MainSubPos -= 1;
-    }
 
-    switch(MainSubPos)
-    {
-        case 0:
-        break;
-
-        case 1: //team select
-        if(kDown & KEY_A) UserInDeepSelect = true; //enter id select
-        if(kDown & KEY_B) UserInDeepSelect = false;
-        if(UserInDeepSelect == true)
-        {
-            if(kDown & KEY_DRIGHT && CursorOn_X_Sinner < 4) CursorOn_X_Sinner += 1;
-            if(kDown & KEY_DLEFT && CursorOn_X_Sinner > 0) CursorOn_X_Sinner -= 1;
-            if(kDown & KEY_DUP && IdToload < TotalSinIdsInGame) IdToload += 1;
-            if(kDown & KEY_DDOWN && IdToload > 0) IdToload -= 1;
-
-            if(kUp & KEY_X)
-            {
-                CharIdPath(IdToload, LoadPath);
-                LoadSinInfo(SkillBuf, LoadPath);
-                PassInSkillInfo(SinSkill, SkillBuf, CursorOn_X_Sinner);
-                IdToload = 0;
-            }
-        }
-        break;
-
-        case 2:
-        break;
-    }
+    SubMain(&MainSubPos, kDown, kUp, LoadPath, SkillBuf, SinSkill);
 
     if(kDown & KEY_TOUCH){
         if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)

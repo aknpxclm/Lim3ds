@@ -1,6 +1,8 @@
 #include <3ds.h>
 #include <citro2d.h>
+#include <stdbool.h>
 #include "Sinner_Enemy_defin.h"
+#include "LoadCharac.h"
 #include "LobbyRend.h"
 
 //max sprites is 768
@@ -56,14 +58,42 @@ void FreeMain_M()
     C2D_SpriteSheetFree(menuSpriteSheet);
 }
 
-void DrawSubMain(u8 MainSubPos)
+void SubMain(u8 *MainSubPos, u32 kDown, u32 kUp, char *LoadPath, SkillInfo *SkillBuf, SkillInfo SinSkill[][3])
 {
-    switch(MainSubPos)
+    static int IdToload = 0;
+    static int TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)
+    static u8 CursorOn_X_Sinner = 0;
+    static bool UserInDeepSelect = false;
+
+    if(!UserInDeepSelect)
+    {
+        if(kDown & KEY_DRIGHT && *MainSubPos <= 2) *MainSubPos += 1;
+        if(kDown & KEY_DLEFT && *MainSubPos > 0) *MainSubPos -= 1;
+    }
+    switch(*MainSubPos)
     {
         case 0: //lobby with stage select
         break;
 
         case 1: //Team Select
+        if(kDown & KEY_A) UserInDeepSelect = true; //enter id select
+        
+        if(kDown & KEY_B) UserInDeepSelect = false;
+        if(UserInDeepSelect == true)
+        {
+            if(kDown & KEY_DRIGHT && CursorOn_X_Sinner < 4) CursorOn_X_Sinner += 1;
+            if(kDown & KEY_DLEFT && CursorOn_X_Sinner > 0) CursorOn_X_Sinner -= 1;
+            if(kDown & KEY_DUP && IdToload < TotalSinIdsInGame) IdToload += 1;
+            if(kDown & KEY_DDOWN && IdToload > 0) IdToload -= 1;
+
+            if(kUp & KEY_X)
+            {
+                CharIdPath(IdToload, LoadPath);
+                LoadSinInfo(SkillBuf, LoadPath);
+                PassInSkillInfo(SinSkill, SkillBuf, CursorOn_X_Sinner);
+                IdToload = 0;
+            }
+        }
         break;
 
         case 2: //TBD
