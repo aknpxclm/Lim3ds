@@ -50,13 +50,13 @@ void LoadSinInfo(SkillInfo *Sinners_Skills, char *Path)
     fclose(SinBin);
 }
 
-void PassInSkillInfo(SkillInfo Sinner[][3], SkillInfo *SkillBuf, u8 LoadOnSinner)
+void PassInSkillInfo(SkillInfo Sinner[][3], SkillInfo *SkillBuf, u8 LoadOnSin)
 {
     for(int i = 0; i < 3; i++)
     {
-        Sinner[LoadOnSinner][i].coins = SkillBuf[i].coins;
-        Sinner[LoadOnSinner][i].Skillbase = SkillBuf[i].Skillbase;
-        Sinner[LoadOnSinner][i].SkillcoinPow = SkillBuf[i].SkillcoinPow;
+        Sinner[LoadOnSin][i].coins = SkillBuf[i].coins;
+        Sinner[LoadOnSin][i].Skillbase = SkillBuf[i].Skillbase;
+        Sinner[LoadOnSin][i].SkillcoinPow = SkillBuf[i].SkillcoinPow;
     }
 }
 

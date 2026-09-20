@@ -6,7 +6,7 @@
 char *AllocPathBuf();
 SkillInfo *SkillInfoBuf();
 void LoadSinInfo(SkillInfo *Sinner, char *Path);
-void PassInSkillInfo(SkillInfo Sinner[][3], SkillInfo *SkillBuf, u8 LoadOnSinner);
+void PassInSkillInfo(SkillInfo Sinner[][3], SkillInfo *SkillBuf, u8 LoadOnSin);
 void CharIdPath(int SinId, char *Path);
 void FreeSkillFileInfo(char *Path, SkillInfo *SkillBuf);
 

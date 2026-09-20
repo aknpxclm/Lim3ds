@@ -77,6 +77,7 @@ u32 TurnCount = 1;
 
 u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
+u16 EnemySlot = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
 
 u8 MenuPosition = 0;
@@ -160,18 +161,20 @@ switch(MenuPosition){ // In game start
         if(kHeld & KEY_TOUCH && StartSelec)
         {
             AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
+            EnemySlot = CursorToEN_Skill(touch.px, touch.py);
         }
         if(kUp & KEY_TOUCH) //if the user released from the touch pad recently
         {
-            if(CurrSinTOChooseSkill != 9)
+            if(EnemySlot != NOTSELECTED)
             {
-                if(PriGivenAlredy[CurrSinTOChooseSkill] == false)
+                if(PriGivenAlredy[EnemySlot] == false)
                 {
-                    PriGivenAlredy[CurrSinTOChooseSkill] = true;
+                    PriGivenAlredy[EnemySlot] = true;
                     SkillPosInfo[CurrSinTOChooseSkill].Priority += 1; //if first time slot selected, increase by one
                 }
                 else SkillPosInfo[CurrSinTOChooseSkill].Priority += 2;
                 CurrSinTOChooseSkill = NOTSELECTED;
+                EnemySlot = NOTSELECTED;
             }
             
         }

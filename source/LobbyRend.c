@@ -77,7 +77,6 @@ void SubMain(u8 *MainSubPos, u32 kDown, u32 kUp, char *LoadPath, SkillInfo *Skil
 
         case 1: //Team Select
         if(kDown & KEY_A) UserInDeepSelect = true; //enter id select
-        
         if(kDown & KEY_B) UserInDeepSelect = false;
         if(UserInDeepSelect == true)
         {
