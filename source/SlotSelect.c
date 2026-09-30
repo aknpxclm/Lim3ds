@@ -84,3 +84,12 @@ int CursorToEN_Skill(int TOUCHx, int TOUCHy)
     else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 24 && TOUCHy >= 48) return 4; //slot 5
     else return 9; // "NOTSELECTED"
 }
+
+void ToggleDefSkill(int TOUCHx, int TOUCHy, ClashParams Sinner[]) //toggles the bool value that checks if a sinner is using a defence skill
+{
+    if(TOUCHx <= 24 && TOUCHx >= 48 && TOUCHy <= 24 && TOUCHy >= 48) Sinner[0].UseDefence = !Sinner[0].UseDefence;
+    else if(TOUCHx <= 96 && TOUCHx >= 120 && TOUCHy <= 24 && TOUCHy >= 48) Sinner[1].UseDefence = !Sinner[1].UseDefence;
+    else if(TOUCHx <= 168 && TOUCHx >= 192 && TOUCHy <= 24 && TOUCHy >= 48) Sinner[2].UseDefence = !Sinner[2].UseDefence;
+    else if(TOUCHx <= 216 && TOUCHx >= 240 && TOUCHy <= 24 && TOUCHy >= 48) Sinner[3].UseDefence = !Sinner[3].UseDefence;
+    else if(TOUCHx <= 284 && TOUCHx >= 308 && TOUCHy <= 24 && TOUCHy >= 48) Sinner[4].UseDefence = !Sinner[4].UseDefence;
+}

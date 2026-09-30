@@ -43,23 +43,26 @@ Characters Enemy[5] = {{1560.0f, 0, 0, 0, 0, 50, 1}, \
                        {1560.0f, 0, 0, 0, 0, 50, 1}, \
                        {1560.0f, 0, 0, 0, 0, 50, 1}, \
                        {1560.0f, 0, 0, 0, 0, 50, 1}};
-//Skill info for each sinner's skill ranks
-SkillInfo SinSkill[5][3] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}}, \
-                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-SkillInfo EnSkill[5][3] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
-                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+//Skill info for each sinner's skill ranks, for the fourth array for each sinner it uses {defence type, base, coinPow}
+SkillInfo SinSkill[5][4] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}, {0, 10, 4}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
+SkillInfo EnSkill[5][4] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
+                           {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
 
 SkillInfo *SkillBuf;
-
-ClashParams SkillPosInfo[5] = {{0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}, {0, 0, false, false, false}};
-
 char *LoadPath;
+
+ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
+                               {0, 0, false, false, false, false}, \
+                               {0, 0, false, false, false, false}, \
+                               {0, 0, false, false, false, false}, \
+                               {0, 0, false, false, false, false}};
 
 int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
 int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
@@ -163,7 +166,7 @@ switch(MenuPosition){ // In game start
             AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
             EnemySlot = CursorToEN_Skill(touch.px, touch.py);
         }
-        if(kUp & KEY_TOUCH) //if the user released from the touch pad recently
+        if(kUp & KEY_TOUCH && CurrSinTOChooseSkill != NOTSELECTED) //if the user released from the touch pad recently after selecting enemy slot
         {
             if(EnemySlot != NOTSELECTED)
             {
@@ -173,11 +176,12 @@ switch(MenuPosition){ // In game start
                     SkillPosInfo[CurrSinTOChooseSkill].Priority += 1; //if first time slot selected, increase by one
                 }
                 else SkillPosInfo[CurrSinTOChooseSkill].Priority += 2;
+
                 CurrSinTOChooseSkill = NOTSELECTED;
                 EnemySlot = NOTSELECTED;
             }
-            
         }
+        else if(kUp & KEY_TOUCH) ToggleDefSkill(touch.px, touch.py, SkillPosInfo); //allow the toggle to use defenc skills
 
         if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
         {
@@ -201,10 +205,21 @@ switch(MenuPosition){ // In game start
             Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
         }
 
-        Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].coins;
-        Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].Skillbase;
-        Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].SkillcoinPow;
-
+        if(SkillPosInfo[CurrentSinner].UseDefence == true)
+        {
+            Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][3].coins; //defence type
+            Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][3].Skillbase;
+            Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][3].SkillcoinPow;
+            DefenceAgainstAtk(&Sinner[CurrentSinner], &SinSkill[CurrentSinner][3],&Enemy[CurrentSinner], SkillPosInfo[CurrentSinner].UseDefence);
+            InCombatOrGFX = CombatGFX;
+            break;
+        }
+        else
+        {
+            Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].coins;
+            Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].Skillbase;
+            Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].SkillcoinPow;
+        }
         Enemy[CurrentSinner].coins = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].coins;
         Enemy[CurrentSinner].Skillbase = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].Skillbase;
         Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;

@@ -12,38 +12,37 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy)
     int SinClashNum = 0;
     int EnClashNum = 0;
     int Clashes = 0;
-    while(Sinner->coins > 0 && Enemy->coins > 0){ //clash loop
+    while(Sinner->coins > 0 && Enemy->coins > 0){
         // get clash values for enemy and sinner
-        SinClashNum = ClashValue(Sinner->coins, Sinner->Skillbase, Sinner->SkillcoinPow, Sinner->Sanity);
-        EnClashNum = ClashValue(Enemy->coins, Enemy->Skillbase, Enemy->SkillcoinPow, Enemy->Sanity);
+        SinClashNum = ClashValue(Sinner->Skillbase, Sinner->coins, Sinner->SkillcoinPow, Sinner->Sanity);
+        EnClashNum = ClashValue(Enemy->Skillbase, Enemy->coins, Enemy->SkillcoinPow, Enemy->Sanity);
         // check who wins
-        Enemy->coins -= (EnClashNum < SinClashNum); //if enemy won subtract 0
-        Sinner->coins -= (SinClashNum < EnClashNum); //if sinner won subtract 0
+        Enemy->coins -= (EnClashNum < SinClashNum);
+        Sinner->coins -= (SinClashNum < EnClashNum);
         Clashes++;
-        if(Clashes == MAX_CLASH) return Clashes; //leave if at max clashes and do nothing after
+        if(Clashes == MAX_CLASH) return Clashes;
     }
-    //check who "won" in total
     if(Sinner->coins > Enemy->coins){ 
         //sp gain for sinner and loss for enemy
         Sinner->Sanity += (10 + Clashes);
         Sinner->Sanity = LimitSanity(&Sinner->Sanity);
         Enemy->Sanity -= ENSANITYLOSS;
         Enemy->Sanity = LimitSanity(&Enemy->Sanity);
-        Enemy->Health -= Damagedealt(Sinner->coins, Sinner->Skillbase, Sinner->SkillcoinPow, Clashes);
+        Enemy->Health -= Damagedealt(Sinner, Clashes);
     }
     else{
         Enemy->Sanity += (10 + Clashes);
         Enemy->Sanity = LimitSanity(&Enemy->Sanity);
         Sinner->Sanity -= SINSANITYLOSS;
         Sinner->Sanity = LimitSanity(&Sinner->Sanity);
-        Sinner->Health -= Damagedealt(Enemy->coins, Enemy->Skillbase, Enemy->SkillcoinPow, Clashes);
+        Sinner->Health -= Damagedealt(Enemy, Clashes);
     }
     return Clashes;
 }
 //Damage where a character doesnt clash
 void UnopposedAtk(Characters *Attack, Characters *Oppo)
 {
-    Oppo->Health -= Damagedealt(Attack->coins, Attack->Skillbase, Attack->SkillcoinPow, 0); //No clashes so pass in no clashing conditionals (Sanity, opposing stats)
+    Oppo->Health -= Damagedealt(Attack, 0); //No clashes so pass in clashing conditionals (Sanity, opposing stats)
 }
 //compares the priority of two skills 
 int ComparePriority(int Pri1,int Pri2)
@@ -70,7 +69,7 @@ int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSk
     return 1; //Completed sucessfully
 }
 
-void SetUpBoss(SkillInfo Enskill[][3], bool BossOrMultipleEnemy/*true if there will be a boss*/)
+void SetUpBoss(SkillInfo Enskill[][4], bool BossOrMultipleEnemy/*true if there will be a boss*/)
 { 
     if(BossOrMultipleEnemy){
         int coin = 0;
@@ -86,5 +85,23 @@ void SetUpBoss(SkillInfo Enskill[][3], bool BossOrMultipleEnemy/*true if there w
                 Enskill[j][i].SkillcoinPow = coinpow;
             }
         }
+    }
+}
+
+void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, bool clashable)
+{
+    switch(SinSkill->coins) //defence type of fourth column fir each sinner
+    {
+        case 0: //guard
+        if(!clashable) Sinner->Health -= GuardDmgDealt(Sinner, Enemy);
+        else Sinner->Health -= (float)( (1 - (float)(ClashValue(SinSkill->Skillbase, 1, SinSkill->SkillcoinPow, Sinner->Sanity) * 0.01)) * Damagedealt(Enemy, 0) ); //reduce dmg by a percentage
+        break;
+
+        case 1: //evade
+        EvadeDmg(Sinner, Enemy);
+        break;
+
+        case 2: //counter (regular)
+        break;
     }
 }

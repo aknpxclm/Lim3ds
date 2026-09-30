@@ -58,7 +58,7 @@ void FreeMain_M()
     C2D_SpriteSheetFree(menuSpriteSheet);
 }
 
-void SubMain(u8 *MainSubPos, u32 kDown, u32 kUp, char *LoadPath, SkillInfo *SkillBuf, SkillInfo SinSkill[][3])
+void SubMain(u8 *MainSubPos, u32 kDown, u32 kUp, char *LoadPath, SkillInfo *SkillBuf, SkillInfo SinSkill[][4])
 {
     static int IdToload = 0;
     static int TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)

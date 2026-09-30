@@ -32,6 +32,7 @@ u8 Priority;       //higher priority means skill will clash over other skills
 bool SlotAppeared; //Shows if a skill is already clashing a slot
 bool IsClashing;   //sinner is clashing a skill
 bool IsUnclashed;  //Based on if the enemy is clashing the current sinner's skill
+bool UseDefence;
 }ClashParams;
 
 enum SpriteTarget

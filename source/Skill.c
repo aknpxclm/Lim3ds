@@ -1,32 +1,66 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Skill.h"
+#include "Sinner_Enemy_defin.h"
 
 //Generate a random skill value to compare and clash with
-int ClashValue(int coins, int Skillbase, int SkillcoinPow, int Sanity)
+int ClashValue(int base, int coins, int coinPow, int sanity)
 {
 int coinFlip = 0;
 int total = 0;
-total += Skillbase;
+total += base;
 for (int i = 0; i < coins; i++)
 {
     coinFlip = rand() % 100;
-    total += (coinFlip < Sanity) * SkillcoinPow;
+    total += (coinFlip < sanity) * coinPow;
 }
 return total;
 }
 
-//Calculate damage of skill
-int Damagedealt(int coins, int Skillbase, int SkillcoinPow, int Clashes)
+int Damagedealt(Characters *Charac, int Clashes)
 {
-return Skillbase + (coins * SkillcoinPow) * (1 + (3 * (Clashes * 0.01))); 
+return Charac->Skillbase + (Charac->coins * Charac->SkillcoinPow) * (1 + (3 * (Clashes * 0.01))); 
 }
-//Generates seed
+
+int GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
+{
+    int coinFlip = 0;
+    int total = 0;
+    total += Charac->Skillbase;
+    coinFlip = rand() % 100;
+    total += (coinFlip < Charac->Sanity) * Charac->SkillcoinPow;
+    return Damagedealt(AttackingCharac, 0) - total;
+}
+
+void EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
+{
+    int coinFlip = 0;
+    int totalAtk = 0;
+    int totalEvade = 0;
+    totalAtk += AttackingCharac->Skillbase;
+    totalEvade += EvadeCharac->Skillbase;
+    for(int i = 0; i < AttackingCharac->coins; i++)
+    {
+        coinFlip = rand() % 100;
+        totalAtk += (coinFlip < AttackingCharac->Sanity) * AttackingCharac->SkillcoinPow;
+        totalEvade += (coinFlip < EvadeCharac->Sanity) * EvadeCharac->SkillcoinPow;
+        if(totalAtk > totalEvade)
+        {
+            goto FailEvade;
+        }
+        totalEvade -= EvadeCharac->SkillcoinPow; //reset to default
+    }
+    return;
+
+    FailEvade:
+    EvadeCharac->Health -= Damagedealt(AttackingCharac, 0);
+}
+
 void SeedStart()
 {
-srand(time(NULL) * (rand() % 100));
+srand(time(NULL));
 }
-//Keeps sanity between 5 and 95 (displayed as -45 and 45)
+
 int LimitSanity(int *Sanity)
 {
 //If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
