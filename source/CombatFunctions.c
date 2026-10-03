@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "Skill.h"
 #include "Sinner_Enemy_defin.h"
 #include "CombatFunctions.h"
@@ -44,14 +45,9 @@ void UnopposedAtk(Characters *Attack, Characters *Oppo)
 {
     Oppo->Health -= Damagedealt(Attack, 0); //No clashes so pass in clashing conditionals (Sanity, opposing stats)
 }
-//compares the priority of two skills 
-int ComparePriority(int Pri1,int Pri2)
-{
-return (Pri1 > Pri2); //Branchless???
-}
 
 //Adds skill ranks to the enemy, sinners and buffer skill arrays
-int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount)
+bool CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount)
 {
     if(TurnCount == 1){
         for(int i = 0; i < 5/*Amount of sinners*/; i++){
@@ -66,12 +62,12 @@ int CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSk
     for(int l = 0; l < 5; l++){
         EnSkillOrder[l][0] = SkillList[Form_or_Select_Random_Skill()];
     }
-    return 1; //Completed sucessfully
+    return true; //Completed sucessfully
 }
 
-void SetUpBoss(SkillInfo Enskill[][4], bool BossOrMultipleEnemy/*true if there will be a boss*/)
-{ 
-    if(BossOrMultipleEnemy){
+void SetUpBoss(SkillInfo Enskill[][4], bool IsBoss)
+{
+    if(IsBoss){
         int coin = 0;
         int base = 0;
         int coinpow = 0;
@@ -88,20 +84,24 @@ void SetUpBoss(SkillInfo Enskill[][4], bool BossOrMultipleEnemy/*true if there w
     }
 }
 
-void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, bool clashable)
+void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, u8 *EvadeResult)
 {
+    if(SinSkill->coins > 2) //no clashcounter for now
+    {
+        
+    }
     switch(SinSkill->coins) //defence type of fourth column fir each sinner
     {
-        case 0: //guard
-        if(!clashable) Sinner->Health -= GuardDmgDealt(Sinner, Enemy);
-        else Sinner->Health -= (float)( (1 - (float)(ClashValue(SinSkill->Skillbase, 1, SinSkill->SkillcoinPow, Sinner->Sanity) * 0.01)) * Damagedealt(Enemy, 0) ); //reduce dmg by a percentage
+        case Guard:
+        Sinner->Health -= GuardDmgDealt(Sinner, Enemy);
         break;
 
-        case 1: //evade
-        EvadeDmg(Sinner, Enemy);
+        case ClashGuard:
+        Sinner->Health -= (float)( (1.0f - (float)(ClashValue(SinSkill->Skillbase, 1, SinSkill->SkillcoinPow, Sinner->Sanity) * 0.01)) * Damagedealt(Enemy, 0) ); //reduce dmg by a percentage
         break;
 
-        case 2: //counter (regular)
+        case Evade:
+        *EvadeResult = EvadeDmg(Sinner, Enemy);
         break;
     }
 }

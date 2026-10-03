@@ -12,18 +12,17 @@ enum Msprites{ Loading = 0, LobbyTop, LobbyBot };
 
 typedef struct {
 double Health;
-double OldHealth;
-int coins;
-int Skillbase;
-int SkillcoinPow;
+u8 coins;
+u8 Skillbase;
+u8 SkillcoinPow;
 int Sanity;
-int Char_ID; //id of the identity of sinner or enemy identifier
+u32 Char_ID; //id of the identity of sinner or enemy identifier
 }Characters;
 
 typedef struct Skill{
-int coins;
-int Skillbase;
-int SkillcoinPow;
+u8 coins;
+u8 Skillbase;
+u8 SkillcoinPow;
 }SkillInfo;
 
 typedef struct Clashing_Checks{
@@ -39,6 +38,15 @@ enum SpriteTarget
 {
     Ally = 0,
     Opponent
+};
+
+enum DefenceSkillType
+{
+    Guard = 0,
+    ClashGuard,
+    Evade,
+    Counter
+    //ClashCounter
 };
 
 #endif

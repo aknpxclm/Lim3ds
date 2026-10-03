@@ -8,5 +8,6 @@ void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams S
 int BeginSinSelect(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec);
 int CursorToEN_Skill(int TOUCHx, int TOUCHy);
 void ToggleDefSkill(int TOUCHx, int TOUCHy, ClashParams Sinner[]);
+bool ToggleDefenceCheck(int TOUCHx, int TOUCHy);
 
 #endif

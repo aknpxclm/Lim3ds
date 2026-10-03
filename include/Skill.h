@@ -6,7 +6,7 @@
 int ClashValue(int base, int coins, int coinPow, int sanity);
 int Damagedealt(Characters *Charac, int Clashes);
 int GuardDmgDealt(Characters *Charac, Characters *AttackingCharac);
-void EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac);
+u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac);
 int LimitSanity(int* Sanity);
 void SeedStart();
 int Form_or_Select_Random_Skill();

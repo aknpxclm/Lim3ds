@@ -15,6 +15,8 @@
 #define SCREEN_HEIGHT 240
 
 #define NOTSELECTED 9
+#define DEFENCESKILL 3
+#define ClashableCounter 3
 
 void ExitApp(){
 FreeMain_M();
@@ -33,16 +35,16 @@ C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 
 //placeholder stats till i can read files for values in a json or other c file
-Characters Sinner[5] = {{195.0f, 0.0, 0, 0, 0, 50, 1}, \
-                        {195.0f, 0.0, 0, 0, 0, 50, 1},   \
-                        {195.0f, 0.0, 0, 0, 0, 50, 1},   \
-                        {195.0f, 0.0, 0, 0, 0, 50, 1},   \
-                        {195.0f, 0.0, 0, 0, 0, 50, 1}};                          
-Characters Enemy[5] = {{1560.0f, 0, 0, 0, 0, 50, 1}, \
-                       {1560.0f, 0, 0, 0, 0, 50, 1}, \
-                       {1560.0f, 0, 0, 0, 0, 50, 1}, \
-                       {1560.0f, 0, 0, 0, 0, 50, 1}, \
-                       {1560.0f, 0, 0, 0, 0, 50, 1}};
+Characters Sinner[5] = {{195.0f, 0, 0, 0, 50, 1}, \
+                        {195.0f, 0, 0, 0, 50, 1}, \
+                        {195.0f, 0, 0, 0, 50, 1}, \
+                        {195.0f, 0, 0, 0, 50, 1}, \
+                        {195.0f, 0, 0, 0, 50, 1}};                          
+Characters Enemy[5] = {{1560.0f, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 50, 1}, \
+                       {1560.0f, 0, 0, 0, 50, 1}};
 //Skill info for each sinner's skill ranks, for the fourth array for each sinner it uses {defence type, base, coinPow}
 SkillInfo SinSkill[5][4] = {{{2, 4, 4}, {3, 4, 4}, {4, 4, 3}, {0, 10, 4}}, \
                             {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
@@ -83,6 +85,7 @@ u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 EnemySlot = NOTSELECTED;
 u16 Clashes = 0; //max 255 which should be enough for these variables
 
+u8 ClashNumResult = 0; //to see which coin the evade failed at
 u8 MenuPosition = 0;
 u8 MainSubPos = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
@@ -97,6 +100,8 @@ bool SkillTargetingLocked = false;
 //Create 3ds Render targets for the screens
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
+
+touchPosition prevTouch;
 
 Time_T.InitialTimeMs = osGetTime();
 
@@ -154,8 +159,6 @@ switch(MenuPosition){ // In game start
         {
             CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
         }
-        Sinner[0].OldHealth = Sinner[0].Health;
-        Enemy[0].OldHealth = Enemy[0].Health;
 
         if(kHeld & KEY_TOUCH){
             CurrSinTOChooseSkill = BeginSinSelect(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &StartSelec);
@@ -166,22 +169,27 @@ switch(MenuPosition){ // In game start
             AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
             EnemySlot = CursorToEN_Skill(touch.px, touch.py);
         }
-        if(kUp & KEY_TOUCH && CurrSinTOChooseSkill != NOTSELECTED) //if the user released from the touch pad recently after selecting enemy slot
-        {
-            if(EnemySlot != NOTSELECTED)
+        if(kUp & KEY_TOUCH && CurrSinTOChooseSkill != NOTSELECTED && EnemySlot != NOTSELECTED)
+        {   //possible out of bounds if enemyslot > 5
+            if(PriGivenAlredy[EnemySlot] == false)
             {
-                if(PriGivenAlredy[EnemySlot] == false)
-                {
-                    PriGivenAlredy[EnemySlot] = true;
-                    SkillPosInfo[CurrSinTOChooseSkill].Priority += 1; //if first time slot selected, increase by one
-                }
-                else SkillPosInfo[CurrSinTOChooseSkill].Priority += 2;
-
-                CurrSinTOChooseSkill = NOTSELECTED;
-                EnemySlot = NOTSELECTED;
+                PriGivenAlredy[EnemySlot] = true;
+                SkillPosInfo[CurrSinTOChooseSkill].Priority += 1; //if first time slot selected, increase by one
             }
+            else SkillPosInfo[CurrSinTOChooseSkill].Priority += 2;
+
+            CurrSinTOChooseSkill = NOTSELECTED;
+            EnemySlot = NOTSELECTED;
         }
-        else if(kUp & KEY_TOUCH) ToggleDefSkill(touch.px, touch.py, SkillPosInfo); //allow the toggle to use defenc skills
+        if(kDown & KEY_TOUCH)
+        {
+            prevTouch.px = touch.px;
+            prevTouch.py = touch.py;
+        }
+        if(kUp & KEY_TOUCH && ToggleDefenceCheck(prevTouch.px, prevTouch.py)) //touchPos never moved out the sinner skill slot they just tapped it
+        {
+            ToggleDefSkill(touch.px, touch.py, SkillPosInfo); //allow the toggle to use defenc skills
+        }
 
         if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
         {
@@ -200,17 +208,15 @@ switch(MenuPosition){ // In game start
         break;
 
         case Combat: // Turn Running loop -> Clashing
-        if(CurrentSinner > 0){ //solo sinner for now
-            Enemy[CurrentSinner].Health = Enemy[CurrentSinner - 1].Health;
-            Enemy[CurrentSinner].Sanity = Enemy[CurrentSinner - 1].Sanity;
-        }
-
-        if(SkillPosInfo[CurrentSinner].UseDefence == true)
+        if(SkillPosInfo[CurrentSinner].UseDefence == true && SinSkill[CurrentSinner][DEFENCESKILL].coins != ClashableCounter)
         {
-            Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][3].coins; //defence type
-            Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][3].Skillbase;
-            Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][3].SkillcoinPow;
-            DefenceAgainstAtk(&Sinner[CurrentSinner], &SinSkill[CurrentSinner][3],&Enemy[CurrentSinner], SkillPosInfo[CurrentSinner].UseDefence);
+            Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][DEFENCESKILL].coins; //defence type
+            Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][DEFENCESKILL].Skillbase;
+            Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][DEFENCESKILL].SkillcoinPow;
+            Enemy[CurrentSinner].coins = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].coins;
+            Enemy[CurrentSinner].Skillbase = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].Skillbase;
+            Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
+            DefenceAgainstAtk(&Sinner[CurrentSinner], &SinSkill[CurrentSinner][DEFENCESKILL],&Enemy[CurrentSinner], &ClashNumResult);
             InCombatOrGFX = CombatGFX;
             break;
         }
@@ -219,18 +225,20 @@ switch(MenuPosition){ // In game start
             Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].coins;
             Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].Skillbase;
             Sinner[CurrentSinner].SkillcoinPow = SinSkill[CurrentSinner][AttackOrder[CurrentSinner][1]].SkillcoinPow;
+            Enemy[CurrentSinner].coins = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].coins;
+            Enemy[CurrentSinner].Skillbase = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].Skillbase;
+            Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
         }
-        Enemy[CurrentSinner].coins = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].coins;
-        Enemy[CurrentSinner].Skillbase = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].Skillbase;
-        Enemy[CurrentSinner].SkillcoinPow = EnSkill[CurrentSinner][EnSkillPattern[CurrentSinner]].SkillcoinPow;
-
-        if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false){ //Enemy and sinner clash skills, returns the amount of clashes between the skills
+        if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false)
+        { //Enemy and sinner clash skills, returns the amount of clashes between the skills
             Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
         }
-        else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false){ //Enemy is going to attack unopposed
+        else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false)
+        { //Enemy is going to attack unopposed
            UnopposedAtk(&Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Sinner[CurrentSinner]);
         }
-        else{ //Sinner is going to attack unopposed
+        else
+        { //Sinner is going to attack unopposed
             UnopposedAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
         }
         InCombatOrGFX = CombatGFX;
@@ -242,13 +250,15 @@ switch(MenuPosition){ // In game start
 
     }
     
-    if(Enemy[4].Health < 0){
+    if(Enemy[4].Health < 0)
+    {
         MenuPosition = MainMen;
         InitMain_M(); //reload menu sprites when returning to main menu
         break;
     }
 
-    if(CurrentSinner == 5/*All sinners have completed their actions*/){
+    if(CurrentSinner == 5/*All sinners have completed their actions*/)
+    {
         InCombatOrGFX = GFX; //exit clash and GFX
         CurrentSinner = 0; //reset to first sinner
         //End this turn and start the next one

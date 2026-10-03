@@ -53,7 +53,7 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites
         {
             //draw current frame index of the animation
         }
-        if(*CurrentFrameIndex == *SkillSprites){
+        if(*CurrentFrameIndex == *SkillSprites + 1){
         *CurrentFrameIndex = 0;
         *InCombatOrGFX = 1;
         *CurrentSinner += 1; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}

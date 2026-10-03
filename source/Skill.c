@@ -32,14 +32,15 @@ int GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
     return Damagedealt(AttackingCharac, 0) - total;
 }
 
-void EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
+u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
 {
+    u8 i = 0;
     int coinFlip = 0;
     int totalAtk = 0;
     int totalEvade = 0;
     totalAtk += AttackingCharac->Skillbase;
     totalEvade += EvadeCharac->Skillbase;
-    for(int i = 0; i < AttackingCharac->coins; i++)
+    for(i = 0; i < AttackingCharac->coins; i++)
     {
         coinFlip = rand() % 100;
         totalAtk += (coinFlip < AttackingCharac->Sanity) * AttackingCharac->SkillcoinPow;
@@ -50,10 +51,11 @@ void EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
         }
         totalEvade -= EvadeCharac->SkillcoinPow; //reset to default
     }
-    return;
+    return 0;
 
     FailEvade:
     EvadeCharac->Health -= Damagedealt(AttackingCharac, 0);
+    return i;
 }
 
 void SeedStart()
