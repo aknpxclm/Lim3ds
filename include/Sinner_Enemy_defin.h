@@ -8,14 +8,14 @@ enum Menu{ StartMen = 0, MainMen, CombatMen };
 
 enum Rendering{ GFX = 0, Combat, CombatGFX };
 
-enum Msprites{ Loading = 0, LobbyTop, LobbyBot };
+enum Msprites{ Loading = 0, LobbyTop, LobbyBot, BattleStageBack};
 
 typedef struct {
 double Health;
 u8 coins;
 u8 Skillbase;
 u8 SkillcoinPow;
-int Sanity;
+u8 Sanity;
 u32 Char_ID; //id of the identity of sinner or enemy identifier
 }Characters;
 

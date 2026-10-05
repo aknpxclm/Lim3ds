@@ -63,7 +63,7 @@ void SeedStart()
 srand(time(NULL));
 }
 
-int LimitSanity(int *Sanity)
+u8 LimitSanity(u8 *Sanity)
 {
 //If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
 if(*Sanity > 95){

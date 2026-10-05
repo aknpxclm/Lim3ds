@@ -86,10 +86,6 @@ void SetUpBoss(SkillInfo Enskill[][4], bool IsBoss)
 
 void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, u8 *EvadeResult)
 {
-    if(SinSkill->coins > 2) //no clashcounter for now
-    {
-        
-    }
     switch(SinSkill->coins) //defence type of fourth column fir each sinner
     {
         case Guard:
@@ -102,6 +98,10 @@ void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enem
 
         case Evade:
         *EvadeResult = EvadeDmg(Sinner, Enemy);
+        break;
+
+        default: //defence skill type higher than 2, must be a reuglar counter
+
         break;
     }
 }

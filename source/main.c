@@ -83,14 +83,15 @@ u32 TurnCount = 1;
 u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 EnemySlot = NOTSELECTED;
-u16 Clashes = 0; //max 255 which should be enough for these variables
+u16 Clashes = 0;
 
 u8 ClashNumResult = 0; //to see which coin the evade failed at
 u8 MenuPosition = 0;
-u8 MainSubPos = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
 u8 IdleIndex[2] = {0, 0};
 u8 IdleMax[2] = {0, 0};
+
+u8 TintBG = 0; //check if background should be tinted
 
 bool PriGivenAlredy[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
@@ -127,15 +128,15 @@ while(aptMainLoop()){
 switch(MenuPosition){ // In game start
 
     case StartMen: //Start screen
-        DrawMain_S(top, bottom, MenuPosition);
+        DrawMain_S(top, bottom, MenuPosition, &TintBG);
         if(kDown) MenuPosition = MainMen;
     break;
 
 
     case MainMen: //Main menu
-	DrawMain_S(top, bottom, MenuPosition);
+	DrawMain_S(top, bottom, MenuPosition, &TintBG);
 
-    SubMain(&MainSubPos, kDown, kUp, LoadPath, SkillBuf, SinSkill);
+    SubMain(&TintBG, kDown, kUp, LoadPath, SkillBuf, SinSkill, top, bottom);
 
     if(kDown & KEY_TOUCH){
         if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
@@ -157,9 +158,18 @@ switch(MenuPosition){ // In game start
     {
         if(CreatedSkillStores == false)
         {
-            CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //When completed returns true / 1
+            CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //true if completed
         }
 
+        if(kDown & KEY_TOUCH)
+        {
+            prevTouch.px = touch.px;
+            prevTouch.py = touch.py;
+        }
+        if(kUp & KEY_TOUCH && ToggleDefenceCheck(prevTouch.px, prevTouch.py)) //touchPos never moved out the sinner skill slot they just tapped it
+        {
+            ToggleDefSkill(touch.px, touch.py, SkillPosInfo); //allow the toggle to use defenc skills
+        }
         if(kHeld & KEY_TOUCH){
             CurrSinTOChooseSkill = BeginSinSelect(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &StartSelec);
         }
@@ -180,15 +190,6 @@ switch(MenuPosition){ // In game start
 
             CurrSinTOChooseSkill = NOTSELECTED;
             EnemySlot = NOTSELECTED;
-        }
-        if(kDown & KEY_TOUCH)
-        {
-            prevTouch.px = touch.px;
-            prevTouch.py = touch.py;
-        }
-        if(kUp & KEY_TOUCH && ToggleDefenceCheck(prevTouch.px, prevTouch.py)) //touchPos never moved out the sinner skill slot they just tapped it
-        {
-            ToggleDefSkill(touch.px, touch.py, SkillPosInfo); //allow the toggle to use defenc skills
         }
 
         if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels

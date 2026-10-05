@@ -61,7 +61,7 @@ void PassInSkillInfo(SkillInfo Sinner[][Array_Column_Len], SkillInfo *SkillBuf, 
     }
 }
 
-void CharIdPath(int SinId, char *Path)
+void CharIdPath(u16 SinId, char *Path)
 {
     Path[BinDirLen] = '\0'; //ignore previous path -> "./LimChars/\0....."
     switch(SinId) //add path to Id skill file
