@@ -20,7 +20,7 @@ static C2D_ImageTint DarkenBGtint;
 void InitMain_M()
 {
     C2D_PlainImageTint(&DarkenBGtint, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f), 0.425);
-    
+
     size_t NumMenuSpr = 0;
     menuSpriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/menu.t3x");
     if (!menuSpriteSheet) svcBreak(USERBREAK_PANIC);
@@ -77,13 +77,13 @@ void SubMain(u8 *TintBG, u32 kDown, u32 kUp, char *LoadPath, SkillInfo *SkillBuf
     if(kDown & KEY_A)
     {
         UserInDeepSelect = true;
-        *TintBG = 1;
+        if(MainSubPos != 2) *TintBG = 1;
     }
     if(kDown & KEY_B)
     {
         UserInDeepSelect = false;
         CursorPos = 0;
-        *TintBG = 0;
+        if(MainSubPos != 2) *TintBG = 0;
     }
     if(!UserInDeepSelect)
     {
