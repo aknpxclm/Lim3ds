@@ -65,9 +65,9 @@ bool CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferS
     return true; //Completed sucessfully
 }
 
-void SetUpBoss(SkillInfo Enskill[][4], bool IsBoss)
+void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
 {
-    if(IsBoss){
+    if(IsBoss == 1){
         int coin = 0;
         int base = 0;
         int coinpow = 0;

@@ -2,6 +2,7 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
+
 #include "Sinner_Enemy_defin.h"
 #include "Skill.h"
 #include "LoadCharac.h"
@@ -9,7 +10,7 @@
 #include "SlotSelect.h"
 #include "LobbyRend.h"
 #include "CombatTex.h"
-#include "CombSpriteRen.h"
+#include "CombatRen.h"
 
 #define SCREEN_WIDTH  400
 #define SCREEN_HEIGHT 240
@@ -102,7 +103,7 @@ bool SkillTargetingLocked = false;
 C3D_RenderTarget *top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
 C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
-touchPosition prevTouch;
+touchPosition prevTouch = {0, 0};
 
 Time_T.InitialTimeMs = osGetTime();
 
@@ -136,17 +137,7 @@ switch(MenuPosition){ // In game start
     case MainMen: //Main menu
 	DrawMain_S(top, bottom, MenuPosition, &TintBG);
 
-    SubMain(&TintBG, kDown, kUp, LoadPath, SkillBuf, SinSkill, top, bottom);
-
-    if(kDown & KEY_TOUCH){
-        if(touch.px/*pixel coordinate of x on the screen?*/ >= 288 && touch.px <= 736/*X area of detection*/ && touch.py >= 168 && touch.py <= 336 /*Y area of detection*/)
-        {
-        // if touchpad is pressed in the detection area...
-        SetUpBoss(EnSkill, true);
-        MenuPosition = CombatMen;
-        FreeMain_M();
-        }
-    }
+    SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG);
     break;
        
     

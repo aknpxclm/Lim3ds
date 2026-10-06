@@ -43,6 +43,12 @@ ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 
 #---------------------------------------------------------------------------------
+
+APP_TITLE := Lim3ds Company
+APP_DESCRIPTION := Recreation of Limbus Company for the 3DS
+APP_AUTHOR := AppleKelpNachos
+
+#---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft

@@ -1,7 +1,7 @@
 #include <3ds.h>
 #include <citro2d.h>
 #include "Sinner_Enemy_defin.h"
-#include "CombSpriteRen.h"
+#include "CombatRen.h"
 
 //sprite animation example from http://www.nyankolab.com/
 
