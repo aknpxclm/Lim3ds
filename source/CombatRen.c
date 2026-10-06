@@ -5,7 +5,13 @@
 
 //sprite animation example from http://www.nyankolab.com/
 
-static u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
+C2D_SpriteSheet AllySheet[5];
+C2D_SpriteSheet EnemySheet[5];
+
+C2D_Sprite AllySkillFrames[100];
+C2D_Sprite EnemySkillFrames[50];
+
+static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
 //void InitCombat_S(){}
 
