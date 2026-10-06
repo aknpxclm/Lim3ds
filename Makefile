@@ -46,7 +46,7 @@ GFXBUILD	:=	$(ROMFS)/gfx
 
 APP_TITLE := Lim3ds Company
 APP_DESCRIPTION := Recreation of Limbus Company for the 3DS
-APP_AUTHOR := AppleKelpNachos
+APP_AUTHOR := AppleCheddarNachos
 
 #---------------------------------------------------------------------------------
 # options for code generation
