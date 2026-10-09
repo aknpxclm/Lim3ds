@@ -4,7 +4,8 @@
 #define COMBATTEX_H_
 
 void CreateTexBuf();
-void SinnerTex(Characters Sinner[], float xPosHP, float yPosHP, float xPosSP, float yPosSP);
+void SinnerTex(Characters Sinner[]);
+void EnemyTex(u8 *BossOrRegular, Characters Enemy[]);
 void FreeTexBuf();
 
 #endif

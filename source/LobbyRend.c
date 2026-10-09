@@ -67,7 +67,10 @@ void FreeMain_M()
     C2D_SpriteSheetFree(menuSpriteSheet);
 }
 
-void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u32 kUp, char *LoadPath, SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], u8 *MenuPos, u8 *TintBG)
+void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
+             u32 kDown, u32 kUp, char *LoadPath, \
+             SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], \
+             u8 *MenuPos, u8 *TintBG, u8 *BossCharInit)
 {
     static bool UserInDeepSelect = false;
     static u8 CursorPos = 0;
@@ -103,7 +106,7 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u32 kUp
         break;
 
         case 1: //Team Select
-        if(UserInDeepSelect == true)
+        if(UserInDeepSelect)
         { //CursorPos represents which sinner its pointing to load
             if(kDown & KEY_DRIGHT && CursorPos < 4) CursorPos += 1;
             if(kDown & KEY_DLEFT && CursorPos > 0) CursorPos -= 1;
@@ -125,17 +128,25 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u32 kUp
         {
             if(kDown & KEY_DRIGHT && CursorPos < 1) CursorPos += 1;
             if(kDown & KEY_DLEFT && CursorPos > 0) CursorPos -= 1;
-            if(kDown & KEY_A && CursorPos == 0)
+            if(kDown & KEY_A )
             {
-                NextaPressMs = osGetTime();
+                NextaPressMs = osGetTime(); //delay between entering deep select and combat
                 if(NextaPressMs > Init_A_PressMs + PressDelayMs)
                 {
-                SetUpBoss(Enskill, true);
-                *MenuPos = CombatMen;
-                FreeMain_M();
+                    *BossCharInit = CursorPos;
+                    switch(CursorPos)
+                    {
+                        case 0:
+                        SetUpBoss(Enskill, *BossCharInit);
+                        *MenuPos = CombatMen;
+                        FreeMain_M();
+                        break;
+
+                        case 1:
+                        break;
+                    }
                 }
             }
-            //else if(kDown & KEY_A && CursorPos == 1)
         }
             C2D_SceneBegin(top);
             if(CursorPos == 0) C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.423, 0.423);

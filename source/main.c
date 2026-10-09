@@ -61,6 +61,8 @@ SkillInfo EnSkill[5][4] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}}, \
 SkillInfo *SkillBuf;
 char *LoadPath;
 
+float *BossHealth = &Enemy[0].Health;
+
 ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}, \
@@ -93,6 +95,7 @@ u8 IdleIndex[2] = {0, 0};
 u8 IdleMax[2] = {0, 0};
 
 u8 TintBG = 0; //check if background should be tinted
+u8 BossCharInit = 0;
 
 bool PriGivenAlredy[5] = {false, false, false, false, false};
 bool CreatedSkillStores = false;
@@ -111,6 +114,7 @@ SeedStart();
 Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
 
 InitMain_M();
+CreateTexBuf();
 SkillBuf = SkillInfoBuf();
 LoadPath = AllocPathBuf();
 
@@ -137,13 +141,13 @@ switch(MenuPosition){ // In game start
     case MainMen: //Main menu
 	DrawMain_S(top, bottom, MenuPosition, &TintBG);
 
-    SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG);
+    SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG, &BossCharInit);
     break;
        
     
     case CombatMen: //Combat select area
-        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-        C2D_TargetClear(bottom, C2D_Color32(0x82, 0x14, 0x00, 0xFF));
+        C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68)); //clrClear from 3ds examples
+        C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
     //(Should Draw / Make menu) - unfinished
     if(InCombatOrGFX == 0)
     {
@@ -189,9 +193,6 @@ switch(MenuPosition){ // In game start
             DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPosInfo);
         }
     }
-
-    C2D_SceneBegin(bottom);
-    SinnerTex(Sinner, 8.0f, 8.0f, 8.0f, 12.0f);
 
     switch(InCombatOrGFX){
 
@@ -241,6 +242,10 @@ switch(MenuPosition){ // In game start
         break;
 
     }
+
+    C2D_SceneBegin(bottom);
+    SinnerTex(Sinner);
+    EnemyTex(&BossCharInit, Enemy);
     
     if(Enemy[4].Health < 0)
     {

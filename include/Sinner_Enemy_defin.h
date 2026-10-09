@@ -11,7 +11,7 @@ enum Rendering{ GFX = 0, Combat, CombatGFX };
 enum Msprites{ Loading = 0, LobbyTop, LobbyBot, BattleStageBack};
 
 typedef struct {
-double Health;
+float Health;
 u8 coins;
 u8 Skillbase;
 u8 SkillcoinPow;
