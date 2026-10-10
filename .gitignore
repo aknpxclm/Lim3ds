@@ -1,0 +1,13 @@
+
+build/
+romfs/gfx
+
+*.d
+
+*.o
+*.lst
+*.map
+
+*.3dsx
+*.elf
+*.smdh

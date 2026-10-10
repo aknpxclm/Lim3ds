@@ -17,7 +17,6 @@
 
 #define NOTSELECTED 9
 #define DEFENCESKILL 3
-#define ClashableCounter 3
 
 void ExitApp(){
 FreeMain_M();
@@ -60,8 +59,6 @@ SkillInfo EnSkill[5][4] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}}, \
 
 SkillInfo *SkillBuf;
 char *LoadPath;
-
-float *BossHealth = &Enemy[0].Health;
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}, \
@@ -126,6 +123,7 @@ while(aptMainLoop()){
     u32 kUp = hidKeysUp();
     touchPosition touch;
     hidTouchRead(&touch);
+    if(kDown & KEY_START) break;
 
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
@@ -138,9 +136,8 @@ switch(MenuPosition){ // In game start
 
 
     case MainMen: //Main menu
-	DrawMain_S(top, bottom, MenuPosition, &TintBG);
-    SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG, &BossCharInit);
-    if(kDown & KEY_START) break;
+        DrawMain_S(top, bottom, MenuPosition, &TintBG);
+        SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG, &BossCharInit);
     break;
        
     
@@ -150,7 +147,6 @@ switch(MenuPosition){ // In game start
     //(Should Draw / Make menu) - unfinished
     if(InCombatOrGFX == 0)
     {
-        if(kDown & KEY_START) MenuPosition = MainMen;
         if(CreatedSkillStores == false)
         {
             CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //true if completed
@@ -201,7 +197,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case Combat: // Turn Running loop -> Clashing
-        if(SkillPosInfo[CurrentSinner].UseDefence == true && SinSkill[CurrentSinner][DEFENCESKILL].coins != ClashableCounter)
+        if(SkillPosInfo[CurrentSinner].UseDefence == true)
         {
             Sinner[CurrentSinner].coins = SinSkill[CurrentSinner][DEFENCESKILL].coins; //defence type
             Sinner[CurrentSinner].Skillbase = SinSkill[CurrentSinner][DEFENCESKILL].Skillbase;
