@@ -224,8 +224,8 @@ switch(MenuPosition){ // In game start
         }
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false)
         { //Enemy and sinner clash skills, returns the amount of clashes between the skills
-            if(BossCharInit) Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Enemy[0].Health, &Enemy[0].Health);
-            else Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
+            if(BossCharInit) Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Enemy[0].Health, &Enemy[0].Sanity);
+            else Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Sanity);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false)
         { //Enemy is going to attack unopposed
