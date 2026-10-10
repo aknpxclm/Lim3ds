@@ -7,7 +7,7 @@
 
 #define CurrentIndex 1
 
-int ClashingAtk(Characters *Sinner, Characters *Enemy);
+int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsanity);
 void UnopposedAtk(Characters *Attack, Characters *Oppo);
 bool CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int Turncount);
 void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss);

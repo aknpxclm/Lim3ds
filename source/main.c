@@ -126,7 +126,6 @@ while(aptMainLoop()){
     u32 kUp = hidKeysUp();
     touchPosition touch;
     hidTouchRead(&touch);
-    if(kDown & KEY_START) break;
 
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
@@ -140,8 +139,8 @@ switch(MenuPosition){ // In game start
 
     case MainMen: //Main menu
 	DrawMain_S(top, bottom, MenuPosition, &TintBG);
-
     SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG, &BossCharInit);
+    if(kDown & KEY_START) break;
     break;
        
     
@@ -151,6 +150,7 @@ switch(MenuPosition){ // In game start
     //(Should Draw / Make menu) - unfinished
     if(InCombatOrGFX == 0)
     {
+        if(kDown & KEY_START) MenuPosition = MainMen;
         if(CreatedSkillStores == false)
         {
             CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //true if completed
@@ -187,7 +187,7 @@ switch(MenuPosition){ // In game start
             EnemySlot = NOTSELECTED;
         }
 
-        if(CreatedSkillStores == true && kDown & KEY_L && InCombatOrGFX == 0) //Prevent abrupt cancels
+        if(kDown & KEY_L && CreatedSkillStores == true && InCombatOrGFX == 0) //Prevent abrupt cancels
         {
             InCombatOrGFX = Combat;
             DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPosInfo);
@@ -224,14 +224,16 @@ switch(MenuPosition){ // In game start
         }
         if(SkillPosInfo[CurrentSinner].IsClashing == true && SkillPosInfo[CurrentSinner].IsUnclashed == false)
         { //Enemy and sinner clash skills, returns the amount of clashes between the skills
-            Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
+            if(BossCharInit) Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Enemy[0].Health, &Enemy[0].Health);
+            else Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Health);
         }
         else if(SkillPosInfo[CurrentSinner].IsUnclashed == true && SkillPosInfo[CurrentSinner].IsClashing == false)
         { //Enemy is going to attack unopposed
-           UnopposedAtk(&Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Sinner[CurrentSinner]);
+            UnopposedAtk(&Enemy[SkillPosInfo[CurrentSinner].SkillClashing], &Sinner[CurrentSinner]);
         }
         else
         { //Sinner is going to attack unopposed
+            if(BossCharInit) UnopposedAtk(&Sinner[CurrentSinner], &Enemy[0]);
             UnopposedAtk(&Sinner[CurrentSinner], &Enemy[SkillPosInfo[CurrentSinner].SkillClashing]);
         }
         InCombatOrGFX = CombatGFX;

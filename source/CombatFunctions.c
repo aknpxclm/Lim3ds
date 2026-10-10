@@ -8,7 +8,7 @@
 #define MAX_CLASH 50
 
 //If a skill is going to clash the enemy's, use this function to clash and deal damage
-int ClashingAtk(Characters *Sinner, Characters *Enemy)
+int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsanity)
 {
     int SinClashNum = 0;
     int EnClashNum = 0;
@@ -27,9 +27,9 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy)
         //sp gain for sinner and loss for enemy
         Sinner->Sanity += (10 + Clashes);
         Sinner->Sanity = LimitSanity(&Sinner->Sanity);
-        Enemy->Sanity -= ENSANITYLOSS;
-        Enemy->Sanity = LimitSanity(&Enemy->Sanity);
-        Enemy->Health -= Damagedealt(Sinner, Clashes);
+        *ENsanity -= ENSANITYLOSS;
+        *ENsanity = LimitSanity(&Enemy->Sanity);
+        *ENhealth -= Damagedealt(Sinner, Clashes); //can use a single health var for bos or multiple for multiple enemies
     }
     else{
         Enemy->Sanity += (10 + Clashes);
