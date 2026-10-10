@@ -19,12 +19,12 @@
 #define DEFENCESKILL 3
 
 void ExitApp(){
-FreeMain_M();
-FreeTexBuf();
 gfxExit();
 romfsExit();
 C2D_Fini();
 C3D_Fini();
+FreeMain_M();
+FreeTexBuf();
 }
 
 int main(int argc, char **argv){  // initialise variables
@@ -77,7 +77,6 @@ size_t SkillSprites = 0;
 
 Time Time_T = {0, 0, 0};
 
-u32 CurrentFrameIndex = 0;
 u32 TurnCount = 1;
 
 u16 CurrentSinner = 0;
@@ -137,7 +136,7 @@ switch(MenuPosition){ // In game start
 
     case MainMen: //Main menu
         DrawMain_S(top, bottom, MenuPosition, &TintBG);
-        SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, &MenuPosition, &TintBG, &BossCharInit);
+        SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, Sinner,&MenuPosition, &TintBG, &BossCharInit);
     break;
        
     
@@ -193,7 +192,7 @@ switch(MenuPosition){ // In game start
     switch(InCombatOrGFX){
 
         case GFX: //idle animations
-        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentFrameIndex, &CurrentSinner, IdleIndex, IdleMax, &InCombatOrGFX);
+        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentSinner, &InCombatOrGFX);
         break;
 
         case Combat: // Turn Running loop -> Clashing
@@ -236,7 +235,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case CombatGFX: //GFX of the clash and combat
-        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentFrameIndex, &CurrentSinner, IdleIndex, IdleMax, &InCombatOrGFX);
+        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentSinner, &InCombatOrGFX);
         break;
 
     }

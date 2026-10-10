@@ -1,23 +1,73 @@
 #include <3ds.h>
 #include <citro2d.h>
+#include <string.h>
 #include "Sinner_Enemy_defin.h"
+#include "LoadCharac.h"
 #include "CombatRen.h"
 
 //sprite animation example from http://www.nyankolab.com/
 
-C2D_SpriteSheet AllySheet[5];
-C2D_SpriteSheet EnemySheet[5];
+typedef struct CharacterSprites
+{
+    C2D_SpriteSheet CombatSheet;
+    C2D_Sprite CombatSpr[70];
+    u8 MiscSpritesEnd;
+    //[0] : start of animiation, [1] : end of animation, [2] : delay between frames <- unused
+    u8 Idle[2]; 
+    u8 SkillOne[2];
+    u8 SkillTwo[2];
+    u8 SkillThree[2];
+}CharSprites;
 
-C2D_Sprite AllySkillFrames[100];
-C2D_Sprite EnemySkillFrames[50];
+static CharSprites SinnerSpr[5];
+static CharSprites EnemySpr[5];
 
 static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
-//void InitCombat_S(){}
+void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId)
+{
+    char Path[64];
+
+    switch(SheetId)
+    {
+        case 0:
+        return;
+
+        case 1:
+        strncpy(Path, "romfs:/gfx/IshCap.t3x", sizeof(Path));
+        SinnerSpr[SinnerToloadOn].Idle[0] = 4;
+        SinnerSpr[SinnerToloadOn].Idle[1] = 15;
+        //SinnerSpr[SinnerToloadOn].Idle[2] = ;
+        SinnerSpr[SinnerToloadOn].SkillOne[0] = 16;
+        SinnerSpr[SinnerToloadOn].SkillOne[1] = 28;
+        //SinnerSpr[SinnerToloadOn].SkillOne[2] = ;
+        SinnerSpr[SinnerToloadOn].SkillTwo[0] = 29;
+        SinnerSpr[SinnerToloadOn].SkillTwo[1] = 38;
+        //SinnerSpr[SinnerToloadOn].SkillTwo[2] = ;
+        SinnerSpr[SinnerToloadOn].SkillThree[0] = 39;
+        SinnerSpr[SinnerToloadOn].SkillThree[1] = 63;
+        //SinnerSpr[SinnerToloadOn].SkillThree[2] = ;
+        break;
+    }
+
+    SinnerSpr[SinnerToloadOn].CombatSheet = C2D_SpriteSheetLoad(Path);
+    if(!SinnerSpr[SinnerToloadOn].CombatSheet) svcBreak(USERBREAK_PANIC);
+}
+
+void InitCombat_S()
+{
+    for(int i = 0; i < 5; i++)
+    {
+        SinnerSpr[i].MiscSpritesEnd = 3;
+    }
+}
 
 //This handles the skill animations idle and movement of top screens sprites only
-void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites, u32 *CurrentFrameIndex,  u16 *CurrentSinner, u8 IdleIndex[], u8 IdleMax[], u8 *InCombatOrGFX)
+void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites, u16 *CurrentSinner, u8 *InCombatOrGFX)
 {
+    static u32 FrameIndexSin = 0;
+    static u32 FrameIndexEn = 0;
+
     switch(*InCombatOrGFX)
     {
         case 0:
@@ -30,8 +80,8 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites
 
                 //C2D_DrawSprite(&Sprites[... + IdleIndex[0]].spr);
                 //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
-                IdleIndex[Ally] = (IdleIndex[Ally] + 1) % IdleMax[Ally];
-                IdleIndex[Opponent] = (IdleIndex[Opponent] + 1) % IdleMax[Opponent];
+                //IdleIndex[Ally] = (IdleIndex[Ally] + 1) % IdleMax[Ally];
+                //IdleIndex[Opponent] = (IdleIndex[Opponent] + 1) % IdleMax[Opponent];
             
             Time_t->InitialTimeMs = osGetTime(); //set new initial time
         }
@@ -52,21 +102,27 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, size_t *SkillSprites
         {
             Time_t->ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
             //draw current frame index of the animation
-            if(*CurrentFrameIndex != *SkillSprites) CurrentFrameIndex += 1;
+            if(FrameIndexSin != *SkillSprites) FrameIndexSin += 1;
             Time_t->InitialTimeMs = osGetTime(); //set new initial time
         }
         else
         {
             //draw current frame index of the animation
         }
-        if(*CurrentFrameIndex == *SkillSprites + 1){
-        *CurrentFrameIndex = 0;
-        *InCombatOrGFX = 1;
-        *CurrentSinner += 1; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times}
+        if(FrameIndexSin == *SkillSprites + 1){
+            FrameIndexSin = 0;
+            *InCombatOrGFX = 1;
+            *CurrentSinner += 1; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
         }
         break;
 
     }
 }
 
-//void FreeSpriteSheets_Combat(){}
+void FreeSpriteSheets_Combat()
+{
+    for(int i = 0; i < 5; i++)
+    {
+        C2D_SpriteSheetFree(SinnerSpr[i].CombatSheet);
+    }
+}

@@ -7,7 +7,7 @@
 #define BinDirLen 11 // "./LimChars/" inlcuding null terminator
 #define Array_Column_Len 4
 
-static unsigned int MaxLen = 0;
+static size_t MaxLen = 0;
 
 char *AllocPathBuf()
 {
@@ -63,6 +63,7 @@ void PassInSkillInfo(SkillInfo Sinner[][Array_Column_Len], SkillInfo *SkillBuf, 
 
 void CharIdPath(u16 SinId, char *Path)
 {
+    if(SinId == 0) return;
     Path[BinDirLen] = '\0'; //ignore previous path -> "./LimChars/\0....."
     switch(SinId) //add path to Id skill file
     {

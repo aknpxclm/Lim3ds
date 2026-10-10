@@ -4,6 +4,7 @@
 #include "Sinner_Enemy_defin.h"
 #include "CombatFunctions.h"
 #include "LoadCharac.h"
+#include "CombatRen.h"
 #include "LobbyRend.h"
 
 //max sprites is 768
@@ -69,7 +70,7 @@ void FreeMain_M()
 
 void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
              u32 kDown, u32 kUp, char *LoadPath, \
-             SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], \
+             SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], Characters Sinner[], \
              u8 *MenuPos, u8 *TintBG, u8 *BossCharInit)
 {
     static bool UserInDeepSelect = false;
@@ -115,9 +116,11 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
 
             if(kUp & KEY_X)
             {
+                Sinner[CursorPos].Char_ID = IdToload; //set Identity id num
                 CharIdPath(IdToload, LoadPath);
                 LoadSinInfo(SkillBuf, LoadPath);
                 PassInSkillInfo(SinSkill, SkillBuf, CursorPos);
+                LoadSinnerSheet(CursorPos, IdToload);
                 IdToload = 0;
             }
         }
@@ -137,12 +140,12 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
                     switch(CursorPos)
                     {
                         case 0:
-                        SetUpBoss(Enskill, *BossCharInit);
-                        *MenuPos = CombatMen;
-                        FreeMain_M();
                         break;
 
                         case 1:
+                        SetUpBoss(Enskill, *BossCharInit);
+                        *MenuPos = CombatMen;
+                        FreeMain_M();
                         break;
                     }
                 }

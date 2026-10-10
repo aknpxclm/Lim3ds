@@ -14,7 +14,7 @@ typedef struct {
 float Health;
 u8 coins;
 u8 Skillbase;
-u8 SkillcoinPow;
+s8 SkillcoinPow;
 u8 Sanity;
 u32 Char_ID; //id of the identity of sinner or enemy identifier
 }Characters;
@@ -22,7 +22,7 @@ u32 Char_ID; //id of the identity of sinner or enemy identifier
 typedef struct Skill{
 u8 coins;
 u8 Skillbase;
-u8 SkillcoinPow;
+s8 SkillcoinPow;
 }SkillInfo;
 
 typedef struct Clashing_Checks{
