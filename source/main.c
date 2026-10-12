@@ -12,9 +12,6 @@
 #include "CombatTex.h"
 #include "CombatRen.h"
 
-#define SCREEN_WIDTH  400
-#define SCREEN_HEIGHT 240
-
 #define NOTSELECTED 9
 #define DEFENCESKILL 3
 
@@ -66,12 +63,12 @@ ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}};
 
-int AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
-int EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
-int SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
-int BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
-int SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
-int EnSkillPattern[5] = {2, 2, 1, 1, 1};
+u8 AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
+u8 EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
+u8 SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
+u8 BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
+u8 SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
+u8 EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
 size_t SkillSprites = 0;
 
@@ -87,8 +84,6 @@ u16 Clashes = 0;
 u8 ClashNumResult = 0; //to see which coin the evade failed at
 u8 MenuPosition = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
-u8 IdleIndex[2] = {0, 0};
-u8 IdleMax[2] = {0, 0};
 
 u8 TintBG = 0; //check if background should be tinted
 u8 BossCharInit = 0;
@@ -192,7 +187,7 @@ switch(MenuPosition){ // In game start
     switch(InCombatOrGFX){
 
         case GFX: //idle animations
-        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentSinner, &InCombatOrGFX);
+        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder);
         break;
 
         case Combat: // Turn Running loop -> Clashing
@@ -235,7 +230,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case CombatGFX: //GFX of the clash and combat
-        RenderingCombat_S(top, &Time_T, &SkillSprites, &CurrentSinner, &InCombatOrGFX);
+        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder);
         break;
 
     }

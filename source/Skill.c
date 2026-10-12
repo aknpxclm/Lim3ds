@@ -1,10 +1,11 @@
+#include <3ds.h>
 #include <stdlib.h>
 #include <time.h>
 #include "Skill.h"
 #include "Sinner_Enemy_defin.h"
 
 //Generate a random skill value to compare and clash with
-int ClashValue(int base, int coins, int coinPow, int sanity)
+u32 ClashValue(u8 base, u8 coins, u8 coinPow, u8 sanity)
 {
 int coinFlip = 0;
 int total = 0;
@@ -14,15 +15,16 @@ for (int i = 0; i < coins; i++)
     coinFlip = rand() % 100;
     total += (coinFlip < sanity) * coinPow;
 }
+if(total <= 0) return 0; //minus coin check
 return total;
 }
 
-int Damagedealt(Characters *Charac, int Clashes)
+u32 Damagedealt(Characters *Charac, int Clashes)
 {
-return Charac->Skillbase + (Charac->coins * Charac->SkillcoinPow) * (1 + (3 * (Clashes * 0.01))); 
+return Charac->Skillbase + (Charac->coins * Charac->SkillcoinPow) * (1 + (3 * ((float)Clashes * 0.01))); 
 }
 
-int GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
+u32 GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
 {
     int coinFlip = 0;
     int total = 0;
@@ -81,7 +83,7 @@ int Form_or_Select_Random_Skill(){
 }
 
 //Rearranges the skill rank pool to make getting skills more random
-void Rearrange_SkillPool(int SkillList[])
+void Rearrange_SkillPool(u8 SkillList[])
 {
 /*index 0 represents one value in SkillList
 index 1 represents another value 
@@ -98,20 +100,21 @@ for(int j = 0; j < 6; j++){
 }
 
 //Move skills down the selction area when a skill is used
-void ShiftSkillSelects(int SkillOptions[][2], int BufferSkill[], int SkillList[])
+void ShiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[])
 {
 int TopRowSkill = 0;
 int BufferSkillnum = 0;
 
+//9 == NOTSELECTED macro
 for(int i = 0; i < 5; i++){
     TopRowSkill = SkillOptions[i][1];
     BufferSkillnum = BufferSkill[i];
 
-    if(SkillOptions[i][0] == SkillUsedFlag){ //Bottom row skill used
+    if(SkillOptions[i][0] == 9){ //Bottom row skill used
         SkillOptions[i][0] = TopRowSkill;
         SkillOptions[i][1] = BufferSkillnum;
     }
-    else if(SkillOptions[i][1] == SkillUsedFlag){ //Top row skill used
+    else if(SkillOptions[i][1] == 9){ //Top row skill used
         SkillOptions[i][1] = BufferSkillnum;
     }
     BufferSkill[i] = SkillList[Form_or_Select_Random_Skill()]; //generate a new skill rank in the buffer

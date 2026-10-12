@@ -1,3 +1,4 @@
+#include <3ds.h>
 #include <stdbool.h>
 #include "Sinner_Enemy_defin.h"
 #include "CombatFunctions.h"
@@ -22,7 +23,7 @@ enum slot
 };
 
 //Sets variables in a struct depending on what type of attack will happen
-void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams SkillPosInfo[])
+void DetermineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], ClashParams SkillPosInfo[])
 {
     for(int Slot = 0; Slot < 5; Slot++)
     {
@@ -56,7 +57,7 @@ void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams S
     }
 }
 //Creates sinner character anchor to select the slot it targets
-int BeginSinSelect(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec)
+u8 BeginSinSelect(u32 TOUCHx, u32 TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec)
 {
     if(*SkillTargetingLocked) return CurrSinTOChooseSkill;
         /*return current skill index that the useer is choosing to clash a skill with;
@@ -94,7 +95,7 @@ int BeginSinSelect(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *Skill
     return 9; // "NOTSELECTED"
 }
 
-int CursorToEN_Skill(int TOUCHx, int TOUCHy)
+u8 CursorToEN_Skill(u32 TOUCHx, u32 TOUCHy)
 {
     // x & y are assuming that the hidtouch function are based on pixel coordinates
     if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA && TOUCHy <= padding && TOUCHy >= SLOTTOUCHBOXAREA + padding) return 0; //slot 1
@@ -105,7 +106,7 @@ int CursorToEN_Skill(int TOUCHx, int TOUCHy)
     else return 9; // "NOTSELECTED"
 }
 
-void ToggleDefSkill(int TOUCHx, int TOUCHy, ClashParams Sinner[]) //toggles the bool value that checks if a sinner is using a defence skill
+void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, ClashParams Sinner[]) //toggles the bool value that checks if a sinner is using a defence skill
 {
     if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[0].UseDefence = !Sinner[0].UseDefence;
     else if(TOUCHx <= LOWERxSLOTPOS(SlotTwo) && TOUCHx >= LOWERxSLOTPOS(SlotTwo) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[1].UseDefence = !Sinner[1].UseDefence;
@@ -114,7 +115,7 @@ void ToggleDefSkill(int TOUCHx, int TOUCHy, ClashParams Sinner[]) //toggles the 
     else if(TOUCHx <= LOWERxSLOTPOS(SlotFive) && TOUCHx >= LOWERxSLOTPOS(SlotFive) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[4].UseDefence = !Sinner[4].UseDefence;
 }
 
-bool ToggleDefenceCheck(int TOUCHx, int TOUCHy)
+bool ToggleDefenceCheck(u32 TOUCHx, u32 TOUCHy)
 {
     // x & y are assuming that the hidtouch function are based on pixel coordinates
     if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) return true; //slot 1

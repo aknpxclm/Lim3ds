@@ -4,10 +4,10 @@
 #ifndef SLOTSELECT_H_
 #define SLOTSELECT_H_
 
-void DetermineClashAtkType(int AtkOrder[][2], int EnSklOrder[][2], ClashParams SkillPosInfo[]);
-int BeginSinSelect(int TOUCHx, int TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec);
-int CursorToEN_Skill(int TOUCHx, int TOUCHy);
-void ToggleDefSkill(int TOUCHx, int TOUCHy, ClashParams Sinner[]);
-bool ToggleDefenceCheck(int TOUCHx, int TOUCHy);
+void DetermineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], ClashParams SkillPosInfo[]);
+u8 BeginSinSelect(u32 TOUCHx, u32 TOUCHy, int CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec);
+u8 CursorToEN_Skill(u32 TOUCHx, u32 TOUCHy);
+void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, ClashParams Sinner[]);
+bool ToggleDefenceCheck(u32 TOUCHx, u32 TOUCHy);
 
 #endif
