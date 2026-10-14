@@ -3,13 +3,6 @@
 
 typedef struct
 {
-    u64 InitialTimeMs;
-    u64 CurrentTimeMs;
-    u64 ElapsedTimeMs;
-}Time;
-
-typedef struct
-{
 	C2D_Sprite spr;
 	float dx, dy; // velocity
 } Sprite;
@@ -20,7 +13,7 @@ typedef struct
     u8 SkillUsed;
 }TotalFrameSin;
 
-typedef struct CharacterSprites
+typedef struct
 {
     C2D_SpriteSheet CombatSheetMisc; //moving, hit, evade, block and idle frames
     C2D_SpriteSheet CombatSheetS1;
@@ -37,9 +30,11 @@ typedef struct CharacterSprites
 }CharSprites;
 
 void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId);
+void InitEnemySheets(u8 *BossOrRegular);
 void InitCombat_S();
-void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][5]);
-void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][5]);
-void FreeSpriteSheets_Combat();
+void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2]);
+void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2]);
+void DeInitSpriteInfo();
+void FreeSpriteSheets_Combat(u8 *BossOrRegular);
 
 #endif

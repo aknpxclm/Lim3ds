@@ -4,7 +4,7 @@
 #include <dirent.h>
 #include "Sinner_Enemy_defin.h"
 
-#define BinDirLen 11 // "./LimChars/" inlcuding null terminator
+#define BinDirLen 16 // "romfs:/LimChars/" excluding null terminator
 #define Array_Column_Len 4
 
 static size_t MaxLen = 0;
@@ -16,7 +16,7 @@ char *AllocPathBuf()
     char *Path;
     int CurrentLen = 0;
 
-    Lim3ds = opendir("./LimChars");
+    Lim3ds = opendir("romfs:/LimChars");
     if(Lim3ds == NULL) return NULL;
 
     while((entry = readdir(Lim3ds)) != NULL) //finds the length of the .bin file with the longest len
@@ -30,7 +30,7 @@ char *AllocPathBuf()
     closedir(Lim3ds);
 
     Path = (char*)malloc(sizeof(char) * (MaxLen + BinDirLen));
-    strncpy(Path, "./LimChars/", (MaxLen + BinDirLen));
+    strncpy(Path, "romfs:/LimChars/", (MaxLen + BinDirLen));
     Path[MaxLen + BinDirLen] = '\0'; //end of allocated mem is null terminated
 
     return Path;
@@ -64,7 +64,7 @@ void PassInSkillInfo(SkillInfo Sinner[][Array_Column_Len], SkillInfo *SkillBuf, 
 void CharIdPath(u16 SinId, char *Path)
 {
     if(SinId == 0) return;
-    Path[BinDirLen] = '\0'; //ignore previous path -> "./LimChars/\0....."
+    Path[BinDirLen + 1] = '\0'; //ignore previous path -> "romfs:/LimChars/\0....."
     switch(SinId) //add path to Id skill file
     {
         case 1:

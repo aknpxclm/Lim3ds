@@ -34,6 +34,13 @@ bool IsUnclashed;  //Based on if the enemy is clashing the current sinner's skil
 bool UseDefence;
 }ClashParams;
 
+typedef struct
+{
+    u64 InitialTimeMs;
+    u64 CurrentTimeMs;
+    u64 ElapsedTimeMs;
+}Time;
+
 enum SpriteTarget
 {
     Ally = 0,

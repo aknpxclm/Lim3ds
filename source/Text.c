@@ -1,7 +1,7 @@
 #include <3ds.h>
 #include <citro2d.h>
 #include "Sinner_Enemy_defin.h"
-#include "CombatTex.h"
+#include "Text.h"
 
 static C2D_TextBuf dynamBuf;
 
@@ -49,6 +49,45 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
     C2D_TextParse(&EnDynamTex, dynamBuf, EnemyBuf);
     C2D_TextOptimize(&EnDynamTex);
     C2D_DrawText(&EnDynamTex, C2D_AlignLeft, 2.0f, 3.0f, 0.5f, 0.525f, 0.525f);
+}
+
+void LobbyScrollingText(u8 *MenuPos, u8 *MainSubPos, Time *timeT)
+{
+    C2D_TextBufClear(dynamBuf);
+    static u8 CharsPrinted = 0;
+    char LobbyBuf[128];
+    const char MessageStart[] = "Press any botton to start";
+    const char MessageLobbyInfo[3][64] = {"Tutorial and Dialogue Showcase", "Team select: Pick and order a team of sinners here", "Select to fight a Boss or Multiple enemies"};
+    C2D_Text Scrollingtext;
+
+    timeT->CurrentTimeMs = osGetTime();
+    timeT->ElapsedTimeMs = (timeT->CurrentTimeMs - timeT->InitialTimeMs);
+
+    switch(*MenuPos)
+    {
+        case StartMen:
+        if(timeT->ElapsedTimeMs >= 33) //scroll speed, new char every 33ms
+        {
+            if(CharsPrinted <= strlen(MessageStart)) CharsPrinted += 1;
+            snprintf(LobbyBuf, CharsPrinted, MessageStart);
+            C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
+            C2D_TextOptimize(&Scrollingtext);
+            C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
+            timeT->InitialTimeMs = osGetTime();
+        }
+        else
+        {
+            snprintf(LobbyBuf, CharsPrinted, MessageStart);
+            C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
+            C2D_TextOptimize(&Scrollingtext);
+            C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
+        }
+        break;
+
+        case MainMen:
+
+        break;
+    }
 }
 
 void FreeTexBuf()

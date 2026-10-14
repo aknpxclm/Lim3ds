@@ -8,11 +8,6 @@
 #include "LobbyRend.h"
 
 //max sprites is 768
-typedef struct
-{
-	C2D_Sprite spr;
-	float dx, dy; // velocity
-} Sprite;
 
 static C2D_SpriteSheet menuSpriteSheet;
 static Sprite MenuSprites[20];
@@ -43,7 +38,7 @@ void InitMain_M()
 void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition, u8 *TintBG)
 {
     C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-    C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
+    C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68)); //Looked at NateXS' pong repo for proper usage of the function
     switch(MenuPosition)
     {
         case StartMen:
@@ -71,11 +66,10 @@ void FreeMain_M()
 void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
              u32 kDown, u32 kUp, char *LoadPath, \
              SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], Characters Sinner[], \
-             u8 *MenuPos, u8 *TintBG, u8 *BossCharInit)
+             u8 *MenuPos, u8 *MainSubPos, u8 *TintBG, u8 *BossCharInit)
 {
     static bool UserInDeepSelect = false;
     static u8 CursorPos = 0;
-    static u8 MainSubPos = 0;
     static u16 IdToload = 0;
     static u16 TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)
 
@@ -87,21 +81,21 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
     {
         UserInDeepSelect = true;
         CursorPos = 0;
-        if(MainSubPos == 2) *TintBG = 1;
+        if(*MainSubPos == 2) *TintBG = 1;
         Init_A_PressMs = osGetTime();
     }
     if(kDown & KEY_B)
     {
         UserInDeepSelect = false;
         CursorPos = 0;
-        if(MainSubPos == 2) *TintBG = 0;
+        if(*MainSubPos == 2) *TintBG = 0;
     }
     if(!UserInDeepSelect)
     {
-        if(kDown & KEY_R && MainSubPos < 2) MainSubPos += 1;
-        if(kDown & KEY_L && MainSubPos > 0) MainSubPos -= 1;
+        if(kDown & KEY_R && *MainSubPos < 2) *MainSubPos += 1;
+        if(kDown & KEY_L && *MainSubPos > 0) *MainSubPos -= 1;
     }
-    switch(MainSubPos)
+    switch(*MainSubPos)
     {
         case 0: //"Tutorial" / Dialogue showcase
         break;
@@ -144,6 +138,7 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
 
                         case 1:
                         SetUpBoss(Enskill, *BossCharInit);
+                        InitEnemySheets(BossCharInit);
                         *MenuPos = CombatMen;
                         FreeMain_M();
                         break;

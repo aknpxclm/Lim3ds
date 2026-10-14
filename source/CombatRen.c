@@ -1,5 +1,6 @@
 #include <3ds.h>
 #include <citro2d.h>
+#include <stdlib.h>
 #include <string.h>
 #include "Sinner_Enemy_defin.h"
 #include "LoadCharac.h"
@@ -8,18 +9,18 @@
 //sprite animation example from http://www.nyankolab.com/
 
 static CharSprites SinnerSpr[5];
-static CharSprites EnemySpr[5];
+static CharSprites *EnemySpr;
 
 static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
-void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId)
+void LoadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
 {
     char PathMisc[64];
     char PathS1[64];
     char PathS2[64];
     char PathS3[64];
 
-    switch(SheetId)
+    switch(SinnerSheetId)
     {
         case 0:
         return;
@@ -53,6 +54,20 @@ void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId)
         if(!SinnerSpr[SinnerToloadOn].CombatSheetS3) svcBreak(USERBREAK_PANIC);
 }
 
+void InitEnemySheets(u8 *BossOrRegular)
+{
+    switch(*BossOrRegular)
+    {
+        case 0:
+        EnemySpr = (CharSprites*)malloc(sizeof(CharSprites) * 5);
+        break;
+
+        case 1:
+        EnemySpr = (CharSprites*)malloc(sizeof(CharSprites));
+        break;
+    } 
+}
+
 void InitCombat_S()
 {
     size_t NumSprites = 0;
@@ -69,8 +84,8 @@ void InitCombat_S()
             Sprite *CharSpr = &SinnerSpr[i].CombatSpr[j];
             if(j < SinnerSpr[i].MiscSpritesEnd) C2D_SpriteFromSheet(&CharSpr->spr, SinnerSpr[i].CombatSheetMisc, j);
             else if(j >= SinnerSpr[i].MiscSpritesEnd && j < SinnerSpr[i].SkillOne[1]) C2D_SpriteFromSheet(&CharSpr->spr, SinnerSpr[i].CombatSheetS1, j - SinnerSpr[i].MiscSpritesEnd);
-            else if(j >= SinnerSpr[i].SkillOne && j < SinnerSpr[i].SkillTwo[1]) C2D_SpriteFromSheet(&CharSpr->spr, SinnerSpr[i].CombatSheetS2, j - SinnerSpr[i].SkillOne[1]);
-            else if(j >= SinnerSpr[i].SkillTwo && j < SinnerSpr[i].SkillThree[1]) C2D_SpriteFromSheet(&CharSpr->spr, SinnerSpr[i].CombatSheetS3, j - SinnerSpr[i].SkillTwo[1]);
+            else if(j >= SinnerSpr[i].SkillOne[1] && j < SinnerSpr[i].SkillTwo[1]) C2D_SpriteFromSheet(&CharSpr->spr, SinnerSpr[i].CombatSheetS2, j - SinnerSpr[i].SkillOne[1]);
+            else if(j >= SinnerSpr[i].SkillTwo[1] && j < SinnerSpr[i].SkillThree[1]) C2D_SpriteFromSheet(&CharSpr->spr, SinnerSpr[i].CombatSheetS3, j - SinnerSpr[i].SkillTwo[1]);
             C2D_SpriteSetCenter(&CharSpr->spr, 0.1f, 0.1f);
             C2D_SpriteSetPos(&CharSpr->spr, 0, 0);
             C2D_SpriteSetRotation(&CharSpr->spr, 0);
@@ -80,7 +95,7 @@ void InitCombat_S()
     }
 }
 
-void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][5])
+void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
 {
     for(int i = 0; i < 5; i++)
     {
@@ -103,10 +118,10 @@ void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][5])
 }
 
 //This handles the skill animations idle and movement of top screens sprites only
-void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][5])
+void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2])
 {
-    static u8 FrameIndexSin = 0;
-    static u8 FrameIndexEn = 0;
+    static u8 FrameIndexSin[5] = {0};
+    static u8 FrameIndexEn[5] = {0};
 
     if(SinnerSpr[0].Frame.Idle == 0) GetTotalFrames(SinnerSpr, AtkOrder);
 
@@ -119,18 +134,19 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, 
         if(Time_t->ElapsedTimeMs >= GFXRefreshMs)
         {
             Time_t->ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
-
-            C2D_DrawSprite(&SinnerSpr[0].CombatSpr[SinnerSpr[0].Idle[0] + FrameIndexSin].spr);
-            //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
-            //IdleIndex[Ally] = (IdleIndex[Ally] + 1) % IdleMax[Ally];
-            FrameIndexSin = (FrameIndexSin + 1) % SinnerSpr[*CurrentSinner].Frame.Idle;
-            //IdleIndex[Opponent] = (IdleIndex[Opponent] + 1) % IdleMax[Opponent];                
+            //for(int i = 0; i < 5; i++)
+            //{
+                C2D_DrawSprite(&SinnerSpr[0].CombatSpr[SinnerSpr[0].Idle[0] + FrameIndexSin[0]].spr);
+                FrameIndexSin[0] = (FrameIndexSin[0] + 1) % SinnerSpr[*CurrentSinner].Frame.Idle;
+            //}                
             
             Time_t->InitialTimeMs = osGetTime(); //set new initial time
         }
         else
         {
-            C2D_DrawSprite(&SinnerSpr[0].CombatSpr[SinnerSpr[0].Idle[0] + FrameIndexSin].spr);
+            //for(int j = 0; j < 5; j++)
+            //{
+            C2D_DrawSprite(&SinnerSpr[0].CombatSpr[SinnerSpr[0].Idle[0] + FrameIndexSin[0]].spr);
             //C2D_DrawSprite(&Sprites[... + IdleIndex[1]].spr);
         }
         break;
@@ -145,15 +161,15 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, 
         {
             Time_t->ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
             //draw current frame index of the animation
-            if(FrameIndexSin != SinnerSpr[*CurrentSinner].Frame.SkillUsed) FrameIndexSin += 1;
+            if(FrameIndexSin[0] != SinnerSpr[*CurrentSinner].Frame.SkillUsed) FrameIndexSin[0] += 1;
             Time_t->InitialTimeMs = osGetTime(); //set new initial time
         }
         else
         {
             //draw current frame index of the animation
         }
-        if(FrameIndexSin == SinnerSpr[*CurrentSinner].Frame.SkillUsed){
-            FrameIndexSin = 0;
+        if(FrameIndexSin[0] == SinnerSpr[*CurrentSinner].Frame.SkillUsed){
+            FrameIndexSin[*CurrentSinner] = 0;
             *InCombatOrGFX = 1; //do next clash
             *CurrentSinner += 1; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
         }
@@ -171,7 +187,7 @@ void DeInitSpriteInfo()
     } 
 }
 
-void FreeSpriteSheets_Combat()
+void FreeSpriteSheets_Combat(u8 *BossOrRegular)
 {
     for(int i = 0; i < 5; i++)
     {
@@ -180,4 +196,25 @@ void FreeSpriteSheets_Combat()
         C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS2);
         C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS3);
     }
+    switch(*BossOrRegular)
+    {
+        case 0:
+        for(int j = 0; j < 5; j++)
+        {
+            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetMisc);
+            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS1);
+            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS2);
+            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS3);
+        }
+        break;
+
+        case 1:
+        C2D_SpriteSheetFree(EnemySpr->CombatSheetMisc);
+        C2D_SpriteSheetFree(EnemySpr->CombatSheetS1);
+        C2D_SpriteSheetFree(EnemySpr->CombatSheetS2);
+        C2D_SpriteSheetFree(EnemySpr->CombatSheetS3);
+        break;
+
+    }
+    free(EnemySpr);
 }

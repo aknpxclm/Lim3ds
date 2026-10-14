@@ -47,7 +47,7 @@ void UnopposedAtk(Characters *Attack, Characters *Oppo)
 }
 
 //Adds skill ranks to the enemy, sinners and buffer skill arrays
-bool CreateSkillStores(int SkillOptions[][2], int EnSkillOrder[][2], int BufferSkill[], int SkillList[], int TurnCount)
+bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount)
 {
     if(TurnCount == 1){
         for(int i = 0; i < 5/*Amount of sinners*/; i++){

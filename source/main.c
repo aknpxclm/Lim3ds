@@ -9,19 +9,19 @@
 #include "CombatFunctions.h"
 #include "SlotSelect.h"
 #include "LobbyRend.h"
-#include "CombatTex.h"
+#include "Text.h"
 #include "CombatRen.h"
 
 #define NOTSELECTED 9
 #define DEFENCESKILL 3
 
 void ExitApp(){
+FreeMain_M();
+FreeTexBuf();
 gfxExit();
 romfsExit();
 C2D_Fini();
 C3D_Fini();
-FreeMain_M();
-FreeTexBuf();
 }
 
 int main(int argc, char **argv){  // initialise variables
@@ -63,14 +63,14 @@ ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}};
 
+float SinStartPos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+
 u8 AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
 u8 EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 u8 SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
 u8 BufferSkill[5] = {0, 0, 0, 0, 0};                              // original order before skills will be randomised and listed / picked from
 u8 SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 u8 EnSkillPattern[5] = {2, 2, 1, 1, 1};
-
-size_t SkillSprites = 0;
 
 Time Time_T = {0, 0, 0};
 
@@ -83,6 +83,7 @@ u16 Clashes = 0;
 
 u8 ClashNumResult = 0; //to see which coin the evade failed at
 u8 MenuPosition = 0;
+u8 MainSubPos = 0;
 u8 InCombatOrGFX = 0; //0: idle animation 1: combat clashing logic, 2: GFX of clashes
 
 u8 TintBG = 0; //check if background should be tinted
@@ -125,13 +126,15 @@ switch(MenuPosition){ // In game start
 
     case StartMen: //Start screen
         DrawMain_S(top, bottom, MenuPosition, &TintBG);
+        C2D_SceneBegin(bottom);
+        LobbyScrollingText(&MenuPosition, &MainSubPos, &Time_T);
         if(kDown) MenuPosition = MainMen;
     break;
 
 
     case MainMen: //Main menu
         DrawMain_S(top, bottom, MenuPosition, &TintBG);
-        SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, Sinner,&MenuPosition, &TintBG, &BossCharInit);
+        SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, Sinner,&MenuPosition, &MainSubPos, &TintBG, &BossCharInit);
     break;
        
     
@@ -187,7 +190,7 @@ switch(MenuPosition){ // In game start
     switch(InCombatOrGFX){
 
         case GFX: //idle animations
-        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder);
+        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
         break;
 
         case Combat: // Turn Running loop -> Clashing
@@ -230,7 +233,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case CombatGFX: //GFX of the clash and combat
-        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder);
+        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
         break;
 
     }
@@ -248,6 +251,7 @@ switch(MenuPosition){ // In game start
 
     if(CurrentSinner == 5/*All sinners have completed their actions*/)
     {
+        DeInitSpriteInfo();
         InCombatOrGFX = GFX; //exit clash and GFX
         CurrentSinner = 0; //reset to first sinner
         //End this turn and start the next one
@@ -260,6 +264,7 @@ switch(MenuPosition){ // In game start
     C3D_FrameEnd(0);
 }
 FreeSkillFileInfo(LoadPath, SkillBuf);
+FreeSpriteSheets_Combat(&BossCharInit);
 ExitApp();
 return 0; 
 }
