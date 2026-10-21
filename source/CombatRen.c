@@ -54,18 +54,44 @@ void LoadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
         if(!SinnerSpr[SinnerToloadOn].CombatSheetS3) svcBreak(USERBREAK_PANIC);
 }
 
-void InitEnemySheets(u8 *BossOrRegular)
+void LoadEnemySheets(u8 *IsABoss)
 {
-    switch(*BossOrRegular)
+    const char EnemySheets[4][4][64] =  
+    {{"romfs:/gfx/BossMisc", "romfs:/gfx/BossS1", "romfs:/gfx/BossS2", "romfs:/gfx/BossS3"}, \
+     {"romfs:/gfx/EnType1Misc", "romfs:/gfx/EnType1S1", "romfs:/gfx/EnType1S2", "romfs:/gfx/EnType1S3"}, \
+     {"romfs:/gfx/EnType2Misc", "romfs:/gfx/EnType2S1", "romfs:/gfx/EnType2S2", "romfs:/gfx/EnType2S3"}, \
+     {"romfs:/gfx/EnType3Misc", "romfs:/gfx/EnType3S1", "romfs:/gfx/EnType3S2", "romfs:/gfx/EnType3S3"}};
+    
+    if(*IsABoss == 1)
     {
-        case 0:
-        EnemySpr = (CharSprites*)malloc(sizeof(CharSprites) * 5);
-        break;
+        EnemySpr[0].CombatSheetMisc = C2D_SpriteSheetLoad(EnemySheets[0][0]);
+            if(!EnemySpr[0].CombatSheetMisc) svcBreak(USERBREAK_PANIC);
+        EnemySpr[0].CombatSheetS1 = C2D_SpriteSheetLoad(EnemySheets[0][1]);
+            if(!EnemySpr[0].CombatSheetS1) svcBreak(USERBREAK_PANIC);
+        EnemySpr[0].CombatSheetS2 = C2D_SpriteSheetLoad(EnemySheets[0][2]);
+            if(!EnemySpr[0].CombatSheetS2) svcBreak(USERBREAK_PANIC);
+        EnemySpr[0].CombatSheetS3 = C2D_SpriteSheetLoad(EnemySheets[0][3]);
+            if(!EnemySpr[0].CombatSheetS3) svcBreak(USERBREAK_PANIC);
+    }
+    else
+    {
+        for(int i = 0; i < 3; i++)
+        {
+            EnemySpr[i].CombatSheetMisc = C2D_SpriteSheetLoad(EnemySheets[i + 1][0]);
+                if(!EnemySpr[i].CombatSheetMisc) svcBreak(USERBREAK_PANIC);
+            EnemySpr[i].CombatSheetS1 = C2D_SpriteSheetLoad(EnemySheets[i + 1][1]);
+                if(!EnemySpr[i].CombatSheetS1) svcBreak(USERBREAK_PANIC);
+            EnemySpr[i].CombatSheetS2 = C2D_SpriteSheetLoad(EnemySheets[i + 1][2]);
+                if(!EnemySpr[i].CombatSheetS2) svcBreak(USERBREAK_PANIC);
+            EnemySpr[i].CombatSheetS3 = C2D_SpriteSheetLoad(EnemySheets[i + 1][3]);
+                if(!EnemySpr[i].CombatSheetS3) svcBreak(USERBREAK_PANIC);
+        }
+    }
+}
 
-        case 1:
-        EnemySpr = (CharSprites*)malloc(sizeof(CharSprites));
-        break;
-    } 
+void InitEnemySheets()
+{
+    EnemySpr = (CharSprites*)malloc(sizeof(CharSprites) * 3); //allocate enough for unique 3 types of enemies
 }
 
 void InitCombat_S()

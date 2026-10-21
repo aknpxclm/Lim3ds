@@ -72,7 +72,7 @@ u8 BufferSkill[5] = {0, 0, 0, 0, 0};                              // original or
 u8 SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 u8 EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
-Time Time_T = {0, 0, 0};
+Time Time_T[3] = {0};
 
 u32 TurnCount = 1;
 
@@ -100,7 +100,7 @@ C3D_RenderTarget *bottom = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
 touchPosition prevTouch = {0, 0};
 
-Time_T.InitialTimeMs = osGetTime();
+for(int z = 0; z < 3; z++) Time_T[z].InitialTimeMs = osGetTime();
 
 SeedStart();
 Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
@@ -127,7 +127,7 @@ switch(MenuPosition){ // In game start
     case StartMen: //Start screen
         DrawMain_S(top, bottom, MenuPosition, &TintBG);
         C2D_SceneBegin(bottom);
-        LobbyScrollingText(&MenuPosition, &MainSubPos, &Time_T);
+        LobbyScrollingText(top, bottom, &MenuPosition, &MainSubPos, &Time_T[TextScroll]);
         if(kDown) MenuPosition = MainMen;
     break;
 
@@ -135,6 +135,7 @@ switch(MenuPosition){ // In game start
     case MainMen: //Main menu
         DrawMain_S(top, bottom, MenuPosition, &TintBG);
         SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, Sinner,&MenuPosition, &MainSubPos, &TintBG, &BossCharInit);
+        LobbyScrollingText(top, bottom, &MenuPosition, &MainSubPos, &Time_T[Input]);
     break;
        
     
@@ -190,7 +191,7 @@ switch(MenuPosition){ // In game start
     switch(InCombatOrGFX){
 
         case GFX: //idle animations
-        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
+        RenderingCombat_S(top, &Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
         break;
 
         case Combat: // Turn Running loop -> Clashing
@@ -233,7 +234,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case CombatGFX: //GFX of the clash and combat
-        RenderingCombat_S(top, &Time_T, &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
+        RenderingCombat_S(top, &Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
         break;
 
     }

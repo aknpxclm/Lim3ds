@@ -56,4 +56,11 @@ enum DefenceSkillType
     //ClashCounter
 };
 
+enum RecordTimeFor
+{
+    TextScroll,
+    Input,
+    GameSpr
+};
+
 #endif

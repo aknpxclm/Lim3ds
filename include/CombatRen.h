@@ -30,7 +30,7 @@ typedef struct
 }CharSprites;
 
 void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId);
-void InitEnemySheets(u8 *BossOrRegular);
+void InitEnemySheets();
 void InitCombat_S();
 void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2]);
 void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2]);

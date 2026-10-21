@@ -38,7 +38,7 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
         case 0: //reg
         snprintf(EnemyBuf, sizeof(EnemyBuf), "Health: %.1f %.1f %.1f %.1f %.1f\nSanity: %d  %d  %d  %d  %d", \
         Enemy[0].Health, Enemy[1].Health, Enemy[2].Health, Enemy[3].Health, Enemy[4].Health, \
-        Enemy[0].Sanity -50, Enemy[1].Sanity - 50, Enemy[2].Sanity - 50, Enemy[3].Sanity - 50, Enemy[4].Sanity - 50);
+        Enemy[0].Sanity - 50, Enemy[1].Sanity - 50, Enemy[2].Sanity - 50, Enemy[3].Sanity - 50, Enemy[4].Sanity - 50);
         break;
 
         case 1: //boss
@@ -51,10 +51,11 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
     C2D_DrawText(&EnDynamTex, C2D_AlignLeft, 2.0f, 3.0f, 0.5f, 0.525f, 0.525f);
 }
 
-void LobbyScrollingText(u8 *MenuPos, u8 *MainSubPos, Time *timeT)
+void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *MenuPos, u8 *MainSubPos, Time *timeT)
 {
     C2D_TextBufClear(dynamBuf);
     static u8 CharsPrinted = 0;
+    static u8 currentmenu = 0;
     char LobbyBuf[128];
     const char MessageStart[] = "Press any botton to start";
     const char MessageLobbyInfo[3][64] = {"Tutorial and Dialogue Showcase", "Team select: Pick and order a team of sinners here", "Select to fight a Boss or Multiple enemies"};
@@ -63,29 +64,42 @@ void LobbyScrollingText(u8 *MenuPos, u8 *MainSubPos, Time *timeT)
     timeT->CurrentTimeMs = osGetTime();
     timeT->ElapsedTimeMs = (timeT->CurrentTimeMs - timeT->InitialTimeMs);
 
+    if(currentmenu != *MainSubPos)
+    {
+        currentmenu = *MainSubPos;
+        CharsPrinted = 0;
+    }
+
     switch(*MenuPos)
     {
         case StartMen:
+        if(CharsPrinted <= strlen(MessageStart)) CharsPrinted += 1;
+        snprintf(LobbyBuf, CharsPrinted, MessageStart);
+        C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
+        C2D_TextOptimize(&Scrollingtext);
+
         if(timeT->ElapsedTimeMs >= 33) //scroll speed, new char every 33ms
         {
-            if(CharsPrinted <= strlen(MessageStart)) CharsPrinted += 1;
-            snprintf(LobbyBuf, CharsPrinted, MessageStart);
-            C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
-            C2D_TextOptimize(&Scrollingtext);
             C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
             timeT->InitialTimeMs = osGetTime();
         }
-        else
-        {
-            snprintf(LobbyBuf, CharsPrinted, MessageStart);
-            C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
-            C2D_TextOptimize(&Scrollingtext);
-            C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
-        }
+        else C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
         break;
 
         case MainMen:
+        C2D_SceneBegin(top);
 
+        if(CharsPrinted <= strlen(MessageLobbyInfo[*MainSubPos])) CharsPrinted += 1;
+        snprintf(LobbyBuf, CharsPrinted, MessageLobbyInfo[*MainSubPos]);
+        C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
+        C2D_TextOptimize(&Scrollingtext);
+
+        if(timeT->ElapsedTimeMs >= 27) //check if 25ms has passed
+        {
+            C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
+            timeT->InitialTimeMs = osGetTime();
+        }
+        else C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
         break;
     }
 }

@@ -54,7 +54,6 @@ void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition
         if(*TintBG) C2D_DrawSpriteTinted(&MenuSprites[LobbyBot].spr, &DarkenBGtint);
         else C2D_DrawSprite(&MenuSprites[LobbyBot].spr);
         break;
-
     }
 }
 
@@ -138,7 +137,7 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
 
                         case 1:
                         SetUpBoss(Enskill, *BossCharInit);
-                        InitEnemySheets(BossCharInit);
+                        InitEnemySheets();
                         *MenuPos = CombatMen;
                         FreeMain_M();
                         break;
