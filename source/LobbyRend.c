@@ -14,6 +14,7 @@ static Sprite MenuSprites[20];
 
 static C2D_ImageTint DarkenBGtint;
 
+/// @brief Initialises the Menu sprites from a spritesheet and tints for the background
 void InitMain_M()
 {
     C2D_PlainImageTint(&DarkenBGtint, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f), 0.425f);
@@ -35,6 +36,11 @@ void InitMain_M()
     C2D_SpriteSetPos(&MenuSprites[LobbyBot].spr, -10, 20); //set bottom lobby png pos
 }
 
+/// @brief Draws the background of the menus
+/// @param top 
+/// @param bottom 
+/// @param MenuPosition 
+/// @param TintBG To check if the background should be tinted
 void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition, u8 *TintBG)
 {
     C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -57,11 +63,26 @@ void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition
     }
 }
 
+/// @brief Frees the menu spritesheet
 void FreeMain_M()
 {
     C2D_SpriteSheetFree(menuSpriteSheet);
 }
 
+/// @brief Draws the submenus for stage selects, team selection and the dialogue example
+/// @param top 
+/// @param bottom 
+/// @param kDown Keys down in a frame
+/// @param kUp Keys up in a frame
+/// @param LoadPath Allocated memory for the path for loading
+/// @param SkillBuf SkillInfo buffer for sinner loading
+/// @param SinSkill Sinner Skill info
+/// @param Enskill Enemy skill info
+/// @param Sinner Sinner character struct
+/// @param MenuPos 
+/// @param MainSubPos 
+/// @param TintBG Flags if the BG should be tinted
+/// @param BossCharInit Flags if a boss stage is being selected
 void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
              u32 kDown, u32 kUp, char *LoadPath, \
              SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], Characters Sinner[], \

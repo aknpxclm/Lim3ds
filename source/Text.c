@@ -6,17 +6,21 @@
 static C2D_TextBuf dynamBuf;
 static C2D_Font SpeechFont;
 
+/// @brief Creates a text buffer
 void CreateTexBuf()
 {
     //Allocate memory for the buffer
     dynamBuf = C2D_TextBufNew(4096);
 }
 
+/// @brief Loads fonts needed
 void LoadFont()
 {
     SpeechFont = C2D_FontLoad("romfs:/Pretendard-Regular.otf");
 }
 
+/// @brief Renders the sinner health and sanity to the bottom screen
+/// @param Sinner Sinner info
 void SinnerTex(Characters Sinner[])
 {
     //uses 3ds/graphics/printing/system-font example
@@ -33,6 +37,9 @@ void SinnerTex(Characters Sinner[])
     C2D_DrawText(&SinDynamTex, C2D_AlignLeft, 2.0f, 206.0f, 0.5f, 0.525f, 0.525f);
 }
 
+/// @brief Renders the enemy health and sanity to the bottom screen
+/// @param BossOrRegular Check to render a just a boss or a group
+/// @param Enemy Enemy info
 void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
 {
     C2D_TextBufClear(dynamBuf);
@@ -57,6 +64,12 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
     C2D_DrawText(&EnDynamTex, C2D_AlignLeft, 2.0f, 3.0f, 0.5f, 0.525f, 0.525f);
 }
 
+/// @brief Draws text to help understand each submenu and also scrolls showing more characters over time
+/// @param top 
+/// @param bottom 
+/// @param MenuPos 
+/// @param MainSubPos 
+/// @param timeT Records time for when more charcters should be shown
 void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *MenuPos, u8 *MainSubPos, Time *timeT)
 {
     C2D_TextBufClear(dynamBuf);
@@ -110,6 +123,9 @@ void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *Men
     }
 }
 
+/// @brief Wraps text to fit it within the 3ds screen / text box
+/// @param Dialogue String of text to wrap around
+/// @return 
 int TextWrapper(char *Dialogue)
 {
     u32 currentPos = 0;
@@ -139,6 +155,9 @@ int TextWrapper(char *Dialogue)
     return 0;
 }
 
+/// @brief Manages which line of dialogue to load from the file and format for rendering
+/// @param Line Line of dialogue to load
+/// @param Dialogue Buffer for the dialogue text
 void DialogueManager(u16 *Line, char *Dialogue)
 {
     FILE *TextLine;
@@ -170,6 +189,13 @@ void DialogueManager(u16 *Line, char *Dialogue)
     TextWrapper(Dialogue);
 }
 
+/// @brief Draws dialogue to the screen
+/// @param top 
+/// @param bottom 
+/// @param kDown Keys down this frame
+/// @param Line Dialogue line to draw
+/// @param ScrollTime Records the time for when to display more characters of the line
+/// @param Dialogue Dialogue text to render
 void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u16 *Line, Time *ScrollTime, char *Dialogue)
 {
     C2D_TextBufClear(dynamBuf);
@@ -202,12 +228,13 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
     }
 }
 
+/// @brief Frees loaded fonts
 void FontFree()
 {
     C2D_FontFree(SpeechFont);
 }
 
-
+/// @brief Frees text buffer
 void FreeTexBuf()
 {
     C2D_TextBufDelete(dynamBuf);

@@ -5,10 +5,10 @@
 #define LOADCHARAC_H_
 
 char *AllocPathBuf();
+void CharIdPath(u16 SinId, char *Path);
 SkillInfo *SkillInfoBuf();
 void LoadSinInfo(SkillInfo *Sinner, char *Path);
 void PassInSkillInfo(SkillInfo Sinner[][Array_Column_Len], SkillInfo *SkillBuf, u8 LoadOnSin);
-void CharIdPath(u16 SinId, char *Path);
 void FreeSkillFileInfo(char *Path, SkillInfo *SkillBuf);
 
 #endif

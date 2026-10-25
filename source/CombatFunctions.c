@@ -7,7 +7,12 @@
 #define SINSANITYLOSS 3
 #define MAX_CLASH 50
 
-//If a skill is going to clash the enemy's, use this function to clash and deal damage
+/// @brief If a skill is going to clash the enemy's, use this function to clash and deal damage
+/// @param Sinner Character struct for the Sinner
+/// @param Enemy Character struct for the enemy
+/// @param ENhealth Sanity of a enemy or for the boss
+/// @param ENsanity Sanity of a enemy or for the boss
+/// @return Number of clashes between characters
 int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsanity)
 {
     int SinClashNum = 0;
@@ -40,13 +45,22 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsa
     }
     return Clashes;
 }
-//Damage where a character doesnt clash
+
+/// @brief Damage where a character doesnt clash
+/// @param Attack Attacking Character
+/// @param Oppo Opposing Character
 void UnopposedAtk(Characters *Attack, Characters *Oppo)
 {
     Oppo->Health -= Damagedealt(Attack, 0); //No clashes so pass in clashing conditionals (Sanity, opposing stats)
 }
 
-//Adds skill ranks to the enemy, sinners and buffer skill arrays
+/// @brief Adds skill ranks to the enemy, sinners and buffer skill arrays
+/// @param SkillOptions Sinner skill options
+/// @param EnSkillOrder Targeting for the enemy attacks
+/// @param BufferSkill Next skill to be added to the Skilllist after a skill is used
+/// @param SkillList The two options of skill ranks for the player to choose
+/// @param TurnCount Current turn combat is on
+/// @return True if successfully completed
 bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount)
 {
     if(TurnCount == 1){
@@ -65,6 +79,9 @@ bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkil
     return true; //Completed sucessfully
 }
 
+/// @brief Sets up a boss and thier skills
+/// @param Enskill SkillInfo struct to copy info across
+/// @param IsBoss
 void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
 {
     if(IsBoss == 1){
@@ -84,6 +101,11 @@ void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
     }
 }
 
+/// @brief 
+/// @param Sinner Sinner character struct
+/// @param SinSkill Sinner defence skill type and coin info
+/// @param Enemy Enemy character struct
+/// @param EvadeResult Check when an evade fails to render it in another function
 void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, u8 *EvadeResult)
 {
     switch(SinSkill->coins) //defence type of fourth column fir each sinner

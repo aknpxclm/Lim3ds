@@ -13,6 +13,9 @@ static CharSprites *EnemySpr;
 
 static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
 
+/// @brief Loads SpriteSheets of different Ids onto a Sinner Sprite Object
+/// @param SinnerToloadOn Which Sinner struct to load a sheet onto
+/// @param SinnerSheetId Id of the Sheet to load (Look at each case to see which Id is which)
 void LoadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
 {
     char PathMisc[64];
@@ -54,6 +57,8 @@ void LoadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
         if(!SinnerSpr[SinnerToloadOn].CombatSheetS3) svcBreak(USERBREAK_PANIC);
 }
 
+/// @brief Loads the boss and enemy sheets into the Enemy Sprite object
+/// @param IsABoss
 void LoadEnemySheets(u8 *IsABoss)
 {
     const char EnemySheets[4][4][64] =  
@@ -89,11 +94,13 @@ void LoadEnemySheets(u8 *IsABoss)
     }
 }
 
+/// @brief Allocate memory for the Enemy Sprite Object
 void InitEnemySheets()
 {
     EnemySpr = (CharSprites*)malloc(sizeof(CharSprites) * 3); //allocate enough for unique 3 types of enemies
 }
 
+/// @brief Load all the Sprites in the spritesheets into the individual sprite handles
 void InitCombat_S()
 {
     size_t NumSprites = 0;
@@ -121,6 +128,9 @@ void InitCombat_S()
     }
 }
 
+/// @brief Calculate the total frames of skills / idle animations excluding other combat sprites
+/// @param TotalFrames Stores the frame data for rendering
+/// @param AtkOrder Skill rank being used in the turn for each sinner
 void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
 {
     for(int i = 0; i < 5; i++)
@@ -143,7 +153,13 @@ void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
     }
 }
 
-//This handles the skill animations idle and movement of top screens sprites only
+/// @brief This handles the skill animations idle and movement of top screens sprites only
+/// @param top 
+/// @param Time_t Records the time for when sprite need to be changed for animations
+/// @param CurrentSinner Current sinner to render
+/// @param InCombatOrGFX Checks if the idle or skill animations if needed to render
+/// @param AtkOrder Skill rank to be used this turn
+/// @param SinnerPositions Contains positions to render idle sinners at
 void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2])
 {
     static u8 FrameIndexSin[5] = {0};
@@ -204,6 +220,7 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, 
     }
 }
 
+/// @brief Clears info of a previous animation
 void DeInitSpriteInfo()
 {
     for(int i = 0; i < 5; i++)
@@ -213,6 +230,8 @@ void DeInitSpriteInfo()
     } 
 }
 
+/// @brief Frees all spritesheets used in the combat
+/// @param BossOrRegular Checks if it's a boss or a group
 void FreeSpriteSheets_Combat(u8 *BossOrRegular)
 {
     for(int i = 0; i < 5; i++)

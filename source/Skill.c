@@ -4,7 +4,12 @@
 #include "Skill.h"
 #include "Sinner_Enemy_defin.h"
 
-//Generate a random skill value to compare and clash with
+/// @brief Generate a random skill value to compare and clash with
+/// @param base Skill base number
+/// @param coins Total coins a skill has
+/// @param coinPow The total amount a coin can add to the total
+/// @param sanity How likely a skill will add the coin power from 5% to 95%
+/// @return 
 u32 ClashValue(u8 base, u8 coins, u8 coinPow, u8 sanity)
 {
 int coinFlip = 0;
@@ -19,11 +24,19 @@ if(total <= 0) return 0; //minus coin check
 return total;
 }
 
-u32 Damagedealt(Characters *Charac, int Clashes)
+/// @brief Calculates damage a skill will do to an opponent
+/// @param Charac Character to deal dameage to
+/// @param Clashes Total Clashes completed
+/// @return Damage that will be dealt
+u32 Damagedealt(Characters *Charac, u16 Clashes)
 {
 return Charac->Skillbase + (Charac->coins * Charac->SkillcoinPow) * (1 + (3 * ((float)Clashes * 0.01))); 
 }
 
+/// @brief Amount of damage to deal under the clashable guards damage reduction
+/// @param Charac Defending character
+/// @param AttackingCharac Attacking character
+/// @return 
 u32 GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
 {
     int coinFlip = 0;
@@ -34,6 +47,10 @@ u32 GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
     return Damagedealt(AttackingCharac, 0) - total;
 }
 
+/// @brief Allows an evading skill to negate incoming damage if the evade's total is greater than or equal to the opposing skill total
+/// @param EvadeCharac Evading character
+/// @param AttackingCharac Attacking character
+/// @return Coin evade failed at, 0 if never failed
 u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
 {
     u8 i = 0;
@@ -60,14 +77,17 @@ u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
     return i;
 }
 
+/// @brief Generates a seed
 void SeedStart()
 {
 srand(time(NULL));
 }
 
+/// @brief Clamps sanity between 5 and 95, displayed as -45 to 45
+/// @param Sanity Character sanity
+/// @return Clamped sanity value
 u8 LimitSanity(u8 *Sanity)
 {
-//If Sanity is with 5 - 95 return the orig val, if san < 5 return 5, if san > 95 return 95
 if(*Sanity > 95){
     return 95;
 }
@@ -82,7 +102,8 @@ int Form_or_Select_Random_Skill(){
     return rand() % 5;
 }
 
-//Rearranges the skill rank pool to make getting skills more random
+/// @brief Rearranges the skill rank pool to make getting skills more random
+/// @param SkillList Pool of skill ranks that can be collected from
 void Rearrange_SkillPool(u8 SkillList[])
 {
 /*index 0 represents one value in SkillList
@@ -99,11 +120,14 @@ for(int j = 0; j < 6; j++){
 }
 }
 
-//Move skills down the selction area when a skill is used
+/// @brief Move skills down the selction area when a skill is used
+/// @param SkillOptions Skill rank options a player chooses from
+/// @param BufferSkill Next skill rank to be placed as a skill option
+/// @param SkillList Pool to take a skill rank from
 void ShiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[])
 {
-int TopRowSkill = 0;
-int BufferSkillnum = 0;
+u8 TopRowSkill = 0;
+u8 BufferSkillnum = 0;
 
 //9 == NOTSELECTED macro
 for(int i = 0; i < 5; i++){
