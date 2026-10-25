@@ -80,6 +80,7 @@ u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 EnemySlot = NOTSELECTED;
 u16 Clashes = 0;
+u16 DialogueLine = 0;
 
 u8 ClashNumResult = 0; //to see which coin the evade failed at
 u8 MenuPosition = 0;
@@ -109,6 +110,8 @@ InitMain_M();
 CreateTexBuf();
 SkillBuf = SkillInfoBuf();
 LoadPath = AllocPathBuf();
+
+
 
 while(aptMainLoop()){
 
@@ -261,6 +264,11 @@ switch(MenuPosition){ // In game start
     }
     break; //Leave combat code zone
 
+    case Dialogue_eg:
+    char DialogueBuff[256];
+    DialogueManager(&DialogueLine , DialogueBuff);
+    TextSceneBegin(top, bottom, kDown, &DialogueLine , &Time_T[TextScroll], DialogueBuff);
+    break;
 }
     C3D_FrameEnd(0);
 }

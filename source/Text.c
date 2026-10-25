@@ -54,7 +54,7 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
 void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *MenuPos, u8 *MainSubPos, Time *timeT)
 {
     C2D_TextBufClear(dynamBuf);
-    static u8 CharsPrinted = 0;
+    static u16 CharsPrinted = 0;
     static u8 currentmenu = 0;
     char LobbyBuf[128];
     const char MessageStart[] = "Press any botton to start";
@@ -101,6 +101,93 @@ void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *Men
         }
         else C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
         break;
+    }
+}
+
+int TextWrapper(char *Dialogue)
+{
+    u32 currentPos = 0;
+    u32 Track = 0;
+    u16 word = 0;
+
+    for(u32 i = 0; Dialogue[i] != '\0'; i++)
+    {
+        if(Dialogue[i] == ' ')
+        {
+            currentPos = i;
+            while(Dialogue[currentPos + 1] != ' ')
+            {
+                word++;
+                currentPos++;
+                if(Dialogue[currentPos + 1] == '\0') break;
+            }
+            if(Track + word > 48) //to be hardcoded or variable by other functs
+            {
+                Dialogue[i] = '\n';
+                Track = 0;
+            }
+            word = 0;
+        }
+        Track++;
+    }
+    return 0;
+}
+
+void DialogueManager(u16 *Line, char *Dialogue)
+{
+    FILE *TextLine;
+    char BufText[4096];
+    u16 currentLine = 1;
+    u32 charpos = 0;
+    u32 writepos = 0;
+
+    TextLine = fopen("romfs:/Dialogue.txt", "r");
+    fgets(BufText, sizeof(BufText), TextLine);
+    fclose(TextLine);
+
+    for(u32 i = 0; BufText[i] != '\0'; i++)
+    {
+        charpos = i;
+        if(BufText[i] = '\n') currentLine += 1;
+        if(currentLine == *Line)break;
+    }
+    for(u32 j = charpos; BufText[j] != '\n'; j++)
+    {
+        Dialogue[writepos] = BufText[j];
+        writepos++;
+    }
+    Dialogue[writepos + 1] = '\0';
+    TextWrapper(Dialogue);
+}
+
+void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u16 *Line, Time *ScrollTime, char *Dialogue)
+{
+    static u16 charsToprint = 0;
+    static u16 String = 0;
+    String = strlen(Dialogue);
+    C2D_Text DiaTex;
+    char DialogueBuff[512];
+
+    C2D_SceneBegin(top);
+
+    snprintf(DialogueBuff, charsToprint, Dialogue);
+    C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
+    C2D_TextOptimize(&DiaTex);
+
+    if(ScrollTime->ElapsedTimeMs >= 27) //check if  x ms has passed
+    {
+        C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
+        ScrollTime->InitialTimeMs = osGetTime();
+    }
+    else C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
+
+    if(kDown & KEY_B)
+    {
+        if(charsToprint != String)
+        {
+            charsToprint = String;
+        }
+        else Line += 1;
     }
 }
 

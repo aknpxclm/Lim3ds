@@ -4,7 +4,7 @@
 #ifndef SINNER_ENEMY_DEFIN_H_
 #define SINNER_ENEMY_DEFIN_H_
 
-enum Menu{ StartMen = 0, MainMen, CombatMen };
+enum Menu{ StartMen = 0, MainMen, CombatMen, Dialogue_eg};
 
 enum Rendering{ GFX = 0, Combat, CombatGFX };
 
