@@ -17,6 +17,7 @@
 
 void ExitApp(){
 FreeMain_M();
+FontFree();
 FreeTexBuf();
 gfxExit();
 romfsExit();
@@ -108,10 +109,9 @@ Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a ran
 
 InitMain_M();
 CreateTexBuf();
+LoadFont();
 SkillBuf = SkillInfoBuf();
 LoadPath = AllocPathBuf();
-
-
 
 while(aptMainLoop()){
 

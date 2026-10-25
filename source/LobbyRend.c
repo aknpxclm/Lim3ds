@@ -97,6 +97,7 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
     switch(*MainSubPos)
     {
         case 0: //"Tutorial" / Dialogue showcase
+        if(kDown & KEY_A) *MenuPos = Dialogue_eg;
         break;
 
         case 1: //Team Select

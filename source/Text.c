@@ -4,11 +4,17 @@
 #include "Text.h"
 
 static C2D_TextBuf dynamBuf;
+static C2D_Font SpeechFont;
 
 void CreateTexBuf()
 {
     //Allocate memory for the buffer
-    dynamBuf = C2D_TextBufNew(2048);
+    dynamBuf = C2D_TextBufNew(4096);
+}
+
+void LoadFont()
+{
+    SpeechFont = C2D_FontLoad("romfs:/Pretendard-Regular.otf");
 }
 
 void SinnerTex(Characters Sinner[])
@@ -140,6 +146,10 @@ void DialogueManager(u16 *Line, char *Dialogue)
     u16 currentLine = 1;
     u32 charpos = 0;
     u32 writepos = 0;
+    static u16 LineToParse = 0;
+
+    if(LineToParse != *Line) LineToParse = *Line;
+    else return;
 
     TextLine = fopen("romfs:/Dialogue.txt", "r");
     fgets(BufText, sizeof(BufText), TextLine);
@@ -148,12 +158,12 @@ void DialogueManager(u16 *Line, char *Dialogue)
     for(u32 i = 0; BufText[i] != '\0'; i++)
     {
         charpos = i;
-        if(BufText[i] = '\n') currentLine += 1;
         if(currentLine == *Line)break;
+        if(BufText[i] == '\n') currentLine += 1;
     }
-    for(u32 j = charpos; BufText[j] != '\n'; j++)
+    for(u32 j = 0; BufText[j] != '\n' || BufText[j] != '\n'; j++)
     {
-        Dialogue[writepos] = BufText[j];
+        Dialogue[j] = BufText[writepos];
         writepos++;
     }
     Dialogue[writepos + 1] = '\0';
@@ -162,6 +172,7 @@ void DialogueManager(u16 *Line, char *Dialogue)
 
 void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u16 *Line, Time *ScrollTime, char *Dialogue)
 {
+    C2D_TextBufClear(dynamBuf);
     static u16 charsToprint = 0;
     static u16 String = 0;
     String = strlen(Dialogue);
@@ -171,7 +182,7 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
     C2D_SceneBegin(top);
 
     snprintf(DialogueBuff, charsToprint, Dialogue);
-    C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
+    C2D_TextFontParse(&DiaTex, SpeechFont, dynamBuf, DialogueBuff);
     C2D_TextOptimize(&DiaTex);
 
     if(ScrollTime->ElapsedTimeMs >= 27) //check if  x ms has passed
@@ -190,6 +201,12 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
         else Line += 1;
     }
 }
+
+void FontFree()
+{
+    C2D_FontFree(SpeechFont);
+}
+
 
 void FreeTexBuf()
 {
