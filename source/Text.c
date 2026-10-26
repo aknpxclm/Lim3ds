@@ -226,6 +226,7 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
         }
         else Line += 1;
     }
+    C2D_SceneBegin(bottom);
 }
 
 /// @brief Frees loaded fonts

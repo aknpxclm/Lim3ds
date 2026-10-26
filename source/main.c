@@ -265,6 +265,8 @@ switch(MenuPosition){ // In game start
     break; //Leave combat code zone
 
     case Dialogue_eg:
+    C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
+    C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
     char DialogueBuff[256];
     DialogueManager(&DialogueLine , DialogueBuff);
     TextSceneBegin(top, bottom, kDown, &DialogueLine , &Time_T[TextScroll], DialogueBuff);
