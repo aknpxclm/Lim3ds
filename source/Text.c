@@ -16,7 +16,7 @@ void CreateTexBuf()
 /// @brief Loads fonts needed
 void LoadFont()
 {
-    SpeechFont = C2D_FontLoad("romfs:/Pretendard-Regular.otf");
+    SpeechFont = C2D_FontLoad("romfs:/gfx/pretendard-latin-400-normal.bcfnt");
 }
 
 /// @brief Renders the sinner health and sanity to the bottom screen
@@ -123,6 +123,7 @@ void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *Men
     }
 }
 
+/*
 /// @brief Wraps text to fit it within the 3ds screen / text box
 /// @param Dialogue String of text to wrap around
 /// @return 
@@ -153,19 +154,18 @@ int TextWrapper(char *Dialogue)
         Track++;
     }
     return 0;
-}
+} */
 
 /// @brief Manages which line of dialogue to load from the file and format for rendering
 /// @param Line Line of dialogue to load
 /// @param Dialogue Buffer for the dialogue text
 void DialogueManager(u16 *Line, char *Dialogue)
 {
+    static u16 LineToParse = 0;
     FILE *TextLine;
     char BufText[4096];
     u16 currentLine = 1;
-    u32 charpos = 0;
     u32 writepos = 0;
-    static u16 LineToParse = 0;
 
     if(LineToParse != *Line) LineToParse = *Line;
     else return;
@@ -176,7 +176,7 @@ void DialogueManager(u16 *Line, char *Dialogue)
 
     for(u32 i = 0; BufText[i] != '\0'; i++)
     {
-        charpos = i;
+        writepos = i;
         if(currentLine == *Line)break;
         if(BufText[i] == '\n') currentLine += 1;
     }
@@ -186,7 +186,7 @@ void DialogueManager(u16 *Line, char *Dialogue)
         writepos++;
     }
     Dialogue[writepos + 1] = '\0';
-    TextWrapper(Dialogue);
+    //TextWrapper(Dialogue);
 }
 
 /// @brief Draws dialogue to the screen
@@ -213,10 +213,10 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
 
     if(ScrollTime->ElapsedTimeMs >= 27) //check if  x ms has passed
     {
-        C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
+        C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor | C2D_WordWrap, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f), 200.0f);
         ScrollTime->InitialTimeMs = osGetTime();
     }
-    else C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
+    else C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor | C2D_WordWrap, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f), 200.0f);
 
     if(kDown & KEY_B)
     {

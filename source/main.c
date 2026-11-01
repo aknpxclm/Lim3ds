@@ -32,6 +32,16 @@ C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 
+InitMain_M();
+CreateTexBuf();
+LoadFont();
+
+SkillInfo *SkillBuf;
+char *LoadPath;
+
+SkillBuf = SkillInfoBuf();
+LoadPath = AllocPathBuf();
+
 //placeholder stats till i can read files for values in a json or other c file
 Characters Sinner[5] = {{195.0f, 0, 0, 0, 50, 1}, \
                         {195.0f, 0, 0, 0, 50, 1}, \
@@ -54,9 +64,6 @@ SkillInfo EnSkill[5][4] = {{{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, \
                            {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}};
-
-SkillInfo *SkillBuf;
-char *LoadPath;
 
 ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
                                {0, 0, false, false, false, false}, \
@@ -106,12 +113,6 @@ for(int z = 0; z < 3; z++) Time_T[z].InitialTimeMs = osGetTime();
 
 SeedStart();
 Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
-
-InitMain_M();
-CreateTexBuf();
-LoadFont();
-SkillBuf = SkillInfoBuf();
-LoadPath = AllocPathBuf();
 
 while(aptMainLoop()){
 
