@@ -4,7 +4,6 @@
 #include "Text.h"
 
 static C2D_TextBuf dynamBuf;
-static C2D_Font SpeechFont;
 
 /// @brief Creates a text buffer
 void CreateTexBuf()
@@ -153,33 +152,15 @@ int TextWrapper(char *Dialogue)
 /// @brief Manages which line of dialogue to load from the file and format for rendering
 /// @param Line Line of dialogue to load
 /// @param Dialogue Buffer for the dialogue text
-void DialogueManager(u16 *Line, char *Dialogue)
+size_t DialogueManager(u16 *Line, char Dialogue[])
 {
-    static u16 LineToParse = 0;
     FILE *TextLine;
-    char BufText[4096];
-    u16 currentLine = 1;
-    u32 writepos = 0;
 
-    if(LineToParse != *Line) LineToParse = *Line;
-    else return;
-
-    TextLine = fopen("romfs:/Dialogue.txt", "r");
-    fgets(BufText, sizeof(BufText), TextLine);
+    TextLine = fopen("romfs:/Dialogue/Tutorial.txt", "r");
+    for(u16 i = 0; i < *Line + 1; i++) fgets(Dialogue, 256, TextLine);
     fclose(TextLine);
 
-    for(u32 i = 0; BufText[i] != '\0'; i++)
-    {
-        writepos = i;
-        if(currentLine == *Line)break;
-        if(BufText[i] == '\n') currentLine += 1;
-    }
-    for(u32 j = 0; BufText[j] != '\n' || BufText[j] != '\n'; j++)
-    {
-        Dialogue[j] = BufText[writepos];
-        writepos++;
-    }
-    Dialogue[writepos + 1] = '\0';
+    return strlen(Dialogue);
     //TextWrapper(Dialogue);
 }
 
@@ -188,37 +169,46 @@ void DialogueManager(u16 *Line, char *Dialogue)
 /// @param bottom 
 /// @param kDown Keys down this frame
 /// @param Line Dialogue line to draw
+/// @param String Length of the dialogue string read from the dialogue file in the manager
 /// @param ScrollTime Records the time for when to display more characters of the line
 /// @param Dialogue Dialogue text to render
-void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u16 *Line, Time *ScrollTime, char *Dialogue)
+void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char Dialogue[])
 {
     C2D_TextBufClear(dynamBuf);
     static u16 charsToprint = 0;
-    static u16 String = 0;
-    String = strlen(Dialogue);
     C2D_Text DiaTex;
     char DialogueBuff[512];
 
     C2D_SceneBegin(top);
 
+    ScrollTime->CurrentTimeMs = osGetTime();
+    ScrollTime->ElapsedTimeMs = (ScrollTime->CurrentTimeMs - ScrollTime->InitialTimeMs);
+
     snprintf(DialogueBuff, charsToprint, Dialogue);
     C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
     C2D_TextOptimize(&DiaTex);
 
-    if(ScrollTime->ElapsedTimeMs >= 27) //check if  x ms has passed
+    if(ScrollTime->ElapsedTimeMs >= 60) //check if  x ms has passed
     {
-        C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor | C2D_WordWrap, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f), 200.0f);
+        if(charsToprint < String) charsToprint += 1;
+        C2D_DrawText(&DiaTex, C2D_WordWrap, 100.0f, 10.0f, 0.5f, 0.5f, 0.5f, 200.0f);
         ScrollTime->InitialTimeMs = osGetTime();
     }
-    else C2D_DrawText(&DiaTex, C2D_AlignCenter | C2D_WithColor | C2D_WordWrap, 5.0f, 120.0f, 0.5f, 1.0f, 1.0f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f), 200.0f);
+    else C2D_DrawText(&DiaTex, C2D_WordWrap, 100.0f, 10.0f, 0.5f, 0.5f, 0.5f, 200.0f);
 
     if(kDown & KEY_B)
     {
-        if(charsToprint != String)
+        if(charsToprint == String)
+        {
+            memset(Dialogue, 0, 256); //256 - size of dialogue buffer
+            charsToprint = 0;
+            String = 0;
+            *Line += 1; 
+        }
+        else
         {
             charsToprint = String;
         }
-        else Line += 1;
     }
     C2D_SceneBegin(bottom);
 }

@@ -17,7 +17,6 @@
 
 void ExitApp(){
 FreeMain_M();
-FontFree();
 FreeTexBuf();
 gfxExit();
 romfsExit();
@@ -34,7 +33,6 @@ C2D_Prepare();
 
 InitMain_M();
 CreateTexBuf();
-LoadFont();
 
 SkillInfo *SkillBuf;
 char *LoadPath;
@@ -73,6 +71,8 @@ ClashParams SkillPosInfo[5] = {{0, 0, false, false, false, false}, \
 
 float SinStartPos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 
+char DialogueBuff[256];
+
 u8 AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
 u8 EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second dimension is used to find the index for AtkOrder
 u8 SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -81,6 +81,8 @@ u8 SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can 
 u8 EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
 Time Time_T[3] = {0};
+
+size_t DialogueLen = 0;
 
 u32 TurnCount = 1;
 
@@ -268,9 +270,8 @@ switch(MenuPosition){ // In game start
     case Dialogue_eg:
     C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
     C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
-    char DialogueBuff[256];
-    DialogueManager(&DialogueLine , DialogueBuff);
-    TextSceneBegin(top, bottom, kDown, &DialogueLine , &Time_T[TextScroll], DialogueBuff);
+    DialogueLen = DialogueManager(&DialogueLine , DialogueBuff);
+    TextSceneBegin(top, bottom, kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
     break;
 }
     C3D_FrameEnd(0);
