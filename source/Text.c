@@ -92,10 +92,9 @@ void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *Men
 
         if(timeT->ElapsedTimeMs >= 33) //scroll speed, new char every 33ms
         {
-            C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
             timeT->InitialTimeMs = osGetTime();
         }
-        else C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
+        C2D_DrawText(&Scrollingtext, C2D_AlignLeft, 2.0f, 120.0f, 0.5f, 1.0f, 1.0f);
         break;
 
         case MainMen:
@@ -108,46 +107,12 @@ void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *Men
 
         if(timeT->ElapsedTimeMs >= 27) //check if 25ms has passed
         {
-            C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
             timeT->InitialTimeMs = osGetTime();
         }
-        else C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
+        C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
         break;
     }
 }
-
-/*
-/// @brief Wraps text to fit it within the 3ds screen / text box
-/// @param Dialogue String of text to wrap around
-/// @return 
-int TextWrapper(char *Dialogue)
-{
-    u32 currentPos = 0;
-    u32 Track = 0;
-    u16 word = 0;
-
-    for(u32 i = 0; Dialogue[i] != '\0'; i++)
-    {
-        if(Dialogue[i] == ' ')
-        {
-            currentPos = i;
-            while(Dialogue[currentPos + 1] != ' ')
-            {
-                word++;
-                currentPos++;
-                if(Dialogue[currentPos + 1] == '\0') break;
-            }
-            if(Track + word > 48) //to be hardcoded or variable by other functs
-            {
-                Dialogue[i] = '\n';
-                Track = 0;
-            }
-            word = 0;
-        }
-        Track++;
-    }
-    return 0;
-} */
 
 /// @brief Manages which line of dialogue to load from the file and format for rendering
 /// @param Line Line of dialogue to load
@@ -191,10 +156,9 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
     if(ScrollTime->ElapsedTimeMs >= 60) //check if  x ms has passed
     {
         if(charsToprint < String) charsToprint += 1;
-        C2D_DrawText(&DiaTex, C2D_WordWrap, 100.0f, 10.0f, 0.5f, 0.5f, 0.5f, 200.0f);
         ScrollTime->InitialTimeMs = osGetTime();
     }
-    else C2D_DrawText(&DiaTex, C2D_WordWrap, 100.0f, 10.0f, 0.5f, 0.5f, 0.5f, 200.0f);
+    C2D_DrawText(&DiaTex, C2D_WordWrap, 10.0f, 180.0f, 0.65f, 0.65f, 0.5f, 200.0f);
 
     if(kDown & KEY_B)
     {
