@@ -13,12 +13,6 @@ void CreateTexBuf()
     dynamBuf = C2D_TextBufNew(4096);
 }
 
-/// @brief Loads fonts needed
-void LoadFont()
-{
-    SpeechFont = C2D_FontLoad("romfs:/gfx/pretendard-latin-400-normal.bcfnt");
-}
-
 /// @brief Renders the sinner health and sanity to the bottom screen
 /// @param Sinner Sinner info
 void SinnerTex(Characters Sinner[])
@@ -208,7 +202,7 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
     C2D_SceneBegin(top);
 
     snprintf(DialogueBuff, charsToprint, Dialogue);
-    C2D_TextFontParse(&DiaTex, SpeechFont, dynamBuf, DialogueBuff);
+    C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
     C2D_TextOptimize(&DiaTex);
 
     if(ScrollTime->ElapsedTimeMs >= 27) //check if  x ms has passed
@@ -227,12 +221,6 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
         else Line += 1;
     }
     C2D_SceneBegin(bottom);
-}
-
-/// @brief Frees loaded fonts
-void FontFree()
-{
-    C2D_FontFree(SpeechFont);
 }
 
 /// @brief Frees text buffer
