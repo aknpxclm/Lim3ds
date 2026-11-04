@@ -154,13 +154,12 @@ void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
 }
 
 /// @brief This handles the skill animations idle and movement of top screens sprites only
-/// @param top 
 /// @param Time_t Records the time for when sprite need to be changed for animations
 /// @param CurrentSinner Current sinner to render
 /// @param InCombatOrGFX Checks if the idle or skill animations if needed to render
 /// @param AtkOrder Skill rank to be used this turn
 /// @param SinnerPositions Contains positions to render idle sinners at
-void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2])
+void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2])
 {
     static u8 FrameIndexSin[5] = {0};
     static u8 FrameIndexEn[5] = {0};
@@ -172,7 +171,6 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, 
         case 0: //idle
         Time_t->CurrentTimeMs = osGetTime();
         Time_t->ElapsedTimeMs += (Time_t->CurrentTimeMs - Time_t->InitialTimeMs);
-        C2D_SceneBegin(top);
         if(Time_t->ElapsedTimeMs >= GFXRefreshMs)
         {
             Time_t->ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
@@ -198,7 +196,6 @@ void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, 
 
         Time_t->CurrentTimeMs = osGetTime();
         Time_t->ElapsedTimeMs += (Time_t->CurrentTimeMs - Time_t->InitialTimeMs);
-        C2D_SceneBegin(top);
         if(Time_t->ElapsedTimeMs >= GFXRefreshMs)
         {
             Time_t->ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time

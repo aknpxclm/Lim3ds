@@ -33,7 +33,7 @@ void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId);
 void InitEnemySheets();
 void InitCombat_S();
 void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2]);
-void RenderingCombat_S(C3D_RenderTarget *top, Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2]);
+void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2]);
 void DeInitSpriteInfo();
 void FreeSpriteSheets_Combat(u8 *BossOrRegular);
 

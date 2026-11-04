@@ -37,30 +37,33 @@ void InitMain_M()
 }
 
 /// @brief Draws the background of the menus
-/// @param top 
-/// @param bottom 
-/// @param MenuPosition 
+/// @param screen Enum for what screen the function should render
+/// @param MenuPosition Which menu to render
 /// @param TintBG To check if the background should be tinted
-void DrawMain_S(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 MenuPosition, u8 *TintBG)
+void DrawMain_S(gfxScreen_t screen, u8 MenuPosition, u8 *TintBG)
 {
-    C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
-    C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68)); //Looked at NateXS' pong repo for proper usage of the function
-    switch(MenuPosition)
+    switch(screen)
     {
-        case StartMen:
-        C2D_SceneBegin(top);
-        C2D_DrawSprite(&MenuSprites[Loading].spr); //"Loading screen"
+        case GFX_TOP:
+        switch(MenuPosition)
+        {
+            case StartMen:
+            C2D_DrawSprite(&MenuSprites[Loading].spr); //"Loading screen"
+            break;
+
+            case MainMen:
+            if(*TintBG) C2D_DrawSpriteTinted(&MenuSprites[LobbyTop].spr, &DarkenBGtint);
+            else C2D_DrawSprite(&MenuSprites[LobbyTop].spr);
+            break;
+        }
         break;
 
-        case MainMen:
-        C2D_SceneBegin(top);
-        if(*TintBG) C2D_DrawSpriteTinted(&MenuSprites[LobbyTop].spr, &DarkenBGtint);
-        else C2D_DrawSprite(&MenuSprites[LobbyTop].spr);
-        C2D_SceneBegin(bottom);
+        case GFX_BOTTOM:
         if(*TintBG) C2D_DrawSpriteTinted(&MenuSprites[LobbyBot].spr, &DarkenBGtint);
         else C2D_DrawSprite(&MenuSprites[LobbyBot].spr);
         break;
     }
+    
 }
 
 /// @brief Frees the menu spritesheet
@@ -70,8 +73,7 @@ void FreeMain_M()
 }
 
 /// @brief Draws the submenus for stage selects, team selection and the dialogue example
-/// @param top 
-/// @param bottom 
+/// @param screen Enum for what screen the function should render
 /// @param kDown Keys down in a frame
 /// @param kUp Keys up in a frame
 /// @param LoadPath Allocated memory for the path for loading
@@ -83,7 +85,7 @@ void FreeMain_M()
 /// @param MainSubPos 
 /// @param TintBG Flags if the BG should be tinted
 /// @param BossCharInit Flags if a boss stage is being selected
-void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
+void SubMain(gfxScreen_t screen, \
              u32 kDown, u32 kUp, char *LoadPath, \
              SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], Characters Sinner[], \
              u8 *MenuPos, u8 *MainSubPos, u8 *TintBG, u8 *BossCharInit)
@@ -115,6 +117,7 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
         if(kDown & KEY_R && *MainSubPos < 2) *MainSubPos += 1;
         if(kDown & KEY_L && *MainSubPos > 0) *MainSubPos -= 1;
     }
+    
     switch(*MainSubPos)
     {
         case 0: //"Tutorial" / Dialogue showcase
@@ -167,7 +170,9 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
                 }
             }
         }
-            C2D_SceneBegin(top);
+        switch(screen)
+        {
+            case GFX_TOP:
             if(CursorPos == 0) C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.423, 0.423);
             else C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.41, 0.41);
             C2D_SpriteSetPos(&MenuSprites[BattleStageBack].spr, 40, 27);
@@ -177,6 +182,15 @@ void SubMain(C3D_RenderTarget *top, C3D_RenderTarget *bottom, \
             else C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.41, 0.41);
             C2D_SpriteSetPos(&MenuSprites[BattleStageBack].spr, 230, 27);
             C2D_DrawSprite(&MenuSprites[BattleStageBack].spr);
+            break;
+
+            case GFX_BOTTOM:
+            break;
+        }
+            
         break;
     }
 }
+
+
+

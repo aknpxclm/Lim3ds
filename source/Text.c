@@ -4,6 +4,7 @@
 #include "Text.h"
 
 static C2D_TextBuf dynamBuf;
+#define WordWrapLen 500.0f
 
 /// @brief Creates a text buffer
 void CreateTexBuf()
@@ -63,7 +64,7 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
 /// @param MenuPos 
 /// @param MainSubPos 
 /// @param timeT Records time for when more charcters should be shown
-void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *MenuPos, u8 *MainSubPos, Time *timeT)
+void LobbyScrollingText(u8 *MenuPos, u8 *MainSubPos, Time *timeT)
 {
     C2D_TextBufClear(dynamBuf);
     static u16 CharsPrinted = 0;
@@ -98,7 +99,6 @@ void LobbyScrollingText(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u8 *Men
         break;
 
         case MainMen:
-        C2D_SceneBegin(top);
 
         if(CharsPrinted <= strlen(MessageLobbyInfo[*MainSubPos])) CharsPrinted += 1;
         snprintf(LobbyBuf, CharsPrinted, MessageLobbyInfo[*MainSubPos]);
@@ -137,14 +137,12 @@ size_t DialogueManager(u16 *Line, char Dialogue[])
 /// @param String Length of the dialogue string read from the dialogue file in the manager
 /// @param ScrollTime Records the time for when to display more characters of the line
 /// @param Dialogue Dialogue text to render
-void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char Dialogue[])
+void TextSceneBegin(u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char Dialogue[])
 {
     C2D_TextBufClear(dynamBuf);
     static u16 charsToprint = 0;
     C2D_Text DiaTex;
     char DialogueBuff[512];
-
-    C2D_SceneBegin(top);
 
     ScrollTime->CurrentTimeMs = osGetTime();
     ScrollTime->ElapsedTimeMs = (ScrollTime->CurrentTimeMs - ScrollTime->InitialTimeMs);
@@ -158,7 +156,7 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
         if(charsToprint < String) charsToprint += 1;
         ScrollTime->InitialTimeMs = osGetTime();
     }
-    C2D_DrawText(&DiaTex, C2D_WordWrap, 10.0f, 180.0f, 0.65f, 0.65f, 0.5f, 200.0f);
+    C2D_DrawText(&DiaTex, C2D_WordWrap, 10.0f, 180.0f, 0.5f, 0.65f, 0.65f, WordWrapLen);
 
     if(kDown & KEY_B)
     {
@@ -174,7 +172,6 @@ void TextSceneBegin(C3D_RenderTarget *top, C3D_RenderTarget *bottom, u32 kDown, 
             charsToprint = String;
         }
     }
-    C2D_SceneBegin(bottom);
 }
 
 /// @brief Frees text buffer

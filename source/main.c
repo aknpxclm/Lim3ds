@@ -131,29 +131,43 @@ while(aptMainLoop()){
 switch(MenuPosition){ // In game start
 
     case StartMen: //Start screen
-        DrawMain_S(top, bottom, MenuPosition, &TintBG);
-        C2D_SceneBegin(bottom);
-        LobbyScrollingText(top, bottom, &MenuPosition, &MainSubPos, &Time_T[TextScroll]);
         if(kDown) MenuPosition = MainMen;
+        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+        C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
+        C2D_SceneBegin(top);
+        DrawMain_S(GFX_TOP, MenuPosition, &TintBG);
+        C2D_SceneBegin(bottom);
+        LobbyScrollingText(&MenuPosition, &MainSubPos, &Time_T[TextScroll]);
     break;
-
 
     case MainMen: //Main menu
-        DrawMain_S(top, bottom, MenuPosition, &TintBG);
-        SubMain(top, bottom, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, Sinner,&MenuPosition, &MainSubPos, &TintBG, &BossCharInit);
-        LobbyScrollingText(top, bottom, &MenuPosition, &MainSubPos, &Time_T[Input]);
+        C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
+        C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
+        C2D_SceneBegin(top);
+        DrawMain_S(GFX_TOP, MenuPosition, &TintBG);
+        SubMain(GFX_TOP, kDown, kUp, LoadPath, SkillBuf, SinSkill, EnSkill, Sinner,&MenuPosition, &MainSubPos, &TintBG, &BossCharInit);
+        LobbyScrollingText(&MenuPosition, &MainSubPos, &Time_T[Input]);
+        C2D_SceneBegin(bottom);
+        DrawMain_S(GFX_BOTTOM, MenuPosition, &TintBG);
     break;
-       
     
     case CombatMen: //Combat select area
-        C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68)); //clrClear from 3ds examples
-        C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
-    //(Should Draw / Make menu) - unfinished
-    if(InCombatOrGFX == 0)
-    {
+    C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68)); //clrClear from 3ds examples
+    C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
+
+    C2D_SceneBegin(top);
+
+    switch(InCombatOrGFX){
+
+        case GFX: //idle animations & skill select
         if(CreatedSkillStores == false)
         {
             CreatedSkillStores = CreateSkillStores(SkillOptions, EnSkillOrder, BufferSkill, SkillList, TurnCount); //true if completed
+        }
+        if(kDown & KEY_L && CreatedSkillStores == true && InCombatOrGFX == 0) //Prevent abrupt cancels
+        {
+            InCombatOrGFX = Combat;
+            DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPosInfo);
         }
 
         if(kDown & KEY_TOUCH)
@@ -187,17 +201,7 @@ switch(MenuPosition){ // In game start
             EnemySlot = NOTSELECTED;
         }
 
-        if(kDown & KEY_L && CreatedSkillStores == true && InCombatOrGFX == 0) //Prevent abrupt cancels
-        {
-            InCombatOrGFX = Combat;
-            DetermineClashAtkType(AttackOrder, EnSkillOrder, SkillPosInfo);
-        }
-    }
-
-    switch(InCombatOrGFX){
-
-        case GFX: //idle animations
-        RenderingCombat_S(top, &Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
+        RenderingCombat_S(&Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
         break;
 
         case Combat: // Turn Running loop -> Clashing
@@ -240,7 +244,7 @@ switch(MenuPosition){ // In game start
         break;
 
         case CombatGFX: //GFX of the clash and combat
-        RenderingCombat_S(top, &Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
+        RenderingCombat_S(&Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
         break;
 
     }
@@ -271,7 +275,9 @@ switch(MenuPosition){ // In game start
     C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
     C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
     DialogueLen = DialogueManager(&DialogueLine , DialogueBuff);
-    TextSceneBegin(top, bottom, kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
+    C2D_SceneBegin(top);
+    TextSceneBegin(kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
+    C2D_SceneBegin(bottom);
     break;
 }
     C3D_FrameEnd(0);
