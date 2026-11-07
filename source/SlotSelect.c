@@ -134,7 +134,7 @@ void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, ClashParams Sinner[])
 /// @brief Checks if the touch pad was pressed on the bottom area toggling the defensive skill use
 /// @param TOUCHx x position that the touchscreen was pressed at
 /// @param TOUCHy y position that the touchscreen was pressed at
-/// @return enables the use of a defensive skill
+/// @return Enables the use of a defensive skill
 bool ToggleDefenceCheck(u32 TOUCHx, u32 TOUCHy)
 {
     // x & y are assuming that the hidtouch function are based on pixel coordinates

@@ -80,7 +80,7 @@ u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
 /// @brief Generates a seed
 void SeedStart()
 {
-srand(time(NULL));
+    srand(time(NULL));
 }
 
 /// @brief Clamps sanity between 5 and 95, displayed as -45 to 45
@@ -88,14 +88,14 @@ srand(time(NULL));
 /// @return Clamped sanity value
 u8 LimitSanity(u8 *Sanity)
 {
-if(*Sanity > 95){
-    return 95;
-}
-else if(*Sanity < 5){
-    return 5;
-}
-else return *Sanity;
-//return *Sanity * ((*Sanity < 95) & (*Sanity > 5)) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
+    if(*Sanity > 95){
+        return 95;
+    }
+    else if(*Sanity < 5){
+        return 5;
+    }
+    else return *Sanity;
+    //return *Sanity * ((*Sanity < 95) & (*Sanity > 5)) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
 }
 //Returns a random index from 0 - 5 to swap a skill rank to
 int Form_or_Select_Random_Skill(){
@@ -106,18 +106,18 @@ int Form_or_Select_Random_Skill(){
 /// @param SkillList Pool of skill ranks that can be collected from
 void Rearrange_SkillPool(u8 SkillList[])
 {
-/*index 0 represents one value in SkillList
-index 1 represents another value 
-index 2 represents a random index of SkillList to swap to*/
-int Swap[3] = {0, 0, 0};
+    /*index 0 represents one value in SkillList
+    index 1 represents another value 
+    index 2 represents a random index of SkillList to swap to*/
+    int Swap[3] = {0, 0, 0};
 
-for(int j = 0; j < 6; j++){
-    Swap[0] = SkillList[j];
-    Swap[2] = Form_or_Select_Random_Skill();
-    Swap[1] = SkillList[Swap[2]];
-    SkillList[j] = Swap[1];
-    SkillList[Swap[2]] = Swap[0];
-}
+    for(int j = 0; j < 6; j++){
+        Swap[0] = SkillList[j];
+        Swap[2] = Form_or_Select_Random_Skill();
+        Swap[1] = SkillList[Swap[2]];
+        SkillList[j] = Swap[1];
+        SkillList[Swap[2]] = Swap[0];
+    }
 }
 
 /// @brief Move skills down the selction area when a skill is used
@@ -126,21 +126,34 @@ for(int j = 0; j < 6; j++){
 /// @param SkillList Pool to take a skill rank from
 void ShiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[])
 {
-u8 TopRowSkill = 0;
-u8 BufferSkillnum = 0;
+    u8 TopRowSkill = 0;
+    u8 BufferSkillnum = 0;
 
-//9 == NOTSELECTED macro
-for(int i = 0; i < 5; i++){
-    TopRowSkill = SkillOptions[i][1];
-    BufferSkillnum = BufferSkill[i];
+    //9 == NOTSELECTED macro
+    for(int i = 0; i < 5; i++){
+        TopRowSkill = SkillOptions[i][1];
+        BufferSkillnum = BufferSkill[i];
 
-    if(SkillOptions[i][0] == 9){ //Bottom row skill used
-        SkillOptions[i][0] = TopRowSkill;
-        SkillOptions[i][1] = BufferSkillnum;
+        if(SkillOptions[i][0] == 9){ //Bottom row skill used
+            SkillOptions[i][0] = TopRowSkill;
+            SkillOptions[i][1] = BufferSkillnum;
+        }
+        else if(SkillOptions[i][1] == 9){ //Top row skill used
+            SkillOptions[i][1] = BufferSkillnum;
+        }
+        BufferSkill[i] = SkillList[Form_or_Select_Random_Skill()]; //generate a new skill rank in the buffer
     }
-    else if(SkillOptions[i][1] == 9){ //Top row skill used
-        SkillOptions[i][1] = BufferSkillnum;
-    }
-    BufferSkill[i] = SkillList[Form_or_Select_Random_Skill()]; //generate a new skill rank in the buffer
 }
+
+/// @brief Checks if all slots are targeting
+/// @param AttackOrder The slots and what they are targeting
+/// @return 0 if all are targeting
+u8 CheckAllSlotsAreUsed(u8 AttackOrder[][2])
+{
+    for(u8 i = 0; i < 5; i++)
+    {
+        if(AttackOrder[i][1] == 9 /*9 == NOTSELECTED macro*/) return 1;
+    }
+
+    return 0;
 }

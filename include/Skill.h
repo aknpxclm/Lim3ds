@@ -12,5 +12,6 @@ void SeedStart();
 int Form_or_Select_Random_Skill();
 void Rearrange_SkillPool(u8 SkillList[]);
 void ShiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[]);
+u8 CheckAllSlotsAreUsed(u8 AttackOrder[][2]);
 
 #endif

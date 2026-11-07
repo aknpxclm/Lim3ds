@@ -81,7 +81,7 @@ bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkil
 
 /// @brief Sets up a boss and thier skills
 /// @param Enskill SkillInfo struct to copy info across
-/// @param IsBoss
+/// @param IsBoss Bool for if a boss
 void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
 {
     if(IsBoss == 1){
@@ -101,7 +101,7 @@ void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
     }
 }
 
-/// @brief 
+/// @brief Based on defence type use specific function to calculate damage
 /// @param Sinner Sinner character struct
 /// @param SinSkill Sinner defence skill type and coin info
 /// @param Enemy Enemy character struct

@@ -3,8 +3,9 @@
 #include "Sinner_Enemy_defin.h"
 #include "Text.h"
 
-static C2D_TextBuf dynamBuf;
 #define WordWrapLen 500.0f
+
+static C2D_TextBuf dynamBuf;
 
 /// @brief Creates a text buffer
 void CreateTexBuf()
@@ -59,12 +60,10 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
 }
 
 /// @brief Draws text to help understand each submenu and also scrolls showing more characters over time
-/// @param top 
-/// @param bottom 
 /// @param MenuPos 
 /// @param MainSubPos 
 /// @param timeT Records time for when more charcters should be shown
-void LobbyScrollingText(u8 *MenuPos, u8 *MainSubPos, Time *timeT)
+void LobbyScrollingText(u8 MenuPos, u8 *MainSubPos, Time *timeT)
 {
     C2D_TextBufClear(dynamBuf);
     static u16 CharsPrinted = 0;
@@ -83,7 +82,7 @@ void LobbyScrollingText(u8 *MenuPos, u8 *MainSubPos, Time *timeT)
         CharsPrinted = 0;
     }
 
-    switch(*MenuPos)
+    switch(MenuPos)
     {
         case StartMen:
         if(CharsPrinted <= strlen(MessageStart)) CharsPrinted += 1;
@@ -130,8 +129,6 @@ size_t DialogueManager(u16 *Line, char Dialogue[])
 }
 
 /// @brief Draws dialogue to the screen
-/// @param top 
-/// @param bottom 
 /// @param kDown Keys down this frame
 /// @param Line Dialogue line to draw
 /// @param String Length of the dialogue string read from the dialogue file in the manager
@@ -172,6 +169,47 @@ void TextSceneBegin(u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char 
             charsToprint = String;
         }
     }
+}
+
+/// @brief Flags the first error found to be rendered
+/// @param Flags Bit flag store
+/// @return Error number to print
+u8 RaiseTurnstartErrorFlag(u8 *Flags)
+{
+    u8 Error_t = 0;
+
+    for(Error_t; Error_t < 8; Error_t++)
+    {
+        if((*Flags >> Error_t & 1U) == 1)
+        {
+            *Flags = *Flags ^ (1U << Error_t); //remove flag
+            goto end;
+        }
+    }
+    end:
+    return Error_t + 1;
+}
+
+/// @brief Prints any errors that prevent turnstart
+/// @param Flag Error to print
+/// @param timeT Records time
+void TurnStartErrResponce(u8 *Flag, Time *timeT)
+{
+    char Text[2][64] = {"Currently preparing combat please try again", "Not all skills are selected, please select an unused skill"};
+
+    timeT->CurrentTimeMs = osGetTime();
+    timeT->ElapsedTimeMs = (timeT->CurrentTimeMs - timeT->InitialTimeMs);
+
+    if(timeT->ElapsedTimeMs <= 200 && *Flag != 0)
+    {
+        timeT->InitialTimeMs = osGetTime();
+        C2D_Text Error;
+        C2D_TextParse(&Error, dynamBuf, Text[*Flag - 1]);
+        C2D_TextOptimize(&Error);
+        C2D_DrawText(&Error, C2D_WordWrap, 5.0f, 120.0f, 0.5f, 0.5f, 0.5f, 300.0f);
+        C2D_TextBufClear(dynamBuf);
+    }
+    else *Flag = 0;
 }
 
 /// @brief Frees text buffer

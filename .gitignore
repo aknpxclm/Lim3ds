@@ -1,6 +1,7 @@
 .vscode/
 build/
 romfs/gfx
+gfx/
 
 *.d
 

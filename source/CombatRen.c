@@ -11,7 +11,22 @@
 static CharSprites SinnerSpr[5];
 static CharSprites *EnemySpr;
 
-static const u64 GFXRefreshMs = 33/*ms*/; //refresh graphics 30 times a second for 30fps
+static const u64 GFXRefreshMs = 33U/*ms*/; //refresh graphics 30 times a second for 30fps
+
+/// @brief Check if any sinner ids are the same, if there are any reject turnstart
+/// @param Sinners 
+/// @return 0 if none have th same id
+u8 CheckSinnerID(Characters Sinners[])
+{
+    for(u8 i = 0; i < 5; i++)
+    {
+        for(u8 j = 0; j < 5; j++)
+        {
+            if(Sinners[i].Char_ID == Sinners[j].Char_ID) return 1;
+        }
+    }
+    return 0;
+}
 
 /// @brief Loads SpriteSheets of different Ids onto a Sinner Sprite Object
 /// @param SinnerToloadOn Which Sinner struct to load a sheet onto
@@ -168,7 +183,7 @@ void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 A
 
     switch(*InCombatOrGFX)
     {
-        case 0: //idle
+        case GFX: //idle
         Time_t->CurrentTimeMs = osGetTime();
         Time_t->ElapsedTimeMs += (Time_t->CurrentTimeMs - Time_t->InitialTimeMs);
         if(Time_t->ElapsedTimeMs >= GFXRefreshMs)
@@ -191,7 +206,7 @@ void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 A
         }
         break;
 
-        case 2:
+        case CombatGFX:
         //SkillSprites = C2D_SpriteSheetCount(/*NO SKILL SHEETS YET*/); load winning character's sprite animation
 
         Time_t->CurrentTimeMs = osGetTime();
@@ -200,17 +215,18 @@ void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 A
         {
             Time_t->ElapsedTimeMs -= GFXRefreshMs; //reset elapsed time
             //draw current frame index of the animation
-            if(FrameIndexSin[0] != SinnerSpr[*CurrentSinner].Frame.SkillUsed) FrameIndexSin[0] += 1;
+            if(FrameIndexSin[*CurrentSinner] != SinnerSpr[*CurrentSinner].Frame.SkillUsed) FrameIndexSin[*CurrentSinner] += 1;
             Time_t->InitialTimeMs = osGetTime(); //set new initial time
         }
         else
         {
             //draw current frame index of the animation
         }
-        if(FrameIndexSin[0] == SinnerSpr[*CurrentSinner].Frame.SkillUsed){
+        if(FrameIndexSin[*CurrentSinner] == SinnerSpr[*CurrentSinner].Frame.SkillUsed){
             FrameIndexSin[*CurrentSinner] = 0;
-            *InCombatOrGFX = 1; //do next clash
-            *CurrentSinner += 1; //cycle through each sinner and clashing or going unopposed then go to the next one. Does this 5 times
+            //do next clash for the next sinner
+            *InCombatOrGFX = Combat;
+            *CurrentSinner += 1;
         }
         break;
 

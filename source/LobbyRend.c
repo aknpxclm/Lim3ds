@@ -95,16 +95,17 @@ void SubMain(gfxScreen_t screen, \
     static u16 IdToload = 0;
     static u16 TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)
 
-    static u64 Init_A_PressMs = 0;
-    static u64 NextaPressMs = 0;
-    const u64 PressDelayMs = 20;
+    static Time InputTime = {0, 0, 20};
+    // Time when KEY_A was pressed to enter menu selection
+    // Time when KEY_A was pressed to select options within a menu
+    // 20 - Delay
 
     if(kDown & KEY_A && !UserInDeepSelect)
     {
         UserInDeepSelect = true;
         CursorPos = 0;
         if(*MainSubPos == 2) *TintBG = 1;
-        Init_A_PressMs = osGetTime();
+        InputTime.InitialTimeMs = osGetTime();
     }
     if(kDown & KEY_B)
     {
@@ -151,8 +152,8 @@ void SubMain(gfxScreen_t screen, \
             if(kDown & KEY_DLEFT && CursorPos > 0) CursorPos -= 1;
             if(kDown & KEY_A )
             {
-                NextaPressMs = osGetTime(); //delay between entering deep select and combat
-                if(NextaPressMs > Init_A_PressMs + PressDelayMs)
+                InputTime.CurrentTimeMs = osGetTime(); //delay between entering deep select and combat
+                if(InputTime.CurrentTimeMs > InputTime.InitialTimeMs + InputTime.ElapsedTimeMs)
                 {
                     *BossCharInit = CursorPos;
                     switch(CursorPos)

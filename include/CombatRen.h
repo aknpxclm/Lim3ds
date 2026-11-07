@@ -29,6 +29,7 @@ typedef struct
     u8 SkillThree[2];
 }CharSprites;
 
+u8 CheckSinnerID(Characters Sinners[]);
 void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId);
 void InitEnemySheets();
 void InitCombat_S();
