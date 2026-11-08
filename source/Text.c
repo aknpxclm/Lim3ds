@@ -74,7 +74,7 @@ void LobbyScrollingText(u8 MenuPos, u8 *MainSubPos, Time *timeT)
     C2D_Text Scrollingtext;
 
     timeT->CurrentTimeMs = osGetTime();
-    timeT->ElapsedTimeMs = (timeT->CurrentTimeMs - timeT->InitialTimeMs);
+    timeT->ElapsedTimeMs += (timeT->CurrentTimeMs - timeT->InitialTimeMs);
 
     if(currentmenu != *MainSubPos)
     {
@@ -142,7 +142,7 @@ void TextSceneBegin(u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char 
     char DialogueBuff[512];
 
     ScrollTime->CurrentTimeMs = osGetTime();
-    ScrollTime->ElapsedTimeMs = (ScrollTime->CurrentTimeMs - ScrollTime->InitialTimeMs);
+    ScrollTime->ElapsedTimeMs += (ScrollTime->CurrentTimeMs - ScrollTime->InitialTimeMs);
 
     snprintf(DialogueBuff, charsToprint, Dialogue);
     C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
@@ -178,11 +178,12 @@ u8 RaiseTurnstartErrorFlag(u8 *Flags)
 {
     u8 Error_t = 0;
 
-    for(Error_t; Error_t < 8; Error_t++)
+    for(u8 i = 0; i < 8; i++)
     {
-        if((*Flags >> Error_t & 1U) == 1)
+        Error_t = i;
+        if((*Flags >> i & 1U) == 1)
         {
-            *Flags = *Flags ^ (1U << Error_t); //remove flag
+            *Flags = *Flags ^ (1U << i); //remove flag
             goto end;
         }
     }
@@ -198,7 +199,7 @@ void TurnStartErrResponce(u8 *Flag, Time *timeT)
     char Text[2][64] = {"Currently preparing combat please try again", "Not all skills are selected, please select an unused skill"};
 
     timeT->CurrentTimeMs = osGetTime();
-    timeT->ElapsedTimeMs = (timeT->CurrentTimeMs - timeT->InitialTimeMs);
+    timeT->ElapsedTimeMs += (timeT->CurrentTimeMs - timeT->InitialTimeMs);
 
     if(timeT->ElapsedTimeMs <= 200 && *Flag != 0)
     {

@@ -9,8 +9,8 @@
 
 int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsanity);
 void UnopposedAtk(Characters *Attack, Characters *Oppo);
-bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount);
-void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss);
-void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, u8 *EvadeResult);
+bool CreateSkillStores(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount);
+void SetUpBoss(Characters *Enemy, u8 IsBoss);
+void DefenceAgainstAtk(Characters *Sinner, Characters *Enemy, u8 *EvadeResult);
 
 #endif

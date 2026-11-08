@@ -10,15 +10,6 @@ enum Rendering{ GFX = 0, Combat, CombatGFX };
 
 enum Msprites{ Loading = 0, LobbyTop, LobbyBot, BattleStageBack};
 
-typedef struct {
-float Health;
-u8 coins;
-u8 Skillbase;
-s8 SkillcoinPow;
-u8 Sanity;
-u32 Char_ID; //id of the identity of sinner or enemy identifier
-}Characters;
-
 typedef struct Skill{
 u8 coins;
 u8 Skillbase;
@@ -33,6 +24,17 @@ bool IsClashing;   //sinner is clashing a skill
 bool IsUnclashed;  //Based on if the enemy is clashing the current sinner's skill
 bool UseDefence;
 }ClashParams;
+
+typedef struct {
+float Health;
+u8 coins;
+u8 Skillbase;
+s8 SkillcoinPow;
+u8 Sanity;
+u32 Char_ID; //id of the identity of sinner or enemy identifier
+SkillInfo Skill[4]; //Skill info for each sinner's skill ranks, for the fourth array for each sinner it uses {defence type, base, coinPow}
+ClashParams SlotParams;
+}Characters;
 
 typedef struct
 {

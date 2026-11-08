@@ -61,7 +61,7 @@ void UnopposedAtk(Characters *Attack, Characters *Oppo)
 /// @param SkillList The two options of skill ranks for the player to choose
 /// @param TurnCount Current turn combat is on
 /// @return True if successfully completed
-bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount)
+bool CreateSkillStores(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount)
 {
     if(TurnCount == 1){
         for(int i = 0; i < 5/*Amount of sinners*/; i++){
@@ -73,29 +73,26 @@ bool CreateSkillStores(u8 SkillOptions[][2], u8 EnSkillOrder[][2], u8 BufferSkil
     for(int k = 0; k < 5; k++){
         BufferSkill[k] = SkillList[Form_or_Select_Random_Skill()];
     }
-    for(int l = 0; l < 5; l++){
-        EnSkillOrder[l][0] = SkillList[Form_or_Select_Random_Skill()];
-    }
     return true; //Completed sucessfully
 }
 
 /// @brief Sets up a boss and thier skills
 /// @param Enskill SkillInfo struct to copy info across
 /// @param IsBoss Bool for if a boss
-void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
+void SetUpBoss(Characters *Enemy, u8 IsBoss)
 {
     if(IsBoss == 1){
         int coin = 0;
         int base = 0;
         int coinpow = 0;
-        for(int i = 0; i < 3; i++){
-            coin = Enskill[0][i].coins;
-            base = Enskill[0][i].Skillbase;
-            coinpow = Enskill[0][i].SkillcoinPow;
+        for(int i = 0; i < 4; i++){
+            coin = Enemy[0].Skill[i].coins;
+            base = Enemy[0].Skill[i].Skillbase;
+            coinpow = Enemy[0].Skill[i].SkillcoinPow;
             for(int j = 1; j < 5; j++){
-                Enskill[j][i].coins = coin;
-                Enskill[j][i].Skillbase = base;
-                Enskill[j][i].SkillcoinPow = coinpow;
+                Enemy[j].Skill[i].coins = coin;
+                Enemy[j].Skill[i].Skillbase = base;
+                Enemy[j].Skill[i].SkillcoinPow = coinpow;
             }
         }
     }
@@ -103,19 +100,18 @@ void SetUpBoss(SkillInfo Enskill[][4], u8 IsBoss)
 
 /// @brief Based on defence type use specific function to calculate damage
 /// @param Sinner Sinner character struct
-/// @param SinSkill Sinner defence skill type and coin info
 /// @param Enemy Enemy character struct
 /// @param EvadeResult Check when an evade fails to render it in another function
-void DefenceAgainstAtk(Characters *Sinner, SkillInfo *SinSkill, Characters *Enemy, u8 *EvadeResult)
+void DefenceAgainstAtk(Characters *Sinner, Characters *Enemy, u8 *EvadeResult)
 {
-    switch(SinSkill->coins) //defence type of fourth column fir each sinner
+    switch(Sinner->Skill[3].coins) //defence type of fourth column fir each sinner
     {
         case Guard:
         Sinner->Health -= GuardDmgDealt(Sinner, Enemy);
         break;
 
         case ClashGuard:
-        Sinner->Health -= (float)( (1.0f - (float)(ClashValue(SinSkill->Skillbase, 1, SinSkill->SkillcoinPow, Sinner->Sanity) * 0.01)) * Damagedealt(Enemy, 0) ); //reduce dmg by a percentage
+        Sinner->Health -= (float)( (1.0f - (float)(ClashValue(Sinner->Skill[3].Skillbase, 1, Sinner->Skill[3].SkillcoinPow, Sinner->Sanity) * 0.01)) * Damagedealt(Enemy, 0) ); //reduce dmg by a percentage
         break;
 
         case Evade:

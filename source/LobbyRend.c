@@ -14,6 +14,9 @@ static Sprite MenuSprites[20];
 
 static C2D_ImageTint DarkenBGtint;
 
+static char *LoadPath;
+static SkillInfo *SkillBuf;
+
 /// @brief Initialises the Menu sprites from a spritesheet and tints for the background
 void InitMain_M()
 {
@@ -34,6 +37,9 @@ void InitMain_M()
         C2D_SpriteSetScale(&Menusprite->spr, 1/*X scale*/, 1/*Y scale*/);
     }
     C2D_SpriteSetPos(&MenuSprites[LobbyBot].spr, -10, 20); //set bottom lobby png pos
+
+    LoadPath = AllocPathBuf();
+    SkillBuf = SkillInfoBuf();
 }
 
 /// @brief Draws the background of the menus
@@ -63,13 +69,6 @@ void DrawMain_S(gfxScreen_t screen, u8 MenuPosition, u8 *TintBG)
         else C2D_DrawSprite(&MenuSprites[LobbyBot].spr);
         break;
     }
-    
-}
-
-/// @brief Frees the menu spritesheet
-void FreeMain_M()
-{
-    C2D_SpriteSheetFree(menuSpriteSheet);
 }
 
 /// @brief Draws the submenus for stage selects, team selection and the dialogue example
@@ -78,17 +77,13 @@ void FreeMain_M()
 /// @param kUp Keys up in a frame
 /// @param LoadPath Allocated memory for the path for loading
 /// @param SkillBuf SkillInfo buffer for sinner loading
-/// @param SinSkill Sinner Skill info
-/// @param Enskill Enemy skill info
 /// @param Sinner Sinner character struct
+/// @param Enemy Enemy character struct
 /// @param MenuPos 
 /// @param MainSubPos 
 /// @param TintBG Flags if the BG should be tinted
 /// @param BossCharInit Flags if a boss stage is being selected
-void SubMain(gfxScreen_t screen, \
-             u32 kDown, u32 kUp, char *LoadPath, \
-             SkillInfo *SkillBuf, SkillInfo SinSkill[][4], SkillInfo Enskill[][4], Characters Sinner[], \
-             u8 *MenuPos, u8 *MainSubPos, u8 *TintBG, u8 *BossCharInit)
+void SubMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *MenuPos, u8 *MainSubPos, u8 *TintBG, u8 *BossCharInit)
 {
     static bool UserInDeepSelect = false;
     static u8 CursorPos = 0;
@@ -138,7 +133,7 @@ void SubMain(gfxScreen_t screen, \
                 Sinner[CursorPos].Char_ID = IdToload; //set Identity id num
                 CharIdPath(IdToload, LoadPath);
                 LoadSinInfo(SkillBuf, LoadPath);
-                PassInSkillInfo(SinSkill, SkillBuf, CursorPos);
+                PassInSkillInfo(Sinner[CursorPos].Skill, SkillBuf);
                 LoadSinnerSheet(CursorPos, IdToload);
                 IdToload = 0;
             }
@@ -162,7 +157,7 @@ void SubMain(gfxScreen_t screen, \
                         break;
 
                         case 1:
-                        SetUpBoss(Enskill, *BossCharInit);
+                        SetUpBoss(Enemy, *BossCharInit);
                         InitEnemySheets();
                         *MenuPos = CombatMen;
                         FreeMain_M();
@@ -171,27 +166,24 @@ void SubMain(gfxScreen_t screen, \
                 }
             }
         }
-        switch(screen)
-        {
-            case GFX_TOP:
-            if(CursorPos == 0) C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.423, 0.423);
-            else C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.41, 0.41);
-            C2D_SpriteSetPos(&MenuSprites[BattleStageBack].spr, 40, 27);
-            C2D_DrawSprite(&MenuSprites[BattleStageBack].spr);
+        if(CursorPos == 0) C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.423, 0.423);
+        else C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.41, 0.41);
+        C2D_SpriteSetPos(&MenuSprites[BattleStageBack].spr, 40, 27);
+        C2D_DrawSprite(&MenuSprites[BattleStageBack].spr);
 
-            if(CursorPos == 1) C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.423, 0.423);
-            else C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.41, 0.41);
-            C2D_SpriteSetPos(&MenuSprites[BattleStageBack].spr, 230, 27);
-            C2D_DrawSprite(&MenuSprites[BattleStageBack].spr);
-            break;
-
-            case GFX_BOTTOM:
-            break;
-        }
-            
+        if(CursorPos == 1) C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.423, 0.423);
+        else C2D_SpriteSetScale(&MenuSprites[BattleStageBack].spr, 0.41, 0.41);
+        C2D_SpriteSetPos(&MenuSprites[BattleStageBack].spr, 230, 27);
+        C2D_DrawSprite(&MenuSprites[BattleStageBack].spr);
         break;
     }
 }
 
+/// @brief Frees the menu spritesheet
+void FreeMain_M()
+{
+    C2D_SpriteSheetFree(menuSpriteSheet);
+    FreeSkillFileInfo(LoadPath, SkillBuf);
+}
 
 

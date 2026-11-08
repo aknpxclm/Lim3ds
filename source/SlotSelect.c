@@ -25,37 +25,37 @@ enum slot
 /// @brief Sets variables in a struct depending on what type of attack will happen
 /// @param AtkOrder Sinner skills and which slot they are targeting
 /// @param EnSklOrder Enemy skills and which slot they are targeting
-/// @param SkillPosInfo Checks the info of the sinner skills and where they are targeting and if they will clash and why
-void DetermineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], ClashParams SkillPosInfo[])
+/// @param SkillPosInfo Checks the info of the sinner skills and where they are targeting and if they will clash and why, within the character struct
+void DetermineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], Characters *Sinners)
 {
     for(int Slot = 0; Slot < 5; Slot++)
     {
         if(AtkOrder[Slot][1] == EnSklOrder[Slot][1]) //if the slots are targeting each other they clash
         {
-            SkillPosInfo[Slot].SlotAppeared = true; // skill is targeting a slot
-            SkillPosInfo[Slot].IsClashing = true;
-            SkillPosInfo[Slot].SkillClashing = AtkOrder[Slot][1]; //record what skill slot was targeted
+            Sinners[Slot].SlotParams.SlotAppeared = true; // skill is targeting a slot
+            Sinners[Slot].SlotParams.IsClashing = true;
+            Sinners[Slot].SlotParams.SkillClashing = AtkOrder[Slot][1]; //record what skill slot was targeted
         }
         //check if skill is going unopposed while another skill clashes the same slot
-        if(SkillPosInfo[AtkOrder[Slot][1]].SlotAppeared == true && Slot != 0)
+        if(Sinners[AtkOrder[Slot][1]].SlotParams.SlotAppeared == true && Slot != 0)
         {
             //Check if other skill has the higher pirority and remove them from clashing if it is lower
-            if(SkillPosInfo[Slot].Priority > SkillPosInfo[AtkOrder[Slot][1]].Priority)
+            if(Sinners[Slot].SlotParams.Priority > Sinners[AtkOrder[Slot][1]].SlotParams.Priority)
             {
-                SkillPosInfo[AtkOrder[Slot][1]].IsClashing = false;
+                Sinners[AtkOrder[Slot][1]].SlotParams.IsClashing = false;
             }
-            if(SkillPosInfo[Slot].IsClashing)
+            if(Sinners[Slot].SlotParams.IsClashing)
             {
-                SkillPosInfo[AtkOrder[Slot][1]].IsClashing = false;
+                Sinners[AtkOrder[Slot][1]].SlotParams.IsClashing = false;
             }
             // reset check bool
-            SkillPosInfo[AtkOrder[Slot][1]].SlotAppeared = false;
+            Sinners[AtkOrder[Slot][1]].SlotParams.SlotAppeared = false;
         }
         //check if enemy attacks wil go unopposed, no sinner is clashing the slot
         for(int i = 0; i < 5; i++)
         {
-            if(EnSklOrder[Slot][1] != AtkOrder[i][1]) SkillPosInfo[Slot].IsUnclashed = true;
-            else SkillPosInfo[Slot].IsUnclashed = false; //safeguard
+            if(EnSklOrder[Slot][1] != AtkOrder[i][1]) Sinners[Slot].SlotParams.IsUnclashed = true;
+            else Sinners[Slot].SlotParams.IsUnclashed = false; //safeguard
         }
     }
 }
@@ -121,14 +121,14 @@ u8 CursorToEN_Skill(u32 TOUCHx, u32 TOUCHy)
 /// @param TOUCHx x position that the touchscreen was pressed at
 /// @param TOUCHy y position that the touchscreen was pressed at
 /// @param Sinner Sinner Clashparam to check if the defensive skill should be used
-void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, ClashParams Sinner[])
+void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, Characters *Sinner)
 {
     //toggles the bool value that checks if a sinner is using a defence skill
-    if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[0].UseDefence = !Sinner[0].UseDefence;
-    else if(TOUCHx <= LOWERxSLOTPOS(SlotTwo) && TOUCHx >= LOWERxSLOTPOS(SlotTwo) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[1].UseDefence = !Sinner[1].UseDefence;
-    else if(TOUCHx <= LOWERxSLOTPOS(SlotTree) && TOUCHx >= LOWERxSLOTPOS(SlotTree) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[2].UseDefence = !Sinner[2].UseDefence;
-    else if(TOUCHx <= LOWERxSLOTPOS(SlotFour) && TOUCHx >= LOWERxSLOTPOS(SlotFour) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[3].UseDefence = !Sinner[3].UseDefence;
-    else if(TOUCHx <= LOWERxSLOTPOS(SlotFive) && TOUCHx >= LOWERxSLOTPOS(SlotFive) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[4].UseDefence = !Sinner[4].UseDefence;
+    if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[0].SlotParams.UseDefence = !Sinner[0].SlotParams.UseDefence;
+    else if(TOUCHx <= LOWERxSLOTPOS(SlotTwo) && TOUCHx >= LOWERxSLOTPOS(SlotTwo) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[1].SlotParams.UseDefence = !Sinner[1].SlotParams.UseDefence;
+    else if(TOUCHx <= LOWERxSLOTPOS(SlotTree) && TOUCHx >= LOWERxSLOTPOS(SlotTree) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[2].SlotParams.UseDefence = !Sinner[2].SlotParams.UseDefence;
+    else if(TOUCHx <= LOWERxSLOTPOS(SlotFour) && TOUCHx >= LOWERxSLOTPOS(SlotFour) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[3].SlotParams.UseDefence = !Sinner[3].SlotParams.UseDefence;
+    else if(TOUCHx <= LOWERxSLOTPOS(SlotFive) && TOUCHx >= LOWERxSLOTPOS(SlotFive) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[4].SlotParams.UseDefence = !Sinner[4].SlotParams.UseDefence;
 }
 
 /// @brief Checks if the touch pad was pressed on the bottom area toggling the defensive skill use

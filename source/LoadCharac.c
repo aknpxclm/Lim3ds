@@ -48,7 +48,7 @@ void CharIdPath(u16 SinId, char *Path)
     switch(SinId) //add path to Id skill file
     {
         case 1:
-        strncat(Path, "IshCap.bin", MaxLen); 
+        strncat(Path, "romfs:/LimChars/IshCap.bin", MaxLen); 
         break;
     }
 }
@@ -77,13 +77,13 @@ void LoadSinInfo(SkillInfo *Sinners_Skills, char *Path)
 /// @param Sinner Character struct array of the Sinners
 /// @param SkillBuf Skill buffer containing the Id info
 /// @param LoadOnSin Sinner struct to the load the info on
-void PassInSkillInfo(SkillInfo Sinner[][Array_Column_Len], SkillInfo *SkillBuf, u8 LoadOnSin)
+void PassInSkillInfo(SkillInfo *Skill, SkillInfo *SkillBuf)
 {
     for(int i = 0; i < Array_Column_Len; i++)
     {
-        Sinner[LoadOnSin][i].coins = SkillBuf[i].coins; //can represent the type of defence skill in the fourth array for each sinner
-        Sinner[LoadOnSin][i].Skillbase = SkillBuf[i].Skillbase;
-        Sinner[LoadOnSin][i].SkillcoinPow = SkillBuf[i].SkillcoinPow;
+        Skill[i].coins = SkillBuf[i].coins; //can represent the type of defence skill in the fourth array for each sinner
+        Skill[i].Skillbase = SkillBuf[i].Skillbase;
+        Skill[i].SkillcoinPow = SkillBuf[i].SkillcoinPow;
     }
 }
 
