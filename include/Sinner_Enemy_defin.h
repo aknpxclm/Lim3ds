@@ -26,14 +26,14 @@ bool UseDefence;
 }ClashParams;
 
 typedef struct {
+SkillInfo Skill[4]; //Skill info for each sinner's skill ranks, for the fourth array for each sinner it uses {defence type, base, coinPow}
+ClashParams SlotParams;
 float Health;
 u8 coins;
 u8 Skillbase;
 s8 SkillcoinPow;
 u8 Sanity;
 u32 Char_ID; //id of the identity of sinner or enemy identifier
-SkillInfo Skill[4]; //Skill info for each sinner's skill ranks, for the fourth array for each sinner it uses {defence type, base, coinPow}
-ClashParams SlotParams;
 }Characters;
 
 typedef struct

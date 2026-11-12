@@ -38,18 +38,110 @@ C2D_Prepare();
 InitMain_M();
 CreateTexBuf();
 
-//placeholder stats till i can read files for values in a json or other c file
-Characters Sinner[5] = {{195.0f, 0, 0, 0, 50, 1, {{2, 4, 4}, {3, 4, 4}, {4, 4, 3}, {0, 10, 4}}, {0, 0, false, false, false, false}}, \
-						{195.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {0, 0, false, false, false, false}}, \
-						{195.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {0, 0, false, false, false, false}}, \
-						{195.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {0, 0, false, false, false, false}}, \
-						{195.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {0, 0, false, false, false, false}}};
+Characters Sinner[5];
+Characters Enemy[5];
 
-Characters Enemy[5] = {{1560.0f, 0, 0, 0, 50, 1, {{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}}}, \
-					   {1560.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}}, \
-					   {1560.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}}, \
-					   {1560.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}}, \
-					   {1560.0f, 0, 0, 0, 50, 1, {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}}}};
+Sinner[0] = (Characters) {
+	.Skill = {{2, 4, 4}, {3, 4, 4}, {4, 4, 3}, {0, 10, 4}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 195.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Sinner[1] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 195.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Sinner[2] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 195.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Sinner[3] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 195.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Sinner[4] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 195.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+
+Enemy[0] = (Characters) {
+	.Skill = {{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 1560.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Enemy[1] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 1560.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Enemy[2] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 1560.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Enemy[3] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 1560.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
+Enemy[4] = (Characters) {
+	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
+	.SlotParams = {0, 0, false, false, false, false},
+	.Health = 1560.0f,
+	.coins = 0,
+	.Skillbase = 0,
+	.SkillcoinPow = 0,
+	.Sanity = 50,
+	.Char_ID = 1
+};
 
 float SinStartPos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 
@@ -218,21 +310,23 @@ switch(MenuPosition){ // In game start
 			Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].coins;
 			Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].Skillbase;
 			Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].SkillcoinPow;
+
+			if(Sinner[CurrentSinner].SlotParams.IsClashing == true && Sinner[CurrentSinner].SlotParams.IsUnclashed == false)
+			{ //Enemy and sinner clash skills, returns the amount of clashes between the skills
+				if(BossCharInit) Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[0].Health, &Enemy[0].Sanity);
+				else Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Sanity);
+			}
+			else if(Sinner[CurrentSinner].SlotParams.IsUnclashed == true && Sinner[CurrentSinner].SlotParams.IsClashing == false)
+			{ //Enemy is going to attack unopposed
+				UnopposedAtk(&Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Sinner[CurrentSinner]);
+			}
+			else
+			{ //Sinner is going to attack unopposed
+				if(BossCharInit) UnopposedAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
+				else UnopposedAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing]);
+			}
 		}
-		if(Sinner[CurrentSinner].SlotParams.IsClashing == true && Sinner[CurrentSinner].SlotParams.IsUnclashed == false)
-		{ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-			if(BossCharInit) Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[0].Health, &Enemy[0].Sanity);
-			else Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Sanity);
-		}
-		else if(Sinner[CurrentSinner].SlotParams.IsUnclashed == true && Sinner[CurrentSinner].SlotParams.IsClashing == false)
-		{ //Enemy is going to attack unopposed
-			UnopposedAtk(&Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Sinner[CurrentSinner]);
-		}
-		else
-		{ //Sinner is going to attack unopposed
-			if(BossCharInit) UnopposedAtk(&Sinner[CurrentSinner], &Enemy[0]);
-			UnopposedAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing]);
-		}
+		
 		InCombatOrGFX = CombatGFX;
 		break;
 

@@ -9,7 +9,7 @@
 //sprite animation example from http://www.nyankolab.com/
 
 static CharSprites SinnerSpr[5];
-static CharSprites *EnemySpr;
+static CharSprites *EnemySpr = NULL;
 
 static const u64 GFXRefreshMs = 33U/*ms*/; //refresh graphics 30 times a second for 30fps
 
@@ -247,32 +247,36 @@ void DeInitSpriteInfo()
 /// @param BossOrRegular Checks if it's a boss or a group
 void FreeSpriteSheets_Combat(u8 *BossOrRegular)
 {
-    for(int i = 0; i < 5; i++)
+    if(EnemySpr != NULL)
     {
-        C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetMisc);
-        C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS1);
-        C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS2);
-        C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS3);
-    }
-    switch(*BossOrRegular)
-    {
-        case 0:
-        for(int j = 0; j < 5; j++)
+        for(int i = 0; i < 5; i++)
         {
-            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetMisc);
-            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS1);
-            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS2);
-            C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS3);
+            C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetMisc);
+            C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS1);
+            C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS2);
+            C2D_SpriteSheetFree(SinnerSpr[i].CombatSheetS3);
         }
-        break;
+        switch(*BossOrRegular)
+        {
+            case 0:
+            for(int j = 0; j < 5; j++)
+            {
+                C2D_SpriteSheetFree(EnemySpr[j].CombatSheetMisc);
+                C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS1);
+                C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS2);
+                C2D_SpriteSheetFree(EnemySpr[j].CombatSheetS3);
+            }
+            break;
 
-        case 1:
-        C2D_SpriteSheetFree(EnemySpr->CombatSheetMisc);
-        C2D_SpriteSheetFree(EnemySpr->CombatSheetS1);
-        C2D_SpriteSheetFree(EnemySpr->CombatSheetS2);
-        C2D_SpriteSheetFree(EnemySpr->CombatSheetS3);
-        break;
+            case 1:
+            C2D_SpriteSheetFree(EnemySpr->CombatSheetMisc);
+            C2D_SpriteSheetFree(EnemySpr->CombatSheetS1);
+            C2D_SpriteSheetFree(EnemySpr->CombatSheetS2);
+            C2D_SpriteSheetFree(EnemySpr->CombatSheetS3);
+            break;
 
+        }
+        free(EnemySpr);
+        EnemySpr = NULL;
     }
-    free(EnemySpr);
 }

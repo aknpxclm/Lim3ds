@@ -14,8 +14,8 @@ static Sprite MenuSprites[20];
 
 static C2D_ImageTint DarkenBGtint;
 
-static char *LoadPath;
-static SkillInfo *SkillBuf;
+static char *LoadPath = NULL;
+static SkillInfo *SkillBuf = NULL;
 
 /// @brief Initialises the Menu sprites from a spritesheet and tints for the background
 void InitMain_M()
@@ -184,6 +184,9 @@ void FreeMain_M()
 {
     C2D_SpriteSheetFree(menuSpriteSheet);
     FreeSkillFileInfo(LoadPath, SkillBuf);
+
+    LoadPath = NULL;
+    SkillBuf = NULL;
 }
 
 
