@@ -9,8 +9,8 @@
 /// @param coins Total coins a skill has
 /// @param coinPow The total amount a coin can add to the total
 /// @param sanity How likely a skill will add the coin power from 5% to 95%
-/// @return 
-u32 ClashValue(u8 base, u8 coins, u8 coinPow, u8 sanity)
+/// @return the total clash val
+u32 clashValue(u8 base, u8 coins, u8 coinPow, u8 sanity)
 {
 int coinFlip = 0;
 int total = 0;
@@ -28,7 +28,7 @@ return total;
 /// @param Charac Character to deal dameage to
 /// @param Clashes Total Clashes completed
 /// @return Damage that will be dealt
-u32 Damagedealt(Characters *Charac, u16 Clashes)
+u32 damagedealt(Characters *Charac, u16 Clashes)
 {
 return Charac->Skillbase + (Charac->coins * Charac->SkillcoinPow) * (1 + (3 * ((float)Clashes * 0.01))); 
 }
@@ -37,21 +37,21 @@ return Charac->Skillbase + (Charac->coins * Charac->SkillcoinPow) * (1 + (3 * ((
 /// @param Charac Defending character
 /// @param AttackingCharac Attacking character
 /// @return 
-u32 GuardDmgDealt(Characters *Charac, Characters *AttackingCharac)
+u32 guardDmgDealt(Characters *Charac, Characters *AttackingCharac)
 {
     int coinFlip = 0;
     int total = 0;
     total += Charac->Skillbase;
     coinFlip = rand() % 100;
     total += (coinFlip < Charac->Sanity) * Charac->SkillcoinPow;
-    return Damagedealt(AttackingCharac, 0) - total;
+    return damagedealt(AttackingCharac, 0) - total;
 }
 
 /// @brief Allows an evading skill to negate incoming damage if the evade's total is greater than or equal to the opposing skill total
 /// @param EvadeCharac Evading character
 /// @param AttackingCharac Attacking character
 /// @return Coin evade failed at, 0 if never failed
-u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
+u8 evadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
 {
     u8 i = 0;
     int coinFlip = 0;
@@ -73,12 +73,12 @@ u8 EvadeDmg(Characters *EvadeCharac, Characters *AttackingCharac)
     return 0;
 
     FailEvade:
-    EvadeCharac->Health -= Damagedealt(AttackingCharac, 0);
+    EvadeCharac->Health -= damagedealt(AttackingCharac, 0);
     return i;
 }
 
 /// @brief Generates a seed
-void SeedStart()
+void seedStart()
 {
     srand(time(NULL));
 }
@@ -86,7 +86,7 @@ void SeedStart()
 /// @brief Clamps sanity between 5 and 95, displayed as -45 to 45
 /// @param Sanity Character sanity
 /// @return Clamped sanity value
-u8 LimitSanity(u8 *Sanity)
+u8 limitSanity(u8 *Sanity)
 {
     if(*Sanity > 95){
         return 95;
@@ -98,13 +98,13 @@ u8 LimitSanity(u8 *Sanity)
     //return *Sanity * ((*Sanity < 95) & (*Sanity > 5)) + 95 * (*Sanity > 95) + 5 * (*Sanity < 5);
 }
 //Returns a random index from 0 - 5 to swap a skill rank to
-int Form_or_Select_Random_Skill(){
+int form_or_Select_Random_Skill(){
     return rand() % 5;
 }
 
 /// @brief Rearranges the skill rank pool to make getting skills more random
 /// @param SkillList Pool of skill ranks that can be collected from
-void Rearrange_SkillPool(u8 SkillList[])
+void rearrange_SkillPool(u8 SkillList[])
 {
     /*index 0 represents one value in SkillList
     index 1 represents another value 
@@ -113,7 +113,7 @@ void Rearrange_SkillPool(u8 SkillList[])
 
     for(int j = 0; j < 6; j++){
         Swap[0] = SkillList[j];
-        Swap[2] = Form_or_Select_Random_Skill();
+        Swap[2] = form_or_Select_Random_Skill();
         Swap[1] = SkillList[Swap[2]];
         SkillList[j] = Swap[1];
         SkillList[Swap[2]] = Swap[0];
@@ -124,7 +124,7 @@ void Rearrange_SkillPool(u8 SkillList[])
 /// @param SkillOptions Skill rank options a player chooses from
 /// @param BufferSkill Next skill rank to be placed as a skill option
 /// @param SkillList Pool to take a skill rank from
-void ShiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[])
+void shiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[])
 {
     u8 TopRowSkill = 0;
     u8 BufferSkillnum = 0;
@@ -141,14 +141,14 @@ void ShiftSkillSelects(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[])
         else if(SkillOptions[i][1] == 9){ //Top row skill used
             SkillOptions[i][1] = BufferSkillnum;
         }
-        BufferSkill[i] = SkillList[Form_or_Select_Random_Skill()]; //generate a new skill rank in the buffer
+        BufferSkill[i] = SkillList[form_or_Select_Random_Skill()]; //generate a new skill rank in the buffer
     }
 }
 
 /// @brief Checks if all slots are targeting
 /// @param AttackOrder The slots and what they are targeting
 /// @return 0 if all are targeting
-u8 CheckAllSlotsAreUsed(u8 AttackOrder[][2])
+u8 checkAllSlotsAreUsed(u8 AttackOrder[][2])
 {
     for(u8 i = 0; i < 5; i++)
     {
@@ -156,4 +156,14 @@ u8 CheckAllSlotsAreUsed(u8 AttackOrder[][2])
     }
 
     return 0;
+}
+
+void loadSkill()
+{
+
+}
+
+void loadDefenceSkill()
+{
+    
 }

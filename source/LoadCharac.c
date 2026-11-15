@@ -11,7 +11,7 @@ static size_t MaxLen = 0;
 
 /// @brief Searches for the directory containing sinner skill info
 /// @return String of the path to the folder
-char *AllocPathBuf()
+char *allocPathBuf()
 {
     DIR *Lim3ds;
     struct dirent *entry;
@@ -41,7 +41,7 @@ char *AllocPathBuf()
 /// @brief Finds and adds the Id path for loading its skill info
 /// @param SinId Id to load the info of
 /// @param Path String path to add the location of the Id file onto
-void CharIdPath(u16 SinId, char *Path)
+void charIdPath(u16 SinId, char *Path)
 {
     if(SinId == 0) return;
     Path[BinDirLen + 1] = '\0'; //ignore previous path -> "romfs:/LimChars/\0....."
@@ -55,7 +55,7 @@ void CharIdPath(u16 SinId, char *Path)
 
 /// @brief creates a buffer to store SkillInfo data in when reading from a file
 /// @return Pointer to the allocated memory
-SkillInfo *SkillInfoBuf()
+SkillInfo *skillInfoBuf()
 {
     return (SkillInfo*)malloc(sizeof(SkillInfo) * Array_Column_Len); //skill struct arrays and extra to store defence skill data
 }
@@ -63,7 +63,7 @@ SkillInfo *SkillInfoBuf()
 /// @brief Loads
 /// @param Sinners_Skills SkillInfo buffer
 /// @param Path String Path to the file containing Id info
-void LoadSinInfo(SkillInfo *Sinners_Skills, char *Path)
+void loadSinInfo(SkillInfo *Sinners_Skills, char *Path)
 {
     FILE *SinBin;
     SinBin = fopen(Path, "rb");
@@ -77,7 +77,7 @@ void LoadSinInfo(SkillInfo *Sinners_Skills, char *Path)
 /// @param Sinner Character struct array of the Sinners
 /// @param SkillBuf Skill buffer containing the Id info
 /// @param LoadOnSin Sinner struct to the load the info on
-void PassInSkillInfo(SkillInfo *Skill, SkillInfo *SkillBuf)
+void passInSkillInfo(SkillInfo *Skill, SkillInfo *SkillBuf)
 {
     for(int i = 0; i < Array_Column_Len; i++)
     {
@@ -90,7 +90,7 @@ void PassInSkillInfo(SkillInfo *Skill, SkillInfo *SkillBuf)
 /// @brief Free the Path and Skill buffer
 /// @param Path 
 /// @param SkillBuf 
-void FreeSkillFileInfo(char *Path, SkillInfo *SkillBuf)
+void freeSkillFileInfo(char *Path, SkillInfo *SkillBuf)
 {
     free(SkillBuf);
     free(Path);

@@ -16,7 +16,7 @@ static const u64 GFXRefreshMs = 33U/*ms*/; //refresh graphics 30 times a second 
 /// @brief Check if any sinner ids are the same, if there are any reject turnstart
 /// @param Sinners 
 /// @return 0 if none have th same id
-u8 CheckSinnerID(Characters Sinners[])
+u8 checkSinnerID(Characters Sinners[])
 {
     for(u8 i = 0; i < 5; i++)
     {
@@ -31,7 +31,7 @@ u8 CheckSinnerID(Characters Sinners[])
 /// @brief Loads SpriteSheets of different Ids onto a Sinner Sprite Object
 /// @param SinnerToloadOn Which Sinner struct to load a sheet onto
 /// @param SinnerSheetId Id of the Sheet to load (Look at each case to see which Id is which)
-void LoadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
+void loadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
 {
     char PathMisc[64];
     char PathS1[64];
@@ -74,7 +74,7 @@ void LoadSinnerSheet(u8 SinnerToloadOn, u8 SinnerSheetId)
 
 /// @brief Loads the boss and enemy sheets into the Enemy Sprite object
 /// @param IsABoss
-void LoadEnemySheets(u8 *IsABoss)
+void loadEnemySheets(u8 *IsABoss)
 {
     const char EnemySheets[4][4][64] =  
     {{"romfs:/gfx/BossMisc", "romfs:/gfx/BossS1", "romfs:/gfx/BossS2", "romfs:/gfx/BossS3"}, \
@@ -110,13 +110,13 @@ void LoadEnemySheets(u8 *IsABoss)
 }
 
 /// @brief Allocate memory for the Enemy Sprite Object
-void InitEnemySheets()
+void initEnemySheets()
 {
     EnemySpr = (CharSprites*)malloc(sizeof(CharSprites) * 3); //allocate enough for unique 3 types of enemies
 }
 
 /// @brief Load all the Sprites in the spritesheets into the individual sprite handles
-void InitCombat_S()
+void initCombat_S()
 {
     size_t NumSprites = 0;
     for(int i = 0; i < 5; i++)
@@ -146,7 +146,7 @@ void InitCombat_S()
 /// @brief Calculate the total frames of skills / idle animations excluding other combat sprites
 /// @param TotalFrames Stores the frame data for rendering
 /// @param AtkOrder Skill rank being used in the turn for each sinner
-void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
+void getTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
 {
     for(int i = 0; i < 5; i++)
     {
@@ -174,12 +174,12 @@ void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2])
 /// @param InCombatOrGFX Checks if the idle or skill animations if needed to render
 /// @param AtkOrder Skill rank to be used this turn
 /// @param SinnerPositions Contains positions to render idle sinners at
-void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2])
+void renderingCombat_S(TimeRecorder *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2])
 {
     static u8 FrameIndexSin[5] = {0};
     static u8 FrameIndexEn[5] = {0};
 
-    if(SinnerSpr[0].Frame.Idle == 0) GetTotalFrames(SinnerSpr, AtkOrder);
+    if(SinnerSpr[0].Frame.Idle == 0) getTotalFrames(SinnerSpr, AtkOrder);
 
     switch(*InCombatOrGFX)
     {
@@ -234,7 +234,7 @@ void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 A
 }
 
 /// @brief Clears info of a previous animation
-void DeInitSpriteInfo()
+void deInitSpriteInfo()
 {
     for(int i = 0; i < 5; i++)
     {
@@ -245,7 +245,7 @@ void DeInitSpriteInfo()
 
 /// @brief Frees all spritesheets used in the combat
 /// @param BossOrRegular Checks if it's a boss or a group
-void FreeSpriteSheets_Combat(u8 *BossOrRegular)
+void freeSpriteSheets_Combat(u8 *BossOrRegular)
 {
     if(EnemySpr != NULL)
     {

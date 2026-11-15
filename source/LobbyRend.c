@@ -18,7 +18,7 @@ static char *LoadPath = NULL;
 static SkillInfo *SkillBuf = NULL;
 
 /// @brief Initialises the Menu sprites from a spritesheet and tints for the background
-void InitMain_M()
+void initMain_M()
 {
     C2D_PlainImageTint(&DarkenBGtint, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f), 0.425f);
 
@@ -38,15 +38,15 @@ void InitMain_M()
     }
     C2D_SpriteSetPos(&MenuSprites[LobbyBot].spr, -10, 20); //set bottom lobby png pos
 
-    LoadPath = AllocPathBuf();
-    SkillBuf = SkillInfoBuf();
+    LoadPath = allocPathBuf();
+    SkillBuf = skillInfoBuf();
 }
 
 /// @brief Draws the background of the menus
 /// @param screen Enum for what screen the function should render
 /// @param MenuPosition Which menu to render
 /// @param TintBG To check if the background should be tinted
-void DrawMain_S(gfxScreen_t screen, u8 MenuPosition, u8 *TintBG)
+void drawMain_S(gfxScreen_t screen, u8 MenuPosition, u8 *TintBG)
 {
     switch(screen)
     {
@@ -83,14 +83,14 @@ void DrawMain_S(gfxScreen_t screen, u8 MenuPosition, u8 *TintBG)
 /// @param MainSubPos 
 /// @param TintBG Flags if the BG should be tinted
 /// @param BossCharInit Flags if a boss stage is being selected
-void SubMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *MenuPos, u8 *MainSubPos, u8 *TintBG, u8 *BossCharInit)
+void subMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *MenuPos, u8 *MainSubPos, u8 *TintBG, u8 *BossCharInit)
 {
     static bool UserInDeepSelect = false;
     static u8 CursorPos = 0;
     static u16 IdToload = 0;
     static u16 TotalSinIdsInGame = 1; //total unique identities that can be loaded into a sinner slot (5)
 
-    static Time InputTime = {0, 0, 20};
+    static TimeRecorder InputTime = {0, 0, 20};
     // Time when KEY_A was pressed to enter menu selection
     // Time when KEY_A was pressed to select options within a menu
     // 20 - Delay
@@ -131,10 +131,10 @@ void SubMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *Menu
             if(kUp & KEY_X)
             {
                 Sinner[CursorPos].Char_ID = IdToload; //set Identity id num
-                CharIdPath(IdToload, LoadPath);
-                LoadSinInfo(SkillBuf, LoadPath);
-                PassInSkillInfo(Sinner[CursorPos].Skill, SkillBuf);
-                LoadSinnerSheet(CursorPos, IdToload);
+                charIdPath(IdToload, LoadPath);
+                loadSinInfo(SkillBuf, LoadPath);
+                passInSkillInfo(Sinner[CursorPos].Skill, SkillBuf);
+                loadSinnerSheet(CursorPos, IdToload);
                 IdToload = 0;
             }
         }
@@ -145,6 +145,7 @@ void SubMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *Menu
         {
             if(kDown & KEY_DRIGHT && CursorPos < 1) CursorPos += 1;
             if(kDown & KEY_DLEFT && CursorPos > 0) CursorPos -= 1;
+
             if(kDown & KEY_A )
             {
                 InputTime.CurrentTimeMs = osGetTime(); //delay between entering deep select and combat
@@ -157,10 +158,10 @@ void SubMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *Menu
                         break;
 
                         case 1:
-                        SetUpBoss(Enemy, *BossCharInit);
-                        InitEnemySheets();
+                        setUpBoss(Enemy, *BossCharInit);
+                        initEnemySheets();
                         *MenuPos = CombatMen;
-                        FreeMain_M();
+                        freeMain_M();
                         break;
                     }
                 }
@@ -180,10 +181,10 @@ void SubMain(u32 kDown, u32 kUp, Characters *Sinner, Characters *Enemy ,u8 *Menu
 }
 
 /// @brief Frees the menu spritesheet
-void FreeMain_M()
+void freeMain_M()
 {
     C2D_SpriteSheetFree(menuSpriteSheet);
-    FreeSkillFileInfo(LoadPath, SkillBuf);
+    freeSkillFileInfo(LoadPath, SkillBuf);
 
     LoadPath = NULL;
     SkillBuf = NULL;

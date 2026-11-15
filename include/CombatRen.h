@@ -29,13 +29,13 @@ typedef struct
     u8 SkillThree[2];
 }CharSprites;
 
-u8 CheckSinnerID(Characters Sinners[]);
-void LoadSinnerSheet(u8 SinnerToloadOn, u8 SheetId);
-void InitEnemySheets();
-void InitCombat_S();
-void GetTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2]);
-void RenderingCombat_S(Time *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2]);
-void DeInitSpriteInfo();
-void FreeSpriteSheets_Combat(u8 *BossOrRegular);
+u8 checkSinnerID(Characters Sinners[]);
+void loadSinnerSheet(u8 SinnerToloadOn, u8 SheetId);
+void initEnemySheets();
+void initCombat_S();
+void getTotalFrames(CharSprites TotalFrames[], u8 AtkOrder[][2]);
+void renderingCombat_S(TimeRecorder *Time_t, u16 *CurrentSinner, u8 *InCombatOrGFX, u8 AtkOrder[][2], float SinnerPositions[][2]);
+void deInitSpriteInfo();
+void freeSpriteSheets_Combat(u8 *BossOrRegular);
 
 #endif

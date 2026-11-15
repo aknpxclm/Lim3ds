@@ -41,7 +41,7 @@ typedef struct
     u64 InitialTimeMs;
     u64 CurrentTimeMs;
     u64 ElapsedTimeMs;
-}Time;
+}TimeRecorder;
 
 enum SpriteTarget
 {

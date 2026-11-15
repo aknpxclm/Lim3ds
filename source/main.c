@@ -13,14 +13,13 @@
 #include "Text.h"
 #include "CombatRen.h"
 
-#define DENYREASONS(num) 1U << num
 #define NOTSELECTED 9U
 #define DEFENCESKILL 3U
 
 void ExitApp()
 {
-FreeMain_M();
-FreeTexBuf();
+freeMain_M();
+freeTexBuf();
 gfxExit();
 romfsExit();
 C2D_Fini();
@@ -35,8 +34,8 @@ C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 C2D_Prepare();
 
-InitMain_M();
-CreateTexBuf();
+initMain_M();
+createTexBuf();
 
 Characters Sinner[5];
 Characters Enemy[5];
@@ -45,50 +44,35 @@ Sinner[0] = (Characters) {
 	.Skill = {{2, 4, 4}, {3, 4, 4}, {4, 4, 3}, {0, 10, 4}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 195.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Sinner[1] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 195.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Sinner[2] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 195.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Sinner[3] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 195.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Sinner[4] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 195.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 
@@ -96,50 +80,35 @@ Enemy[0] = (Characters) {
 	.Skill = {{2, 4, 2}, {3, 3, 3}, {1, 8, 12}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 1560.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Enemy[1] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 1560.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Enemy[2] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 1560.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Enemy[3] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 1560.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 Enemy[4] = (Characters) {
 	.Skill = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}},
 	.SlotParams = {0, 0, false, false, false, false},
 	.Health = 1560.0f,
-	.coins = 0,
-	.Skillbase = 0,
-	.SkillcoinPow = 0,
-	.Sanity = 50,
+	.coins = 0, .Skillbase = 0, .SkillcoinPow = 0, .Sanity = 50,
 	.Char_ID = 1
 };
 
@@ -154,7 +123,7 @@ u8 BufferSkill[5] = {0, 0, 0, 0, 0};                              // original or
 u8 SkillList[6] = {1, 1, 1, 2, 2, 3};                             //Sinners can only have three skill 1s, two skill 2s and , one skill 3
 u8 EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
-Time Time_T[3] = {0};
+TimeRecorder Time_T[3] = {0};
 
 size_t DialogueLen = 0;
 
@@ -189,8 +158,8 @@ touchPosition prevTouch = {0, 0};
 
 for(int z = 0; z < 3; z++) Time_T[z].InitialTimeMs = osGetTime();
 
-SeedStart();
-Rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
+seedStart();
+rearrange_SkillPool(SkillList); //Moves the values in SkillList[] (L98) to a random position
 
 while(aptMainLoop()){
 
@@ -211,20 +180,20 @@ switch(MenuPosition){ // In game start
 		C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 		C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
 		C2D_SceneBegin(top);
-		DrawMain_S(GFX_TOP, MenuPosition, &TintBG);
+		drawMain_S(GFX_TOP, MenuPosition, &TintBG);
 		C2D_SceneBegin(bottom);
-		LobbyScrollingText(MenuPosition, &MainSubPos, &Time_T[TextScroll]);
+		lobbyScrollingText(MenuPosition, &MainSubPos, &Time_T[TextScroll]);
 	break;
 
 	case MainMen: //Main menu
 		C2D_TargetClear(top, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f));
 		C2D_TargetClear(bottom, C2D_Color32f(0.0f, 0.0f, 0.0f, 1.0f)); //Looked at NateXS' pong repo for proper usage of the function
 		C2D_SceneBegin(top);
-		DrawMain_S(GFX_TOP, MenuPosition, &TintBG);
-		SubMain(kDown, kUp, Sinner, Enemy, &MenuPosition, &MainSubPos, &TintBG, &BossCharInit);
-		LobbyScrollingText(MenuPosition, &MainSubPos, &Time_T[Input]);
+		drawMain_S(GFX_TOP, MenuPosition, &TintBG);
+		subMain(kDown, kUp, Sinner, Enemy, &MenuPosition, &MainSubPos, &TintBG, &BossCharInit);
+		lobbyScrollingText(MenuPosition, &MainSubPos, &Time_T[Input]);
 		C2D_SceneBegin(bottom);
-		DrawMain_S(GFX_BOTTOM, MenuPosition, &TintBG);
+		drawMain_S(GFX_BOTTOM, MenuPosition, &TintBG);
 	break;
 	
 	case CombatMen: //Combat select area
@@ -236,23 +205,23 @@ switch(MenuPosition){ // In game start
 	switch(InCombatOrGFX){
 
 		case GFX: //idle animations & skill select
-		if(CreatedSkillStores == false) CreatedSkillStores = CreateSkillStores(SkillOptions, BufferSkill, SkillList, TurnCount);
+		if(CreatedSkillStores == false) CreatedSkillStores = createSkillStores(SkillOptions, BufferSkill, SkillList, TurnCount);
 		if(kUp & KEY_L)
 		{
 			Time_T[TextScroll].InitialTimeMs = osGetTime();
 
 			if(CreatedSkillStores == true && InCombatOrGFX == 0) //Prevent abrupt cancels
 			{
-				if(CheckAllSlotsAreUsed(AttackOrder) == 0)
+				if(checkAllSlotsAreUsed(AttackOrder) == 0)
 				{
 					InCombatOrGFX = Combat;
-					DetermineClashAtkType(AttackOrder, EnSkillOrder, Sinner);
+					determineClashAtkType(AttackOrder, EnSkillOrder, Sinner);
 				}
 				else GameErrFlags = GameErrFlags | DENYREASONS(SlotUnused);
 			}
 			else GameErrFlags = GameErrFlags | DENYREASONS(UnInited);
 
-			Flag_t = RaiseTurnstartErrorFlag(&GameErrFlags);
+			Flag_t = raiseTurnstartErrorFlag(&GameErrFlags);
 		}
 
 		if(kDown & KEY_TOUCH)
@@ -260,18 +229,18 @@ switch(MenuPosition){ // In game start
 			prevTouch.px = touch.px;
 			prevTouch.py = touch.py;
 		}
-		if(kUp & KEY_TOUCH && ToggleDefenceCheck(prevTouch.px, prevTouch.py)) //touchPos never moved out the sinner skill slot they just tapped it
+		if(kUp & KEY_TOUCH && toggleDefenceCheck(prevTouch.px, prevTouch.py)) //touchPos never moved out the sinner skill slot they just tapped it
 		{
-			ToggleDefSkill(touch.px, touch.py, Sinner); //allow the toggle to use defenc skills
+			toggleDefSkill(touch.px, touch.py, Sinner); //allow the toggle to use defenc skills
 		}
 		if(kHeld & KEY_TOUCH){
-			CurrSinTOChooseSkill = BeginSinSelect(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &StartSelec);
+			CurrSinTOChooseSkill = beginSinSelect(touch.px, touch.py, CurrSinTOChooseSkill, &SkillTargetingLocked, &StartSelec);
 		}
 		else{ SkillTargetingLocked = false; StartSelec = false; }
 		if(kHeld & KEY_TOUCH && StartSelec)
 		{
-			AttackOrder[CurrSinTOChooseSkill][0] = CursorToEN_Skill(touch.px, touch.py);
-			EnemySlot = CursorToEN_Skill(touch.px, touch.py);
+			AttackOrder[CurrSinTOChooseSkill][0] = cursorToEN_Skill(touch.px, touch.py);
+			EnemySlot = cursorToEN_Skill(touch.px, touch.py);
 		}
 		if(kUp & KEY_TOUCH && CurrSinTOChooseSkill != NOTSELECTED && EnemySlot != NOTSELECTED)
 		{   //possible out of bounds if enemyslot > 5
@@ -286,7 +255,7 @@ switch(MenuPosition){ // In game start
 			EnemySlot = NOTSELECTED;
 		}
 
-		RenderingCombat_S(&Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
+		renderingCombat_S(&Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
 		break;
 
 		case Combat: // Turn Running loop -> Clashing
@@ -298,7 +267,7 @@ switch(MenuPosition){ // In game start
 			Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].coins;
 			Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].Skillbase;
 			Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].SkillcoinPow;
-			DefenceAgainstAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner], &ClashNumResult);
+			defenceAgainstAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner], &ClashNumResult);
 			InCombatOrGFX = CombatGFX;
 			break;
 		}
@@ -313,17 +282,17 @@ switch(MenuPosition){ // In game start
 
 			if(Sinner[CurrentSinner].SlotParams.IsClashing == true && Sinner[CurrentSinner].SlotParams.IsUnclashed == false)
 			{ //Enemy and sinner clash skills, returns the amount of clashes between the skills
-				if(BossCharInit) Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[0].Health, &Enemy[0].Sanity);
-				else Clashes = ClashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Sanity);
+				if(BossCharInit) Clashes = clashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[0].Health, &Enemy[0].Sanity);
+				else Clashes = clashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[CurrentSinner].Health, &Enemy[CurrentSinner].Sanity);
 			}
 			else if(Sinner[CurrentSinner].SlotParams.IsUnclashed == true && Sinner[CurrentSinner].SlotParams.IsClashing == false)
 			{ //Enemy is going to attack unopposed
-				UnopposedAtk(&Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Sinner[CurrentSinner]);
+				unopposedAtk(&Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Sinner[CurrentSinner]);
 			}
 			else
 			{ //Sinner is going to attack unopposed
-				if(BossCharInit) UnopposedAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
-				else UnopposedAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing]);
+				if(BossCharInit) unopposedAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner]);
+				else unopposedAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing]);
 			}
 		}
 		
@@ -331,28 +300,28 @@ switch(MenuPosition){ // In game start
 		break;
 
 		case CombatGFX: //GFX of the clash and combat
-		RenderingCombat_S(&Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
+		renderingCombat_S(&Time_T[GameSpr], &CurrentSinner, &InCombatOrGFX, AttackOrder, SinStartPos);
 		break;
 
 	}
 
 	C2D_SceneBegin(bottom);
-	SinnerTex(Sinner);
-	EnemyTex(&BossCharInit, Enemy);
-	TurnStartErrResponce(&Flag_t, &Time_T[TextScroll]);
+	sinnerTex(Sinner);
+	enemyTex(&BossCharInit, Enemy);
+	turnStartErrResponce(&Flag_t, &Time_T[TextScroll]);
 	
 	
 	if(Enemy[4].Health < 0)
 	{
 		MenuPosition = MainMen;
 		TurnCount = 1;
-		InitMain_M(); //reload menu sprites when returning to main menu
+		initMain_M(); //reload menu sprites when returning to main menu
 		break;
 	}
 
 	if(CurrentSinner == 5/*All sinners have completed their actions*/)
 	{
-		DeInitSpriteInfo();
+		deInitSpriteInfo();
 		InCombatOrGFX = GFX; //exit clash and GFX
 		CurrentSinner = 0; //reset to first sinner
 		//End this turn and start the next one
@@ -364,15 +333,15 @@ switch(MenuPosition){ // In game start
 	case Dialogue_eg:
 	C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
 	C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
-	DialogueLen = DialogueManager(&DialogueLine , DialogueBuff);
+	DialogueLen = dialogueManager(&DialogueLine , DialogueBuff);
 	C2D_SceneBegin(top);
-	TextSceneBegin(kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
+	textSceneBegin(kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
 	C2D_SceneBegin(bottom);
 	break;
 }
 	C3D_FrameEnd(0);
 }
-FreeSpriteSheets_Combat(&BossCharInit);
+freeSpriteSheets_Combat(&BossCharInit);
 ExitApp();
 return 0; 
 }

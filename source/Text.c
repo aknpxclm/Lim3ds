@@ -7,8 +7,9 @@
 
 static C2D_TextBuf dynamBuf;
 
+
 /// @brief Creates a text buffer
-void CreateTexBuf()
+void createTexBuf()
 {
     //Allocate memory for the buffer
     dynamBuf = C2D_TextBufNew(4096);
@@ -16,7 +17,7 @@ void CreateTexBuf()
 
 /// @brief Renders the sinner health and sanity to the bottom screen
 /// @param Sinner Sinner info
-void SinnerTex(Characters Sinner[])
+void sinnerTex(Characters Sinner[])
 {
     //uses 3ds/graphics/printing/system-font example
     C2D_TextBufClear(dynamBuf); //clear text for next text change
@@ -35,7 +36,7 @@ void SinnerTex(Characters Sinner[])
 /// @brief Renders the enemy health and sanity to the bottom screen
 /// @param BossOrRegular Check to render a just a boss or a group
 /// @param Enemy Enemy info
-void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
+void enemyTex(u8 *BossOrRegular, Characters Enemy[])
 {
     C2D_TextBufClear(dynamBuf);
     char EnemyBuf[256];
@@ -63,7 +64,7 @@ void EnemyTex(u8 *BossOrRegular, Characters Enemy[])
 /// @param MenuPos 
 /// @param MainSubPos 
 /// @param timeT Records time for when more charcters should be shown
-void LobbyScrollingText(u8 MenuPos, u8 *MainSubPos, Time *timeT)
+void lobbyScrollingText(u8 MenuPos, u8 *MainSubPos, TimeRecorder *timeT)
 {
     C2D_TextBufClear(dynamBuf);
     static u16 CharsPrinted = 0;
@@ -116,16 +117,14 @@ void LobbyScrollingText(u8 MenuPos, u8 *MainSubPos, Time *timeT)
 /// @brief Manages which line of dialogue to load from the file and format for rendering
 /// @param Line Line of dialogue to load
 /// @param Dialogue Buffer for the dialogue text
-size_t DialogueManager(u16 *Line, char Dialogue[])
+size_t dialogueManager(u16 *Line, char Dialogue[])
 {
     FILE *TextLine;
 
     TextLine = fopen("romfs:/Dialogue/Tutorial.txt", "r");
     for(u16 i = 0; i < *Line + 1; i++) fgets(Dialogue, 256, TextLine);
     fclose(TextLine);
-
     return strlen(Dialogue);
-    //TextWrapper(Dialogue);
 }
 
 /// @brief Draws dialogue to the screen
@@ -134,7 +133,7 @@ size_t DialogueManager(u16 *Line, char Dialogue[])
 /// @param String Length of the dialogue string read from the dialogue file in the manager
 /// @param ScrollTime Records the time for when to display more characters of the line
 /// @param Dialogue Dialogue text to render
-void TextSceneBegin(u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char Dialogue[])
+void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTime, char Dialogue[])
 {
     C2D_TextBufClear(dynamBuf);
     static u16 charsToprint = 0;
@@ -174,7 +173,7 @@ void TextSceneBegin(u32 kDown, u16 *Line, size_t String, Time *ScrollTime, char 
 /// @brief Flags the first error found to be rendered
 /// @param Flags Bit flag store
 /// @return Error number to print
-u8 RaiseTurnstartErrorFlag(u8 *Flags)
+u8 raiseTurnstartErrorFlag(u8 *Flags)
 {
     u8 Error_t = 0;
 
@@ -194,7 +193,7 @@ u8 RaiseTurnstartErrorFlag(u8 *Flags)
 /// @brief Prints any errors that prevent turnstart
 /// @param Flag Error to print
 /// @param timeT Records time
-void TurnStartErrResponce(u8 *Flag, Time *timeT)
+void turnStartErrResponce(u8 *Flag, TimeRecorder *timeT)
 {
     char Text[2][64] = {"Currently preparing combat please try again", "Not all skills are selected, please select an unused skill"};
 
@@ -214,7 +213,7 @@ void TurnStartErrResponce(u8 *Flag, Time *timeT)
 }
 
 /// @brief Frees text buffer
-void FreeTexBuf()
+void freeTexBuf()
 {
     C2D_TextBufDelete(dynamBuf);
 }

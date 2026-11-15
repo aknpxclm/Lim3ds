@@ -13,15 +13,15 @@
 /// @param ENhealth Sanity of a enemy or for the boss
 /// @param ENsanity Sanity of a enemy or for the boss
 /// @return Number of clashes between characters
-int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsanity)
+int clashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsanity)
 {
     int SinClashNum = 0;
     int EnClashNum = 0;
     int Clashes = 0;
     while(Sinner->coins > 0 && Enemy->coins > 0){
         // get clash values for enemy and sinner
-        SinClashNum = ClashValue(Sinner->Skillbase, Sinner->coins, Sinner->SkillcoinPow, Sinner->Sanity);
-        EnClashNum = ClashValue(Enemy->Skillbase, Enemy->coins, Enemy->SkillcoinPow, Enemy->Sanity);
+        SinClashNum = clashValue(Sinner->Skillbase, Sinner->coins, Sinner->SkillcoinPow, Sinner->Sanity);
+        EnClashNum = clashValue(Enemy->Skillbase, Enemy->coins, Enemy->SkillcoinPow, Enemy->Sanity);
         // check who wins
         Enemy->coins -= (EnClashNum < SinClashNum);
         Sinner->coins -= (SinClashNum < EnClashNum);
@@ -31,17 +31,17 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsa
     if(Sinner->coins > Enemy->coins){ 
         //sp gain for sinner and loss for enemy
         Sinner->Sanity += (10 + Clashes);
-        Sinner->Sanity = LimitSanity(&Sinner->Sanity);
+        Sinner->Sanity = limitSanity(&Sinner->Sanity);
         *ENsanity -= ENSANITYLOSS;
-        *ENsanity = LimitSanity(&Enemy->Sanity);
-        *ENhealth -= Damagedealt(Sinner, Clashes); //can use a single health var for bos or multiple for multiple enemies
+        *ENsanity = limitSanity(&Enemy->Sanity);
+        *ENhealth -= damagedealt(Sinner, Clashes); //can use a single health var for bos or multiple for multiple enemies
     }
     else{
         Enemy->Sanity += (10 + Clashes);
-        Enemy->Sanity = LimitSanity(&Enemy->Sanity);
+        Enemy->Sanity = limitSanity(&Enemy->Sanity);
         Sinner->Sanity -= SINSANITYLOSS;
-        Sinner->Sanity = LimitSanity(&Sinner->Sanity);
-        Sinner->Health -= Damagedealt(Enemy, Clashes);
+        Sinner->Sanity = limitSanity(&Sinner->Sanity);
+        Sinner->Health -= damagedealt(Enemy, Clashes);
     }
     return Clashes;
 }
@@ -49,9 +49,9 @@ int ClashingAtk(Characters *Sinner, Characters *Enemy, float *ENhealth, u8 *ENsa
 /// @brief Damage where a character doesnt clash
 /// @param Attack Attacking Character
 /// @param Oppo Opposing Character
-void UnopposedAtk(Characters *Attack, Characters *Oppo)
+void unopposedAtk(Characters *Attack, Characters *Oppo)
 {
-    Oppo->Health -= Damagedealt(Attack, 0); //No clashes so pass in clashing conditionals (Sanity, opposing stats)
+    Oppo->Health -= damagedealt(Attack, 0); //No clashes so pass in clashing conditionals (Sanity, opposing stats)
 }
 
 /// @brief Adds skill ranks to the enemy, sinners and buffer skill arrays
@@ -61,17 +61,17 @@ void UnopposedAtk(Characters *Attack, Characters *Oppo)
 /// @param SkillList The two options of skill ranks for the player to choose
 /// @param TurnCount Current turn combat is on
 /// @return True if successfully completed
-bool CreateSkillStores(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount)
+bool createSkillStores(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[], u32 TurnCount)
 {
     if(TurnCount == 1){
         for(int i = 0; i < 5/*Amount of sinners*/; i++){
             for(int j = 0; j < 2/*skill choices*/; j++){
-                SkillOptions[i][j] = SkillList[Form_or_Select_Random_Skill()];
+                SkillOptions[i][j] = SkillList[form_or_Select_Random_Skill()];
             }
         }
-    }
+    } 
     for(int k = 0; k < 5; k++){
-        BufferSkill[k] = SkillList[Form_or_Select_Random_Skill()];
+        BufferSkill[k] = SkillList[form_or_Select_Random_Skill()];
     }
     return true; //Completed sucessfully
 }
@@ -79,7 +79,7 @@ bool CreateSkillStores(u8 SkillOptions[][2], u8 BufferSkill[], u8 SkillList[], u
 /// @brief Sets up a boss and thier skills
 /// @param Enskill SkillInfo struct to copy info across
 /// @param IsBoss Bool for if a boss
-void SetUpBoss(Characters *Enemy, u8 IsBoss)
+void setUpBoss(Characters *Enemy, u8 IsBoss)
 {
     if(IsBoss == 1){
         int coin = 0;
@@ -102,20 +102,20 @@ void SetUpBoss(Characters *Enemy, u8 IsBoss)
 /// @param Sinner Sinner character struct
 /// @param Enemy Enemy character struct
 /// @param EvadeResult Check when an evade fails to render it in another function
-void DefenceAgainstAtk(Characters *Sinner, Characters *Enemy, u8 *EvadeResult)
+void defenceAgainstAtk(Characters *Sinner, Characters *Enemy, u8 *EvadeResult)
 {
     switch(Sinner->Skill[3].coins) //defence type of fourth column fir each sinner
     {
         case Guard:
-        Sinner->Health -= GuardDmgDealt(Sinner, Enemy);
+        Sinner->Health -= guardDmgDealt(Sinner, Enemy);
         break;
 
         case ClashGuard:
-        Sinner->Health -= (float)( (1.0f - (float)(ClashValue(Sinner->Skill[3].Skillbase, 1, Sinner->Skill[3].SkillcoinPow, Sinner->Sanity) * 0.01)) * Damagedealt(Enemy, 0) ); //reduce dmg by a percentage
+        Sinner->Health -= (float)( (1.0f - (float)(clashValue(Sinner->Skill[3].Skillbase, 1, Sinner->Skill[3].SkillcoinPow, Sinner->Sanity) * 0.01)) * damagedealt(Enemy, 0) ); //reduce dmg by a percentage
         break;
 
         case Evade:
-        *EvadeResult = EvadeDmg(Sinner, Enemy);
+        *EvadeResult = evadeDmg(Sinner, Enemy);
         break;
 
         default: //defence skill type higher than 2, must be a reuglar counter

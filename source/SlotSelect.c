@@ -26,7 +26,7 @@ enum slot
 /// @param AtkOrder Sinner skills and which slot they are targeting
 /// @param EnSklOrder Enemy skills and which slot they are targeting
 /// @param SkillPosInfo Checks the info of the sinner skills and where they are targeting and if they will clash and why, within the character struct
-void DetermineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], Characters *Sinners)
+void determineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], Characters *Sinners)
 {
     for(int Slot = 0; Slot < 5; Slot++)
     {
@@ -64,7 +64,7 @@ void DetermineClashAtkType(u8 AtkOrder[][2], u8 EnSklOrder[][2], Characters *Sin
 /// @param TOUCHy y position that the touchscreen was pressed at
 /// @param CurrSinTOChooseSkill Sinner slot that is undergoing slot direction
 /// @return Sinner skill that will be directed to an enemy skill
-u8 BeginSinSelect(u32 TOUCHx, u32 TOUCHy, u16 CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec)
+u8 beginSinSelect(u32 TOUCHx, u32 TOUCHy, u16 CurrSinTOChooseSkill, bool *SkillTargetingLocked, bool *StartSelec)
 {
     if(*SkillTargetingLocked) return CurrSinTOChooseSkill;
         /*return current skill index that the useer is choosing to clash a skill with;
@@ -106,7 +106,7 @@ u8 BeginSinSelect(u32 TOUCHx, u32 TOUCHy, u16 CurrSinTOChooseSkill, bool *SkillT
 /// @param TOUCHx x position that the touchscreen was pressed at
 /// @param TOUCHy y position that the touchscreen was pressed at
 /// @return Enemy skill slot that the sinner skill is targeting
-u8 CursorToEN_Skill(u32 TOUCHx, u32 TOUCHy)
+u8 cursorToEN_Skill(u32 TOUCHx, u32 TOUCHy)
 {
     // x & y are assuming that the hidtouch function are based on pixel coordinates
     if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA && TOUCHy <= padding && TOUCHy >= SLOTTOUCHBOXAREA + padding) return 0; //slot 1
@@ -121,7 +121,7 @@ u8 CursorToEN_Skill(u32 TOUCHx, u32 TOUCHy)
 /// @param TOUCHx x position that the touchscreen was pressed at
 /// @param TOUCHy y position that the touchscreen was pressed at
 /// @param Sinner Sinner Clashparam to check if the defensive skill should be used
-void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, Characters *Sinner)
+void toggleDefSkill(u32 TOUCHx, u32 TOUCHy, Characters *Sinner)
 {
     //toggles the bool value that checks if a sinner is using a defence skill
     if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) Sinner[0].SlotParams.UseDefence = !Sinner[0].SlotParams.UseDefence;
@@ -135,7 +135,7 @@ void ToggleDefSkill(u32 TOUCHx, u32 TOUCHy, Characters *Sinner)
 /// @param TOUCHx x position that the touchscreen was pressed at
 /// @param TOUCHy y position that the touchscreen was pressed at
 /// @return Enables the use of a defensive skill
-bool ToggleDefenceCheck(u32 TOUCHx, u32 TOUCHy)
+bool toggleDefenceCheck(u32 TOUCHx, u32 TOUCHy)
 {
     // x & y are assuming that the hidtouch function are based on pixel coordinates
     if(TOUCHx <= LOWERxSLOTPOS(SlotOne) && TOUCHx >= LOWERxSLOTPOS(SlotOne) + SLOTTOUCHBOXAREA  && TOUCHy <= LOWERySCREEN - (SLOTTOUCHBOXAREA + padding) && TOUCHy >= LOWERySCREEN - padding) return true; //slot 1

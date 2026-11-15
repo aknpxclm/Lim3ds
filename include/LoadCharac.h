@@ -4,11 +4,11 @@
 #ifndef LOADCHARAC_H_
 #define LOADCHARAC_H_
 
-char *AllocPathBuf();
-void CharIdPath(u16 SinId, char *Path);
-SkillInfo *SkillInfoBuf();
-void LoadSinInfo(SkillInfo *Sinner, char *Path);
-void PassInSkillInfo(SkillInfo *Sinner, SkillInfo *SkillBuf);
-void FreeSkillFileInfo(char *Path, SkillInfo *SkillBuf);
+char *allocPathBuf();
+void charIdPath(u16 SinId, char *Path);
+SkillInfo *skillInfoBuf();
+void loadSinInfo(SkillInfo *Sinner, char *Path);
+void passInSkillInfo(SkillInfo *Sinner, SkillInfo *SkillBuf);
+void freeSkillFileInfo(char *Path, SkillInfo *SkillBuf);
 
 #endif
