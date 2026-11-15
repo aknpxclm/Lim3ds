@@ -4,6 +4,8 @@
 #include "Skill.h"
 #include "Sinner_Enemy_defin.h"
 
+#define DEFENCESKILL 3U
+
 /// @brief Generate a random skill value to compare and clash with
 /// @param base Skill base number
 /// @param coins Total coins a skill has
@@ -158,12 +160,16 @@ u8 checkAllSlotsAreUsed(u8 AttackOrder[][2])
     return 0;
 }
 
-void loadSkill()
+void loadSkill(Characters *charac, u8 skillRank)
 {
-
+    charac->coins = charac->Skill[skillRank].coins;
+	charac->Skillbase = charac->Skill[skillRank].Skillbase;
+	charac->SkillcoinPow = charac->Skill[skillRank].SkillcoinPow;
 }
 
-void loadDefenceSkill()
+void loadDefenceSkill(Characters *charac)
 {
-    
+    charac->coins = charac->Skill[DEFENCESKILL].coins; //defence type
+	charac->Skillbase = charac->Skill[DEFENCESKILL].Skillbase;
+	charac->SkillcoinPow = charac->Skill[DEFENCESKILL].SkillcoinPow;
 }

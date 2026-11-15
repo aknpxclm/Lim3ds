@@ -1,7 +1,11 @@
 .vscode/
 build/
-romfs/gfx
 gfx/
+romfs/gfx/
+
+compile_commands.json
+
+.cache/
 
 *.d
 

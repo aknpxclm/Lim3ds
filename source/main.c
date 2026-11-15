@@ -14,7 +14,6 @@
 #include "CombatRen.h"
 
 #define NOTSELECTED 9U
-#define DEFENCESKILL 3U
 
 void ExitApp()
 {
@@ -261,25 +260,18 @@ switch(MenuPosition){ // In game start
 		case Combat: // Turn Running loop -> Clashing
 		if(Sinner[CurrentSinner].SlotParams.UseDefence == true)
 		{
-			Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Skill[DEFENCESKILL].coins; //defence type
-			Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].Skill[DEFENCESKILL].Skillbase;
-			Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].Skill[DEFENCESKILL].SkillcoinPow;
-			Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].coins;
-			Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].Skillbase;
-			Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].SkillcoinPow;
+			loadDefenceSkill(&Sinner[CurrentSinner]);
+			loadSkill(&Enemy[CurrentSinner], EnSkillPattern[CurrentSinner]);
 			defenceAgainstAtk(&Sinner[CurrentSinner], &Enemy[CurrentSinner], &ClashNumResult);
 			InCombatOrGFX = CombatGFX;
 			break;
 		}
 		else
 		{
-			Sinner[CurrentSinner].coins = Sinner[CurrentSinner].Skill[AttackOrder[CurrentSinner][1]].coins;
-			Sinner[CurrentSinner].Skillbase = Sinner[CurrentSinner].Skill[AttackOrder[CurrentSinner][1]].Skillbase;
-			Sinner[CurrentSinner].SkillcoinPow = Sinner[CurrentSinner].Skill[AttackOrder[CurrentSinner][1]].SkillcoinPow;
-			Enemy[CurrentSinner].coins = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].coins;
-			Enemy[CurrentSinner].Skillbase = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].Skillbase;
-			Enemy[CurrentSinner].SkillcoinPow = Enemy[CurrentSinner].Skill[EnSkillPattern[CurrentSinner]].SkillcoinPow;
+			loadSkill(&Sinner[CurrentSinner], AttackOrder[CurrentSinner][1]);
+			loadSkill(&Enemy[CurrentSinner], EnSkillPattern[CurrentSinner]);
 
+			//This clash system may be redone to support gfx when clashing (not the parameters)
 			if(Sinner[CurrentSinner].SlotParams.IsClashing == true && Sinner[CurrentSinner].SlotParams.IsUnclashed == false)
 			{ //Enemy and sinner clash skills, returns the amount of clashes between the skills
 				if(BossCharInit) Clashes = clashingAtk(&Sinner[CurrentSinner], &Enemy[Sinner[CurrentSinner].SlotParams.SkillClashing], &Enemy[0].Health, &Enemy[0].Sanity);
