@@ -9,16 +9,15 @@
 #include "Text.h"
 
 #define WordWrapLen 500.0f
+#define TotalDialogueLines 6
 
 static C2D_TextBuf dynamBuf;
-static C2D_TextBuf logdiabuf;
 
 /// @brief Creates a text buffer
 void createTexBuf()
 {
     //Allocate memory for the buffer
     dynamBuf = C2D_TextBufNew(4096);
-    logdiabuf = C2D_TextBufNew(1024);
 }
 
 /// @brief Renders the sinner health and sanity to the bottom screen
@@ -142,7 +141,7 @@ size_t dialogueManager(u16 *Line, char Dialogue[])
 /// @param Dialogue Dialogue text to render
 void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTime, char Dialogue[])
 {
-    C2D_TextBufClear(dynamBuf);
+    
     static u16 charsToprint = 0;
     C2D_Text DiaTex;
     char DialogueBuff[512];
@@ -165,21 +164,21 @@ void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTim
     {
         if(charsToprint == String)
         {
-            memset(Dialogue, 0, 256); //256 - size of dialogue buffer
             charsToprint = 0;
             String = 0;
-            *Line += 1;
+            if(*Line < TotalDialogueLines) *Line += 1;
         }
         else
         {
             charsToprint = String;
         }
     }
+    C2D_TextBufClear(dynamBuf);
 }
 
+/*
 void dialogueLog(u16 *Line)
 {
-    C2D_TextBufClear(logdiabuf);
     FILE *log;
     C2D_Text textlog;
 
@@ -227,12 +226,13 @@ void dialogueLog(u16 *Line)
             break;
         }
     }
-    C2D_TextParse(&textlog, logdiabuf, mainbuf);
+    C2D_TextParse(&textlog, dynamBuf, mainbuf);
     C2D_TextOptimize(&textlog);
-    C2D_DrawText(&textlog, C2D_WordWrap, 5.0f, 5.0f, 1.0f, 0.65f, 0.65f, 300.0f);
+    C2D_DrawText(&textlog, C2D_WordWrap, 5.0f, 5.0f, 1.0f, 0.6f, 0.6f, 300.0f);
+    C2D_TextBufClear(dynamBuf);
     fclose(log);
     log = NULL;
-}
+}*/
 
 /// @brief Flags the first error found to be rendered
 /// @param Flags Bit flag store

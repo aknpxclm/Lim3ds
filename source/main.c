@@ -328,7 +328,6 @@ switch(MenuPosition){ // In game start
 	C2D_SceneBegin(top);
 	textSceneBegin(kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
 	C2D_SceneBegin(bottom);
-	dialogueLog(&DialogueLine);
 	break;
 }
 	C3D_FrameEnd(0);
