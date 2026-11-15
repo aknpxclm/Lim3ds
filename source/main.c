@@ -302,7 +302,6 @@ switch(MenuPosition){ // In game start
 	enemyTex(&BossCharInit, Enemy);
 	turnStartErrResponce(&Flag_t, &Time_T[TextScroll]);
 	
-	
 	if(Enemy[4].Health < 0)
 	{
 		MenuPosition = MainMen;
@@ -329,6 +328,7 @@ switch(MenuPosition){ // In game start
 	C2D_SceneBegin(top);
 	textSceneBegin(kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
 	C2D_SceneBegin(bottom);
+	dialogueLog(&DialogueLine);
 	break;
 }
 	C3D_FrameEnd(0);

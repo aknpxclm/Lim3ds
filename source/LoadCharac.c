@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <time.h>
 #include "Sinner_Enemy_defin.h"
 
 #define BinDirLen 16 // "romfs:/LimChars/" excluding null terminator
@@ -71,6 +72,7 @@ void loadSinInfo(SkillInfo *Sinners_Skills, char *Path)
     fread(Sinners_Skills, sizeof(SkillInfo), Array_Column_Len, SinBin); //copy skill numbers for each rank 1 -> 3, and the defence skill from a .bin file
 
     fclose(SinBin);
+    SinBin = NULL;
 }
 
 /// @brief Copy skill info onto a Sinner SkillInfo struct from an Id

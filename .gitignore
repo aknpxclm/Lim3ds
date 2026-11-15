@@ -2,6 +2,7 @@
 build/
 gfx/
 romfs/gfx/
+romfs/Dialogue/
 
 compile_commands.json
 

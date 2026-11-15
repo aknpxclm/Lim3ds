@@ -1,18 +1,24 @@
 #include <3ds.h>
 #include <citro2d.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 #include "Sinner_Enemy_defin.h"
+#include "c2d/text.h"
 #include "Text.h"
 
 #define WordWrapLen 500.0f
 
 static C2D_TextBuf dynamBuf;
-
+static C2D_TextBuf logdiabuf;
 
 /// @brief Creates a text buffer
 void createTexBuf()
 {
     //Allocate memory for the buffer
     dynamBuf = C2D_TextBufNew(4096);
+    logdiabuf = C2D_TextBufNew(1024);
 }
 
 /// @brief Renders the sinner health and sanity to the bottom screen
@@ -101,7 +107,7 @@ void lobbyScrollingText(u8 MenuPos, u8 *MainSubPos, TimeRecorder *timeT)
         case MainMen:
 
         if(CharsPrinted <= strlen(MessageLobbyInfo[*MainSubPos])) CharsPrinted += 1;
-        snprintf(LobbyBuf, CharsPrinted, MessageLobbyInfo[*MainSubPos]);
+        snprintf(LobbyBuf, CharsPrinted, "%s", MessageLobbyInfo[*MainSubPos]);
         C2D_TextParse(&Scrollingtext, dynamBuf, LobbyBuf);
         C2D_TextOptimize(&Scrollingtext);
 
@@ -124,6 +130,7 @@ size_t dialogueManager(u16 *Line, char Dialogue[])
     TextLine = fopen("romfs:/Dialogue/Tutorial.txt", "r");
     for(u16 i = 0; i < *Line + 1; i++) fgets(Dialogue, 256, TextLine);
     fclose(TextLine);
+    TextLine = NULL;
     return strlen(Dialogue);
 }
 
@@ -143,7 +150,7 @@ void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTim
     ScrollTime->CurrentTimeMs = osGetTime();
     ScrollTime->ElapsedTimeMs += (ScrollTime->CurrentTimeMs - ScrollTime->InitialTimeMs);
 
-    snprintf(DialogueBuff, charsToprint, Dialogue);
+    snprintf(DialogueBuff, charsToprint, "%s", Dialogue);
     C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
     C2D_TextOptimize(&DiaTex);
 
@@ -161,13 +168,70 @@ void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTim
             memset(Dialogue, 0, 256); //256 - size of dialogue buffer
             charsToprint = 0;
             String = 0;
-            *Line += 1; 
+            *Line += 1;
         }
         else
         {
             charsToprint = String;
         }
     }
+}
+
+void dialogueLog(u16 *Line)
+{
+    C2D_TextBufClear(logdiabuf);
+    FILE *log;
+    C2D_Text textlog;
+
+    int line = 0;
+    line = (int)*Line;
+
+    u8 minlines = 0;
+
+    char logbuf[4][128];
+    char buf[128];
+    char mainbuf[512];
+    log = fopen("romfs:/Dialogue/Tutorial.txt", "r");
+    if(line - 4 >= 0)
+    {
+        for(u8 i = 0; i < *Line - 4; i++)
+        {
+            fgets(buf, sizeof(buf), log); //move to 3 places before the current line
+        }
+        for(u8 j = 0; j < 4; j++)
+        {
+            fgets(logbuf[j], sizeof(logbuf[0]), log); //copy the last 3 lines and current one
+        }
+        
+        snprintf(mainbuf, sizeof(mainbuf), "%s\n%s\n%s\n%s", logbuf[0], logbuf[1], logbuf[2], logbuf[3]);
+    }
+    else
+    {
+        for(u8 k = 0; k < *Line; k++)
+        {
+            fgets(logbuf[k], sizeof(logbuf[0]), log);
+            minlines = k + 1;
+        } 
+        switch(minlines)
+        {
+            case 1:
+            snprintf(mainbuf, sizeof(mainbuf), "%s", logbuf[0]);
+            break;
+
+            case 2:
+            snprintf(mainbuf, sizeof(mainbuf), "%s\n%s", logbuf[0], logbuf[1]);
+            break;
+
+            case 3:
+            snprintf(mainbuf, sizeof(mainbuf), "%s\n%s\n%s", logbuf[0], logbuf[1], logbuf[2]);
+            break;
+        }
+    }
+    C2D_TextParse(&textlog, logdiabuf, mainbuf);
+    C2D_TextOptimize(&textlog);
+    C2D_DrawText(&textlog, C2D_WordWrap, 5.0f, 5.0f, 1.0f, 0.65f, 0.65f, 300.0f);
+    fclose(log);
+    log = NULL;
 }
 
 /// @brief Flags the first error found to be rendered
@@ -195,7 +259,7 @@ u8 raiseTurnstartErrorFlag(u8 *Flags)
 /// @param timeT Records time
 void turnStartErrResponce(u8 *Flag, TimeRecorder *timeT)
 {
-    char Text[2][64] = {"Currently preparing combat please try again", "Not all skills are selected, please select an unused skill"};
+    const char Text[2][64] = {"Currently preparing combat please try again", "Not all skills are selected, please select an unused skill"};
 
     timeT->CurrentTimeMs = osGetTime();
     timeT->ElapsedTimeMs += (timeT->CurrentTimeMs - timeT->InitialTimeMs);
