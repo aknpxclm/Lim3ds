@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 #include "Sinner_Enemy_defin.h"
 #include "c2d/text.h"
@@ -125,7 +126,7 @@ void lobbyScrollingText(u8 MenuPos, u8 *MainSubPos, TimeRecorder *timeT)
 size_t dialogueManager(u16 *Line, char Dialogue[])
 {
     FILE *TextLine;
-
+    
     TextLine = fopen("romfs:/Dialogue/Tutorial.txt", "r");
     for(u16 i = 0; i < *Line + 1; i++) fgets(Dialogue, 256, TextLine);
     fclose(TextLine);
@@ -139,9 +140,9 @@ size_t dialogueManager(u16 *Line, char Dialogue[])
 /// @param String Length of the dialogue string read from the dialogue file in the manager
 /// @param ScrollTime Records the time for when to display more characters of the line
 /// @param Dialogue Dialogue text to render
-void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTime, char Dialogue[])
+void textSceneBegin(u32 kUp, u16 *Line, size_t String, TimeRecorder *ScrollTime, char Dialogue[])
 {
-    
+    C2D_TextBufClear(dynamBuf);
     static u16 charsToprint = 0;
     C2D_Text DiaTex;
     char DialogueBuff[512];
@@ -160,79 +161,20 @@ void textSceneBegin(u32 kDown, u16 *Line, size_t String, TimeRecorder *ScrollTim
     }
     C2D_DrawText(&DiaTex, C2D_WordWrap, 10.0f, 180.0f, 0.5f, 0.65f, 0.65f, WordWrapLen);
 
-    if(kDown & KEY_B)
+    if(kUp & KEY_B)
     {
         if(charsToprint == String)
         {
-            charsToprint = 0;
-            String = 0;
-            if(*Line < TotalDialogueLines) *Line += 1;
+            if(*Line < TotalDialogueLines)
+            {
+                charsToprint = 0;
+                String = 0;
+                *Line += 1;
+            }
         }
-        else
-        {
-            charsToprint = String;
-        }
+        else charsToprint = String;
     }
-    C2D_TextBufClear(dynamBuf);
 }
-
-/*
-void dialogueLog(u16 *Line)
-{
-    FILE *log;
-    C2D_Text textlog;
-
-    int line = 0;
-    line = (int)*Line;
-
-    u8 minlines = 0;
-
-    char logbuf[4][128];
-    char buf[128];
-    char mainbuf[512];
-    log = fopen("romfs:/Dialogue/Tutorial.txt", "r");
-    if(line - 4 >= 0)
-    {
-        for(u8 i = 0; i < *Line - 4; i++)
-        {
-            fgets(buf, sizeof(buf), log); //move to 3 places before the current line
-        }
-        for(u8 j = 0; j < 4; j++)
-        {
-            fgets(logbuf[j], sizeof(logbuf[0]), log); //copy the last 3 lines and current one
-        }
-        
-        snprintf(mainbuf, sizeof(mainbuf), "%s\n%s\n%s\n%s", logbuf[0], logbuf[1], logbuf[2], logbuf[3]);
-    }
-    else
-    {
-        for(u8 k = 0; k < *Line; k++)
-        {
-            fgets(logbuf[k], sizeof(logbuf[0]), log);
-            minlines = k + 1;
-        } 
-        switch(minlines)
-        {
-            case 1:
-            snprintf(mainbuf, sizeof(mainbuf), "%s", logbuf[0]);
-            break;
-
-            case 2:
-            snprintf(mainbuf, sizeof(mainbuf), "%s\n%s", logbuf[0], logbuf[1]);
-            break;
-
-            case 3:
-            snprintf(mainbuf, sizeof(mainbuf), "%s\n%s\n%s", logbuf[0], logbuf[1], logbuf[2]);
-            break;
-        }
-    }
-    C2D_TextParse(&textlog, dynamBuf, mainbuf);
-    C2D_TextOptimize(&textlog);
-    C2D_DrawText(&textlog, C2D_WordWrap, 5.0f, 5.0f, 1.0f, 0.6f, 0.6f, 300.0f);
-    C2D_TextBufClear(dynamBuf);
-    fclose(log);
-    log = NULL;
-}*/
 
 /// @brief Flags the first error found to be rendered
 /// @param Flags Bit flag store

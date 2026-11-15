@@ -2,6 +2,7 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <sys/unistd.h>
 
 #include "Sinner_Enemy_defin.h"
 #include "UserDeny.h"
@@ -168,7 +169,7 @@ while(aptMainLoop()){
 	u32 kUp = hidKeysUp();
 	touchPosition touch;
 	hidTouchRead(&touch);
-	if(kDown & KEY_START) break;
+	if(kHeld & KEY_START) break;
 
 	C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 
@@ -325,9 +326,9 @@ switch(MenuPosition){ // In game start
 	C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
 	C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
 	DialogueLen = dialogueManager(&DialogueLine , DialogueBuff);
-	C2D_SceneBegin(top);
-	textSceneBegin(kDown, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
 	C2D_SceneBegin(bottom);
+	C2D_SceneBegin(top);
+	textSceneBegin(kUp, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
 	break;
 }
 	C3D_FrameEnd(0);
