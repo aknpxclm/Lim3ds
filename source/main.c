@@ -2,7 +2,6 @@
 #include <citro2d.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <sys/unistd.h>
 
 #include "Sinner_Enemy_defin.h"
 #include "UserDeny.h"
