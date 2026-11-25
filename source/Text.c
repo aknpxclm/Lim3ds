@@ -3,14 +3,9 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <time.h>
 #include "Sinner_Enemy_defin.h"
 #include "c2d/text.h"
 #include "Text.h"
-
-#define WordWrapLen 500.0f
-#define TotalDialogueLines 6
 
 static C2D_TextBuf dynamBuf;
 
@@ -18,7 +13,7 @@ static C2D_TextBuf dynamBuf;
 void createTexBuf()
 {
     //Allocate memory for the buffer
-    dynamBuf = C2D_TextBufNew(4096);
+    dynamBuf = C2D_TextBufNew(2048);
 }
 
 /// @brief Renders the sinner health and sanity to the bottom screen
@@ -117,62 +112,6 @@ void lobbyScrollingText(u8 MenuPos, u8 *MainSubPos, TimeRecorder *timeT)
         }
         C2D_DrawText(&Scrollingtext, C2D_AlignLeft | C2D_WithColor, 5.0f, 220.0f, 0.5f, 0.5f, 0.5f, C2D_Color32f(1.0f, 1.0f, 1.0f, 1.0f));
         break;
-    }
-}
-
-/// @brief Manages which line of dialogue to load from the file and format for rendering
-/// @param Line Line of dialogue to load
-/// @param Dialogue Buffer for the dialogue text
-size_t dialogueManager(u16 *Line, char Dialogue[])
-{
-    FILE *TextLine;
-    
-    TextLine = fopen("romfs:/Dialogue/Tutorial.txt", "r");
-    for(u16 i = 0; i < *Line + 1; i++) fgets(Dialogue, 256, TextLine);
-    fclose(TextLine);
-    TextLine = NULL;
-    return strlen(Dialogue);
-}
-
-/// @brief Draws dialogue to the screen
-/// @param kDown Keys down this frame
-/// @param Line Dialogue line to draw
-/// @param String Length of the dialogue string read from the dialogue file in the manager
-/// @param ScrollTime Records the time for when to display more characters of the line
-/// @param Dialogue Dialogue text to render
-void textSceneBegin(u32 kUp, u16 *Line, size_t String, TimeRecorder *ScrollTime, char Dialogue[])
-{
-    C2D_TextBufClear(dynamBuf);
-    static u16 charsToprint = 0;
-    C2D_Text DiaTex;
-    char DialogueBuff[512];
-
-    ScrollTime->CurrentTimeMs = osGetTime();
-    ScrollTime->ElapsedTimeMs += (ScrollTime->CurrentTimeMs - ScrollTime->InitialTimeMs);
-
-    snprintf(DialogueBuff, charsToprint, "%s", Dialogue);
-    C2D_TextParse(&DiaTex, dynamBuf, DialogueBuff);
-    C2D_TextOptimize(&DiaTex);
-
-    if(ScrollTime->ElapsedTimeMs >= 60) //check if  x ms has passed
-    {
-        if(charsToprint < String) charsToprint += 1;
-        ScrollTime->InitialTimeMs = osGetTime();
-    }
-    C2D_DrawText(&DiaTex, C2D_WordWrap, 10.0f, 180.0f, 0.5f, 0.65f, 0.65f, WordWrapLen);
-
-    if(kUp & KEY_B)
-    {
-        if(charsToprint == String)
-        {
-            if(*Line < TotalDialogueLines)
-            {
-                charsToprint = 0;
-                String = 0;
-                *Line += 1;
-            }
-        }
-        else charsToprint = String;
     }
 }
 

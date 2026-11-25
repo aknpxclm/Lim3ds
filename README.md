@@ -23,6 +23,8 @@ P.S -
 
 Thanks to the Libctru team for creating and maintaining [Libctru](https://github.com/devkitPro/libctru) and [Devkitpro](https://devkitpro.org/) for maintaining the devkitarm compliers.
 
+Now uses [cJSON](https://github.com/davegamble/cjson) as of 18/11/26 under the MIT licence.
+
 ## Notices
 
 - All assets used in the application belong to [Project Moon](https://projectmoon.studio) and have been modified to be compatible with the 3DS' smaller resolution (and to save vram).

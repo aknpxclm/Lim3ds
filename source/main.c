@@ -1,8 +1,6 @@
 #include <3ds.h>
 #include <citro2d.h>
-#include <stdio.h>
 #include <stdbool.h>
-#include <sys/unistd.h>
 
 #include "Sinner_Enemy_defin.h"
 #include "UserDeny.h"
@@ -13,6 +11,7 @@
 #include "LobbyRend.h"
 #include "Text.h"
 #include "CombatRen.h"
+#include "jsonDialogue.h"
 
 #define NOTSELECTED 9U
 
@@ -36,6 +35,10 @@ C2D_Prepare();
 
 initMain_M();
 createTexBuf();
+
+char linebuf[1024];
+
+initJSON(linebuf);
 
 Characters Sinner[5];
 Characters Enemy[5];
@@ -114,8 +117,6 @@ Enemy[4] = (Characters) {
 
 float SinStartPos[5][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
 
-char DialogueBuff[256];
-
 u8 AttackOrder[5][2] = {{0/*Skill rank to load and clash*/, NOTSELECTED/* = 9*/}, {0, 9}, {0, 9}, {0, 9}, {0, 9}}; 
 u8 EnSkillOrder[5][2] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}}; //skill number/order for main boss, second colomn is used to find the index for AtkOrder
 u8 SkillOptions[5][2] = {{0, 0},{0, 0},{0, 0},{0, 0},{0, 0}};     //skill numbers for each skill slot for any amount for sinners
@@ -125,15 +126,13 @@ u8 EnSkillPattern[5] = {2, 2, 1, 1, 1};
 
 TimeRecorder Time_T[3] = {0};
 
-size_t DialogueLen = 0;
-
 u32 TurnCount = 1;
+int linecount = 0;
 
 u16 CurrentSinner = 0;
 u16 CurrSinTOChooseSkill = NOTSELECTED;
 u16 EnemySlot = NOTSELECTED;
 u16 Clashes = 0;
-u16 DialogueLine = 0;
 
 u8 ClashNumResult = 0; //to see which coin the evade failed at
 u8 MenuPosition = 0;
@@ -325,10 +324,9 @@ switch(MenuPosition){ // In game start
 	case Dialogue_eg:
 	C2D_TargetClear(top, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
 	C2D_TargetClear(bottom, C2D_Color32(0xFF, 0xD8, 0xB0, 0x68));
-	DialogueLen = dialogueManager(&DialogueLine , DialogueBuff);
 	C2D_SceneBegin(bottom);
 	C2D_SceneBegin(top);
-	textSceneBegin(kUp, &DialogueLine, DialogueLen, &Time_T[TextScroll], DialogueBuff);
+	drawDialogue(kUp, &Time_T[TextScroll], &linecount, linebuf);
 	break;
 }
 	C3D_FrameEnd(0);
