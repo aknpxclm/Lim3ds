@@ -2,6 +2,8 @@
 .SUFFIXES:
 #---------------------------------------------------------------------------------
 
+#this randomly broke???
+
 ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
